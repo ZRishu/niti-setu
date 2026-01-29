@@ -2,7 +2,7 @@ const { version } = require('mongoose');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
-    defination: {
+    definition: {
         openapi: '3.0.0',
         info: {
             title: 'Niti-Setu API',
@@ -17,7 +17,7 @@ const options = {
             },
         ],
     },
-    api: ['./routes/*.js', './models/*.js']
+    apis: ['./routes/*.js', './models/*.js']
 };
 
 module.exports = swaggerJsdoc(options)
