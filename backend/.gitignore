@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Environment variables (NEVER commit this!)
+# Environment variables 
 .env
 
 # Logs
