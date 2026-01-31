@@ -1,5 +1,5 @@
 import fs from 'fs';
-import PdfParse from 'pdf-parse';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
 import { splitTextIntoChunks } from '../utils/aiOrchestrator.js';
 import { error } from 'console';
