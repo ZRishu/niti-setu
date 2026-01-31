@@ -2,8 +2,6 @@ import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
 import { splitTextIntoChunks } from '../utils/aiOrchestrator.js';
-import { error } from 'console';
-import { text } from 'stream/consumers';
 
 // response for ingesting scheme pdf
 export const ingestScheme = async (req, res) => {
@@ -12,10 +10,10 @@ export const ingestScheme = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Please upload a PDF file' });
     }
 
-    const { schemeName, benefits, benefitsValue } = req.body;
+    const { schemeName, benefitsType, benefitsValue } = req.body;
     // extracting text from pdf
     const dataBuffer = fs.readFileSync(req.file.path);
-    const data = await PdfParse(dataBuffer);
+    const data = await pdfParse(dataBuffer);
     const rawText = data.text;
 
     // prep chunks
@@ -50,6 +48,6 @@ export const ingestScheme = async (req, res) => {
     });
   } catch (err) {
     console.error('Error ingesting scheme:', err);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
