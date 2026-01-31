@@ -53,14 +53,6 @@ GEMINI_API_KEY=your_gemini_key_here
 NODE_ENV=development
 ```
 
-### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| PORT | Server port number | Yes |
-| MONGO_URI | MongoDB connection string | Yes |
-| GEMINI_API_KEY | Google Gemini API key | Yes |
-| NODE_ENV | Environment mode (development/production) | Yes |
 
 ## Running the Application
 
@@ -119,97 +111,6 @@ GET /api-docs
 
 Provides interactive Swagger UI interface for testing all endpoints.
 
-## Frontend Integration
-
-### Setting Up Axios
-
-Install Axios in your frontend project:
-
-```bash
-npm install axios
-```
-
-### Configuration
-
-Create an API configuration file (e.g., `src/api/config.js`):
-
-```javascript
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-export default api;
-```
-
-### Usage Examples
-
-**Health Check Request**
-
-```javascript
-import api from './api/config';
-
-const checkHealth = async () => {
-  try {
-    const response = await api.get('/');
-    console.log(response.data);
-  } catch (error) {
-    console.error('Error:', error.response?.data || error.message);
-  }
-};
-```
-
-**Fetching Data**
-
-```javascript
-const fetchSchemes = async () => {
-  try {
-    const response = await api.get('/api/schemes');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching schemes:', error);
-    throw error;
-  }
-};
-```
-
-**File Upload**
-
-```javascript
-const uploadPDF = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await api.post('/api/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    throw error;
-  }
-};
-```
-
-### CORS Configuration
-
-The backend has CORS enabled by default. For production environments, update the CORS configuration in `server.js`:
-
-```javascript
-app.use(cors({
-  origin: 'https://your-frontend-domain.com'
-}));
-```
-
 ## Project Structure
 
 ```
@@ -239,75 +140,6 @@ The Scheme model represents government schemes and policies with the following s
 - **text_chunks** - Processed text chunks for embeddings
 - **filters** - Metadata for state, gender, and caste-based filtering
 
-## Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm start` | Run server in production mode |
-| `npm run dev` | Run server with nodemon (auto-restart) |
-| `npm test` | Run test suite |
-
-## Dependencies
-
-### Core Dependencies
-
-- express - Web framework for Node.js
-- mongoose - MongoDB object modeling
-- cors - Cross-Origin Resource Sharing middleware
-- dotenv - Environment variable management
-- langchain - AI/LLM integration framework
-- @langchain/google-genai - Google Gemini AI integration
-- @langchain/community - LangChain community integrations
-- multer - File upload middleware
-- pdf-parse - PDF document parsing
-- swagger-jsdoc - Swagger documentation generator
-- swagger-ui-express - Swagger UI middleware
-
-### Development Dependencies
-
-- nodemon - Development server with auto-restart
-
-## Troubleshooting
-
-### MongoDB Connection Issues
-
-**Error:** Connection refused or timeout
-
-**Solution:** 
-
-1. Verify MongoDB connection string in `.env`
-2. Ensure IP address is whitelisted in MongoDB Atlas
-3. Check network connectivity
-
-### Port Already in Use
-
-**Error:** `EADDRINUSE: address already in use`
-
-**Solution:**
-
-1. Change PORT value in `.env`
-2. Kill existing process: `lsof -ti:5000 | xargs kill -9` (Mac/Linux) or use Task Manager (Windows)
-
-### Missing Environment Variables
-
-**Error:** Cannot read property of undefined
-
-**Solution:**
-
-1. Ensure `.env` file exists in backend directory
-2. Verify all required variables are defined
-3. Restart the server after updating `.env`
-
-### Gemini API Issues
-
-**Error:** Invalid API key or quota exceeded
-
-**Solution:**
-
-1. Verify GEMINI_API_KEY in `.env`
-2. Check API quota in Google Cloud Console
-3. Ensure billing is enabled for the project
-
 ## Contributing
 
 Contributions are welcome. Please follow these steps:
@@ -320,7 +152,7 @@ Contributions are welcome. Please follow these steps:
 
 ## License
 
-This project is licensed under the ISC License.
+This project is licensed under the MIT License.
 
 ## Support
 
