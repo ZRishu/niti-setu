@@ -19,7 +19,7 @@ app.use(express.json());
 
 // docs for routing using swagger-ui and ingesting pdf scheme route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-p.use('/api/v1/schemes', schemeRoutes);
+app.use('/api/v1/schemes', schemeRoutes);
 
 // route for test or heath check
 app.get("/", (req, res) => {
