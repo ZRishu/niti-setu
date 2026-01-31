@@ -11,22 +11,27 @@ const upload = multer({ dest: 'uploads/' });
  * /schemes/ingest:
  * post:
  * summary: Upload and process a Scheme PDF
- * consumes:
- * - multipart/form-data
- * parameters:
- * - in: formData
- * name: pdf
- * type: file
+ * tags: [Schemes]
+ * requestBody:
  * required: true
- * - in: formData
- * name: schemeName
+ * content:
+ * multipart/form-data:
+ * schema:
+ * type: object
+ * properties:
+ * pdf:
  * type: string
- * required: true
+ * format: binary
+ * schemeName:
+ * type: string
+ * benefitsValue:
+ * type: integer
  * responses:
  * 201:
  * description: Scheme processed successfully
+ * 500:
+ * description: Server error
  */
-
 router.post('/ingest', upload.single('pdf'), ingestScheme);
 
 export default router;
