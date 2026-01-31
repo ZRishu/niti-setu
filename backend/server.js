@@ -6,6 +6,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./config/swagger.js";
+import schemeRoutes from './routes/schemeRoutes.js';
 
 const app = express();
 
@@ -16,8 +17,9 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// docs for routing using swagger-ui
+// docs for routing using swagger-ui and ingesting pdf scheme route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+p.use('/api/v1/schemes', schemeRoutes);
 
 // route for test or heath check
 app.get("/", (req, res) => {
