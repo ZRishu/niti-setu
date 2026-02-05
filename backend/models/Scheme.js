@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const SchemeSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please add new Schema name"],
+      required: [true, 'Please add new Schema name'],
       unique: true,
       trim: true,
     },
@@ -13,8 +13,8 @@ const SchemeSchema = new mongoose.Schema(
     benefits: {
       type: {
         type: String,
-        enum: ["Financial", "Subsidy", "Insurance", "Service"],
-        default: "financial",
+        enum: ['Financial', 'Subsidy', 'Insurance', 'Service'],
+        default: 'financial',
       },
       max_value_inr: {
         type: Number,
@@ -24,25 +24,26 @@ const SchemeSchema = new mongoose.Schema(
     },
     // to enlist the docs
     required_documents: [String],
+    filters: {
+      state: [String],
+      gender: [String],
+      caste: [String],
+    },
 
     // for RAG and Embeddings
     original_pdf_url: String,
     text_chunks: [
       {
         content: String,
+        vector: [Number],
         page: Number,
         // embedding: [Number]
       },
     ],
 
     // filtering metadata and fast search
-    filters: {
-      state: [String],
-      gender: [String],
-      caste: [String],
-    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-export default mongoose.model("Scheme", SchemeSchema);
+export default mongoose.model('Scheme', SchemeSchema);
