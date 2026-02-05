@@ -12,7 +12,7 @@ export const splitTextIntoChunks = async (text) => {
   return await splitter.createDocuments([text]);
 };
 
-export const getEmbeddings = async (text) => {
+export const getEmbedding = async (text) => {
   const embeddings = new GoogleGenerativeAIEmbeddings({
     model: 'text-embedding-004',
     taskType: 'retrieval_document',
