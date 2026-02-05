@@ -14,7 +14,7 @@ const SchemeSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ['Financial', 'Subsidy', 'Insurance', 'Service'],
-        default: 'financial',
+        default: 'Financial',
       },
       max_value_inr: {
         type: Number,
