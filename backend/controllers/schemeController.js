@@ -1,7 +1,7 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
-import { splitTextIntoChunks } from '../utils/aiOrchestrator.js';
+import { getEmbedding, splitTextIntoChunks } from '../utils/aiOrchestrator.js';
 
 // response for ingesting scheme pdf
 export const ingestScheme = async (req, res) => {
@@ -19,9 +19,15 @@ export const ingestScheme = async (req, res) => {
     // prep chunks
     const docs = await splitTextIntoChunks(rawText);
 
-    const textChunks = docs.map((doc) => ({
+    console.log(`Generating embeddings for ${docs.length} chunks...`);
+    
+    const textChunks = await Promise.all(docs.map(async (doc) => {
+      const vector =  await getEmbedding(doc.pageContent);
+      return{
       content: doc.pageContent,
-      page: 1,
+      vector: vector,
+      page: 1
+      }
     }));
 
     //saving into mongodb
@@ -44,6 +50,7 @@ export const ingestScheme = async (req, res) => {
         id: scheme._id,
         name: scheme.name,
         chunks_processed: textChunks.length,
+        message: 'Scheme ingested and processed successfully and vectors generated.',
       },
     });
   } catch (err) {
