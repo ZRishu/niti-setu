@@ -20,15 +20,17 @@ export const ingestScheme = async (req, res) => {
     const docs = await splitTextIntoChunks(rawText);
 
     console.log(`Generating embeddings for ${docs.length} chunks...`);
-    
-    const textChunks = await Promise.all(docs.map(async (doc) => {
-      const vector =  await getEmbedding(doc.pageContent);
-      return{
-      content: doc.pageContent,
-      vector: vector,
-      page: 1
-      }
-    }));
+
+    const textChunks = await Promise.all(
+      docs.map(async (doc) => {
+        const vector = await getEmbedding(doc.pageContent);
+        return {
+          content: doc.pageContent,
+          vector: vector,
+          page: 1,
+        };
+      })
+    );
 
     //saving into mongodb
     const scheme = await Scheme.create({
@@ -58,3 +60,9 @@ export const ingestScheme = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+
+export const searchSchemes = async(req , res) => {
+  try {
+    const {query} = req.query;
+    
+}

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+//turn text into chunks
 export const splitTextIntoChunks = async (text) => {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
@@ -12,11 +13,17 @@ export const splitTextIntoChunks = async (text) => {
   return await splitter.createDocuments([text]);
 };
 
+//Get Vector for a single string
 export const getEmbedding = async (text) => {
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Google Generative AI API key is not set in environment variables.');
+  }
   const embeddings = new GoogleGenerativeAIEmbeddings({
     model: 'text-embedding-004',
     taskType: 'retrieval_document',
-    apiKey: process.env.GOOGLE_GENAI_API_KEY,
+    apiKey: apiKey,
   });
   return await embeddings.embedQuery(text);
 };
