@@ -2,6 +2,8 @@ import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
 import { getEmbedding, splitTextIntoChunks } from '../utils/aiOrchestrator.js';
+import { get } from 'http';
+import { count } from 'console';
 
 // response for ingesting scheme pdf
 export const ingestScheme = async (req, res) => {
@@ -64,5 +66,48 @@ export const ingestScheme = async (req, res) => {
 export const searchSchemes = async(req , res) => {
   try {
     const {query} = req.query;
-    
+
+    if(!query){
+      return res.status(400).json({success: false, error: 'Query parameter is required'});
+    }
+
+    console.log(`Searching for: "${query}"`);
+
+    // convert user Query to vector
+    const queryVector = await getEmbedding(query);
+
+    // Run vector search pipeline
+    const results = await Scheme.aggregate([
+      {
+        $vectorSearch: {
+          "index" : "vector_index",
+          "path": "text_chunks.vector",
+          "queryVector": queryVector,
+          "numCandidates": 50,
+          limit: 5,
+        }
+      },
+      {
+        $project: {
+          "_id": 1,
+          "name": 1,
+          "benefits": 1,
+          "score": { "$meta": "vectorSearchScore" },
+          "snippet": { "$arrayElemAt": ["$text_chunks.content", 0] },
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+
+
+  }
+  catch(err){
+    console.error('Error searching schemes:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 }
