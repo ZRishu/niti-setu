@@ -60,7 +60,7 @@ export const extractSchemeDetails = async (text) => {
 
     // cleaning response to ensure it's valid JSON
     const jsonString = response.replace(/```json|```/g, '').trim();
-    retunr JSON.parse(jsonString);
+    return JSON.parse(jsonString);
 
   } catch (error) {
     console.error("Scheme Details Extraction Error:", error);
