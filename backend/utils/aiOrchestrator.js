@@ -25,7 +25,7 @@ export const getEmbedding = async (text) => {
     }
 
     // 2. Select the Embedding Model
-    const model = genAI.getGenerativeModel({ model: "embedding-001" });
+    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
     // 3. Generate Embedding
     const result = await model.embedContent(text);
