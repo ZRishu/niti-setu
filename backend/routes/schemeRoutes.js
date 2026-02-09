@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { ingestScheme, searchSchemes } from '../controllers/schemeController.js';
+import { ingestScheme, searchSchemes, getAllSchemes } from '../controllers/schemeController.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -136,5 +136,56 @@ router.post('/ingest', upload.single('pdf'), ingestScheme);
  *         description: Server error
  */
 router.post('/search', searchSchemes);
+
+/**
+ * @swagger
+ * /schemes/debug:
+ *   get:
+ *     summary: Retrieve all schemes for debugging (Name & Filters only)
+ *     description: Returns a list of all ingested schemes with their names and extracted filters to verify data integrity.
+ *     tags:
+ *       - Schemes
+ *     responses:
+ *       200:
+ *         description: List of schemes with filters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "65d4f8a1e9b2a..."
+ *                   name:
+ *                     type: string
+ *                     example: "PM Awas Yojana"
+ *                   filters:
+ *                     type: object
+ *                     properties:
+ *                       state:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example:
+ *                           - Pan-India
+ *                       gender:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example:
+ *                           - All
+ *                       caste:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example:
+ *                           - General
+ *                           - OBC
+ *       500:
+ *         description: Server error
+ */
+router.get('/debug', getAllSchemes);
 
 export default router;

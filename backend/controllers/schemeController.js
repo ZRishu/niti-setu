@@ -98,14 +98,32 @@ export const searchSchemes = async (req, res) => {
       // State Filter: User's State OR "Pan-India" schemes
       if (userProfile.state) {
         conditions.push({
-          'filters.state': { $in: [userProfile.state, 'Pan-India'] },
+          "filters.state": { 
+            $in: [
+              userProfile.state,       
+              "Pan-India",            
+              "Pan India",             
+              "India",                 
+              "Central",               
+              "All India",             
+              "All"                               ] 
+          }
         });
       }
 
       // Gender Filter: User's Gender OR "All"
       if (userProfile.gender) {
-        conditions.push({
-          'filters.gender': { $in: [userProfile.gender, 'All'] },
+        conditions.push({ 
+          "filters.gender": { 
+            $in: [
+              userProfile.gender, 
+              "All", 
+              "Male",   
+              "Female",
+              "Women",
+              "Both"
+            ] 
+          } 
         });
       }
 
@@ -154,4 +172,10 @@ export const searchSchemes = async (req, res) => {
     console.error('Error searching schemes:', err);
     res.status(500).json({ success: false, error: err.message });
   }
+};
+
+export const getAllSchemes = async (req, res) => {
+  // Fetch just the name and the filters field to see what's happening
+  const schemes = await Scheme.find({}, { name: 1, filters: 1 }); 
+  res.json(schemes);
 };
