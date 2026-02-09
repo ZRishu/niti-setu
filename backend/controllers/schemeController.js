@@ -1,7 +1,7 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
-import { getEmbedding, splitTextIntoChunks } from '../utils/aiOrchestrator.js';
+import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails} from '../utils/aiOrchestrator.js';
 import { get } from 'http';
 import { count, log } from 'console';
 
@@ -40,6 +40,10 @@ export const ingestScheme = async (req, res) => {
       })
     );
 
+    const stateFilter = aiMetadata.state || "Pan-India";
+    const genderFilter = aiMetadata.gender || "All";
+    const casteFilter = aiMetadata.caste || "All";
+
     //saving into mongodb
     const scheme = await Scheme.create({
       name: schemeName,
@@ -49,9 +53,9 @@ export const ingestScheme = async (req, res) => {
         description: `Ingested from ${req.file.originalname}`,
       },
       filters: {
-        state: [aiMetadata.state],
-        gender: [aiMetadata.gender],
-        caste: [aiMetadata.caste],
+        state: [stateFilter],
+        gender: [genderFilter],
+        caste: [casteFilter],
       },  
       original_pdf_url: req.file.path,
       text_chunks: textChunks,
