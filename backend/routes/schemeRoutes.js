@@ -21,8 +21,8 @@ const upload = multer({ dest: 'uploads/' });
  *               type: string
  *             max_value_inr:
  *               type: integer
- *             description:
- *               type: string
+ *         description:
+ *           type: string
  */
 
 /**
@@ -64,18 +64,45 @@ router.post('/ingest', upload.single('pdf'), ingestScheme);
  * @swagger
  * /schemes/search:
  *   post:
- *     summary: Search for schemes using AI Semantic Search
- *     description: Finds relevant schemes based on natural language queries (e.g., "help for farmers")
+ *     summary: Search for schemes using AI Semantic Search with Filters
+ *     description: Finds relevant schemes based on natural language queries and user profile filters.
  *     tags:
  *       - Schemes
- *     parameters:
- *       - in: query
- *         name: query
- *         required: true
- *         schema:
- *           type: string
- *         description: The natural language search query
- *         example: Financial help for building a house
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - query
+ *             properties:
+ *               query:
+ *                 type: string
+ *                 description: The natural language search query
+ *                 example: Financial help for building a house
+ *               userProfile:
+ *                 type: object
+ *                 description: Optional user details for filtering
+ *                 properties:
+ *                   state:
+ *                     type: string
+ *                     example: Maharashtra
+ *                   gender:
+ *                     type: string
+ *                     enum:
+ *                       - Male
+ *                       - Female
+ *                       - Other
+ *                     example: Female
+ *                   caste:
+ *                     type: string
+ *                     enum:
+ *                       - General
+ *                       - OBC
+ *                       - SC
+ *                       - ST
+ *                     example: OBC
  *     responses:
  *       200:
  *         description: List of matching schemes
@@ -100,6 +127,9 @@ router.post('/ingest', upload.single('pdf'), ingestScheme);
  *                       score:
  *                         type: number
  *                         description: Similarity score (0 to 1)
+ *                       snippet:
+ *                         type: string
+ *                         description: Relevant text chunk from the scheme
  *       400:
  *         description: Missing query parameter
  *       500:
