@@ -1,90 +1,60 @@
-import fs from 'fs';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
-import Scheme from '../models/Scheme.js';
-import { getEmbedding, splitTextIntoChunks } from '../utils/aiOrchestrator.js';
-import { get } from 'http';
-import { count } from 'console';
-
-// response for ingesting scheme pdf
-export const ingestScheme = async (req, res) => {
+export const searchSchemes = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: 'Please upload a PDF file' });
+    const { query, userProfile } = req.body;
+
+    if (!query) {
+      return res.status(400).json({ success: false, error: 'Query parameter is required' });
     }
 
-    const { schemeName, benefitsType, benefitsValue } = req.body;
-    // extracting text from pdf
-    const dataBuffer = fs.readFileSync(req.file.path);
-    const data = await pdfParse(dataBuffer);
-    const rawText = data.text;
+    console.log(`🔍 Searching for: "${query}"`);
+    if (userProfile) console.log("👤 User Profile:", userProfile);
 
-    // prep chunks
-    const docs = await splitTextIntoChunks(rawText);
-
-    console.log(`Generating embeddings for ${docs.length} chunks...`);
-
-    const textChunks = await Promise.all(
-      docs.map(async (doc) => {
-        const vector = await getEmbedding(doc.pageContent);
-        return {
-          content: doc.pageContent,
-          vector: vector,
-          page: 1,
-        };
-      })
-    );
-
-    //saving into mongodb
-    const scheme = await Scheme.create({
-      name: schemeName,
-      benefits: {
-        type: benefitsType || 'Financial',
-        max_value_inr: benefitsValue || 0,
-        description: `Ingested from ${req.file.originalname}`,
-      },
-      original_pdf_url: req.file.path,
-      text_chunks: textChunks,
-    });
-
-    fs.unlinkSync(req.file.path); // delete the file after processing
-
-    res.status(201).json({
-      success: true,
-      data: {
-        id: scheme._id,
-        name: scheme.name,
-        chunks_processed: textChunks.length,
-        message: 'Scheme ingested and processed successfully and vectors generated.',
-      },
-    });
-  } catch (err) {
-    console.error('Error ingesting scheme:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
-
-export const searchSchemes = async(req , res) => {
-  try {
-    const {query} = req.query;
-
-    if(!query){
-      return res.status(400).json({success: false, error: 'Query parameter is required'});
-    }
-
-    console.log(`Searching for: "${query}"`);
-
-    // convert user Query to vector
+    // Convert User Query -> Vector
     const queryVector = await getEmbedding(query);
 
-    // Run vector search pipeline
+    //Build Dynamic Filter
+    let searchFilter = {};
+
+    if (userProfile) {
+      const conditions = [];
+
+      // State Filter: User's State OR "Pan-India" schemes
+      if (userProfile.state) {
+        conditions.push({
+          "filters.state": { $in: [userProfile.state, "Pan-India"] }
+        });
+      }
+
+      // Gender Filter: User's Gender OR "All"
+      if (userProfile.gender) {
+        conditions.push({
+          "filters.gender": { $in: [userProfile.gender, "All"] }
+        });
+      }
+
+      // Caste Filter: User's Caste OR "General" OR "All"
+      if (userProfile.caste) {
+        conditions.push({
+          "filters.caste": { $in: [userProfile.caste, "General", "All"] }
+        });
+      }
+
+      // Combine all conditions with "AND" logic
+      if (conditions.length > 0) {
+        searchFilter = { $and: conditions };
+      }
+    }
+
+    // Run Vector Search Pipeline
     const results = await Scheme.aggregate([
       {
         $vectorSearch: {
-          "index" : "vector_index",
+          "index": "vector_index",
           "path": "text_chunks.vector",
           "queryVector": queryVector,
           "numCandidates": 50,
-          limit: 5,
+          "limit": 5,
+          "filter": searchFilter 
         }
       },
       {
@@ -104,10 +74,8 @@ export const searchSchemes = async(req , res) => {
       data: results,
     });
 
-
-  }
-  catch(err){
+  } catch (err) {
     console.error('Error searching schemes:', err);
     res.status(500).json({ success: false, error: err.message });
   }
-}
+};
