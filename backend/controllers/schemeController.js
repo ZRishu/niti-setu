@@ -44,10 +44,15 @@ export const ingestScheme = async (req, res) => {
     const scheme = await Scheme.create({
       name: schemeName,
       benefits: {
-        type: benefitsType || 'Financial',
-        max_value_inr: benefitsValue || 0,
+        type: benefitsType || aiMetadata.benefits_type || 'Service',
+        max_value_inr: aiMetadata.max_value || benefitsValue || 0,
         description: `Ingested from ${req.file.originalname}`,
       },
+      filters: {
+        state: [aiMetadata.state],
+        gender: [aiMetadata.gender],
+        caste: [aiMetadata.caste],
+      },  
       original_pdf_url: req.file.path,
       text_chunks: textChunks,
     });
@@ -59,8 +64,9 @@ export const ingestScheme = async (req, res) => {
       data: {
         id: scheme._id,
         name: scheme.name,
+        extracted_metadata: aiMetadata,
         chunks_processed: textChunks.length,
-        message: 'Scheme ingested and processed successfully and vectors generated.',
+        message: 'Scheme ingested extracted metadata successfully and vectors generated.',
       },
     });
   } catch (err) {
