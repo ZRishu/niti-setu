@@ -1,7 +1,7 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
-import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails} from '../utils/aiOrchestrator.js';
+import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer} from '../utils/aiOrchestrator.js';
 import { get } from 'http';
 import { count, log } from 'console';
 
@@ -183,3 +183,81 @@ export const getAllSchemes = async (req, res) => {
   const schemes = await Scheme.find({}, { name: 1, filters: 1 }); 
   res.json(schemes);
 };
+
+// new Rag chat endpoint 
+export const chatWithScheme = async (req, res) => {
+  try{
+    const {query, schemeId} = req.body;
+
+    if(!query){
+      return res.status(400).json({success: false, error: "Query parameter is required"});
+    }
+
+  // resusing search logic to get relevant chunks based on query and schemeId
+    const queryVector = await getEmbedding(query);
+    let searchFilter = {}
+
+    if(userProfile) {
+      const conditions = [];
+      
+      if(userProfile.state){
+        conditions.push({"filters.state": {$in: [userProfile.state, "Pan-India", "Pan India", "India", "Central", "All India", "All"]}});
+      }
+      if(userProfile.gender){
+        conditions.push({"filters.gender": {$in: [userProfile.gender, "All", "Male", "Female", "Women", "Both"]}});
+      }
+      if(userProfile.caste){
+        conditions.push({'filters.caste': {$in: [userProfile.caste, 'General', 'All']}});
+      }
+      
+      if(conditions.length > 0){
+        searchFilter = {$and: conditions};
+      }
+    }
+
+    const searchResults = await Scheme.aggregate([
+      {
+        $vectorSearch: {
+          "index": "vector_index",
+          "path": "text_chunks.vector",
+          "queryVector": queryVector,
+          "numCandidates": 50,
+          "limit": 3, //only need top 3 for context
+          "filter": searchFilter 
+        }
+      },
+      {
+        $project: {
+          "snippet": { "$arrayElemAt": ["$text_chunks.content", 0] }
+        }
+      }
+    ]);
+
+    if (searchResults.length === 0) {
+      return res.json({ 
+        success: true, 
+        answer: "I couldn't find any specific schemes matching your criteria. Try broadening your search.",
+        sources: []
+      });
+    }
+
+    //Generate answer using gemini with retrieved chunks as context
+    const contextChunks = searchResults.map(doc => doc.snippet);
+    const answer = await generateAnswer(query, contextChunks);
+
+    res.json({
+      success: true,
+      answer: answer,
+      // return raw chunks too show on the "Sources" section of UI
+      sources: searchResults.map(s => s._id) 
+    });
+
+  } catch (err) {
+    console.error('Error in chatWithScheme:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+  
+
+
