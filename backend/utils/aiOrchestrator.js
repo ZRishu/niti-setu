@@ -41,7 +41,7 @@ export const getEmbedding = async (text) => {
 
 export const extractSchemeDetails = async (text) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `
     Analyze the following government scheme document text and extract structured data.
@@ -72,7 +72,7 @@ export const extractSchemeDetails = async (text) => {
 
 export const generateAnswer = async (userQuery, contextChunks) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `
       You are a helpful government scheme assistant. 
       Answer the user's question using ONLY the provided context information below.
