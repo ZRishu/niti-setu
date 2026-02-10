@@ -70,4 +70,27 @@ export const extractSchemeDetails = async (text) => {
   }
 };
 
+export const generateAnswer = async (userQuery, contextChunks) => {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = `
+      You are a helpful government scheme assistant. 
+      Answer the user's question using ONLY the provided context information below.
+      If the answer is not in the context, politely say you don't know.
+      Keep the answer concise, accurate, and easy to understand.
+
+      User Question: "${userQuery}"
+
+      Context Information:
+      ${contextChunks.join("\n\n")}
+    `;
+
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("Answer Generation Error:", error);
+    return "Sorry, I'm having trouble generating an answer right now. Please try again later.";
+  }
+};
+
     
