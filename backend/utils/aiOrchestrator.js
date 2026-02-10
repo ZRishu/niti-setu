@@ -52,7 +52,7 @@ export const extractSchemeDetails = async (text) => {
       - benefits_type: "Financial", "Subsidy", "Insurance", or "Service".
       - max_value: The maximum financial benefit in numbers (e.g., 50000). If not mentioned, return 0.
 
-      Text Snippet: "${text.substring(0, 3000)}" 
+      Text Snippet: "${text.substring(0,4000)}" 
     `;
 
     const result = await model.generateContent(prompt);
