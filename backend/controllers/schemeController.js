@@ -187,7 +187,7 @@ export const getAllSchemes = async (req, res) => {
 // new Rag chat endpoint 
 export const chatWithScheme = async (req, res) => {
   try{
-    const {query, schemeId} = req.body;
+    const {query, userProfilem} = req.body;
 
     if(!query){
       return res.status(400).json({success: false, error: "Query parameter is required"});
