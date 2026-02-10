@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { ingestScheme, searchSchemes, getAllSchemes } from '../controllers/schemeController.js';
+import { ingestScheme, searchSchemes, getAllSchemes, chatWithScheme } from '../controllers/schemeController.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -187,5 +187,40 @@ router.post('/search', searchSchemes);
  *         description: Server error
  */
 router.get('/debug', getAllSchemes);
+
+/**
+ * @swagger
+ * /schemes/chat:
+ *   post:
+ *     summary: Chat with the AI about schemes (RAG)
+ *     tags:
+ *       - Schemes
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - query
+ *             properties:
+ *               query:
+ *                 type: string
+ *                 example: How much money can I get for building a house?
+ *               userProfile:
+ *                 type: object
+ *                 properties:
+ *                   state:
+ *                     type: string
+ *                     example: Maharashtra
+ *                   gender:
+ *                     type: string
+ *                     example: Female
+ *     responses:
+ *       200:
+ *         description: AI generated answer
+ */
+router.post('/chat', chatWithScheme);
+
 
 export default router;
