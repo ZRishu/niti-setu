@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 
 // register user
 // route   POST /api/v1/auth/register

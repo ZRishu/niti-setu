@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a name']
     },
-    
+
     email: {
         type: String,
         required: [true, `Please add a email`],
@@ -28,12 +28,12 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['user','admin'],
-        default: user
+        default: 'user'
     },
 
     // the user's profile for personalized scheme search
     profile: {
-        state: {type: string},
+        state: {type: String},
         gender: { type: String, enum: ['Male', 'Female', 'Other'] },
         caste: { type: String, enum: ['General', 'OBC', 'SC', 'ST'] },
         age: { type: Number },

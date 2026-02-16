@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { ingestScheme, searchSchemes, getAllSchemes, chatWithScheme } from '../controllers/schemeController.js';
-
+import { protect , authorize } from '../middleware/auth.js';
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
