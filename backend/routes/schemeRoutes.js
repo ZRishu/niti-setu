@@ -58,7 +58,7 @@ const upload = multer({ dest: 'uploads/' });
  *       500:
  *         description: Server error
  */
-router.post('/ingest', upload.single('pdf'), ingestScheme);
+router.post('/ingest', protect, authorize('admin'), upload.single('pdf'), ingestScheme);
 
 /**
  * @swagger
@@ -220,7 +220,7 @@ router.get('/debug', getAllSchemes);
  *       200:
  *         description: AI generated answer
  */
-router.post('/chat', chatWithScheme);
+router.post('/chat', protect, chatWithScheme);
 
 
 export default router;

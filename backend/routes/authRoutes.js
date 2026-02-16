@@ -159,7 +159,7 @@ router.post('/login', login)
  *       401:
  *         description: Not authorized
  */
-router.get('/me', protect , getMe);
+router.get('/me', protect , getMe); // Protected route
 
 export default router;
 

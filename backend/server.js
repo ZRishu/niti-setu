@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
+import cookieParser from 'cookie-parser';
 import connectDB from "./config/db.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./config/swagger.js";
 import schemeRoutes from './routes/schemeRoutes.js';
-import cookieParser from 'cookie-parser';
-import authRoutes from './routes/authRoutes.js'
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
