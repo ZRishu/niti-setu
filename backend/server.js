@@ -5,6 +5,8 @@ import connectDB from "./config/db.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./config/swagger.js";
 import schemeRoutes from './routes/schemeRoutes.js';
+import cookieParser from 'cookie-parser';
+import authRoutes from './routes/authRoutes.js'
 
 const app = express();
 
@@ -14,11 +16,12 @@ connectDB();
 //Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // docs for routing using swagger-ui and ingesting pdf scheme route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api/v1/schemes', schemeRoutes);
-
+app.use('/api/v1/auth', authRoutes);
 // route for test or heath check
 app.get("/", (req, res) => {
   res.send("Niti-Setu API is running...");
