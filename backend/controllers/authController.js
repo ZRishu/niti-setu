@@ -1,11 +1,8 @@
 import User from "../models/User.js";
 
-// register user
-// route   POST /api/v1/auth/register
-// access  public
 export const register = async (req , res) => {
     try{
-        const {name , email , password, profile } = req.body;
+        const {name , email , phoneNumber, password, profile, adminSecret } = req.body;
 
         const userExists = await User.findOne({ email });
         if(userExists){
@@ -13,13 +10,14 @@ export const register = async (req , res) => {
         }
 
         let role = 'user';
-        if (adminSecret === process.env.ADMIN_SECRET) {
+        if (adminSecret && adminSecret === process.env.ADMIN_SECRET) {
             role = 'admin';
         }
 
         const user = await User.create({
             name, 
             email,
+            phoneNumber,
             password,
             role,
             profile,
@@ -32,11 +30,6 @@ export const register = async (req , res) => {
     };
 };
 
-
-// Login User
-//route  POST /api/v1/auth/login
-// access Public
-
 export const login = async (req, res) => {
     try {
         const {email , password } = req.body;
@@ -47,12 +40,12 @@ export const login = async (req, res) => {
 
         const user = await User.findOne({ email }).select('+password');
         if(!user){
-            return res.status(401).json({success: false, error : 'Invalid credentails ' })
+            return res.status(401).json({success: false, error : 'Invalid credentials' })
         }
 
         const isMatch = await user.matchPassword(password);
         if(!isMatch){
-            return res.status(401).json({ success: false , error: 'Invalid credentails'})
+            return res.status(401).json({ success: false , error: 'Invalid credentials'})
         }
 
         sendTokenResponse(user, 200 , res);
@@ -63,10 +56,6 @@ export const login = async (req, res) => {
     }
 };
 
-// Get current logged in user
-// route GET /api/v1/auth/me 
-// access private
-
 export const getMe = async (req, res) => {
     try{
         const user = await User.findById(req.user.id);
@@ -76,13 +65,12 @@ export const getMe = async (req, res) => {
     }
 };
 
-//Helper function to get Token from model , create cookies and send response
 const sendTokenResponse = (user, statusCode , res) => {
     const token = user.getSignedJwtToken();
 
     const options = {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        httpOnly: true // Cookie cannot be accessed by client side JS (Security)
+        httpOnly: true
     };
 
     res
@@ -95,9 +83,9 @@ const sendTokenResponse = (user, statusCode , res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                phoneNumber: user.phoneNumber,
                 role: user.role,
                 profile: user.profile,
             }
         });
 }
-

@@ -9,10 +9,37 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export interface UserProfile {
   state?: string;
+  district?: string;
+  landHolding?: number;
+  cropType?: string;
+  socialCategory?: string;
   gender?: string;
-  caste?: string;
+  age?: number;
+  occupation?: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  role: 'user' | 'admin';
+  profile?: UserProfile;
 }
 
 export interface Scheme {
@@ -30,7 +57,38 @@ export interface Scheme {
   };
   score?: number;
   snippet?: string;
+  eligibility?: {
+    isEligible: boolean;
+    reason: string;
+    citation: string;
+    benefitAmount: string;
+  };
 }
+
+export const login = async (credentials: any) => {
+  const response = await api.post('/auth/login', credentials);
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
+  }
+  return response.data;
+};
+
+export const register = async (userData: any) => {
+  const response = await api.post('/auth/register', userData);
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
+  }
+  return response.data;
+};
+
+export const getMe = async () => {
+  const response = await api.get('/auth/me');
+  return response.data;
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+};
 
 export const searchSchemes = async (query: string, userProfile?: UserProfile) => {
   const response = await api.post('/schemes/search', { query, userProfile });

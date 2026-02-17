@@ -10,18 +10,22 @@ const UserSchema = new mongoose.Schema({
 
     email: {
         type: String,
-        required: [true, `Please add a email`],
+        required: [true, 'Please add a email'],
         unique: true,
         match: [
             /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please add a valid email'
+            'Please add a valid email'
         ]
     },
 
-    // dont return pass in api response
+    phoneNumber: {
+        type: String,
+        required: [true, 'Please add a phone number']
+    },
+
     password: {
         type: String,
-        required: [true, `Please add a password`],
+        required: [true, 'Please add a password'],
         minlength: 6,
         select: false
     },
@@ -31,13 +35,14 @@ const UserSchema = new mongoose.Schema({
         default: 'user'
     },
 
-    // the user's profile for personalized scheme search
     profile: {
-        state: {type: String},
+        state: { type: String },
+        district: { type: String },
+        landHolding: { type: Number },
+        cropType: { type: String },
+        socialCategory: { type: String, enum: ['General', 'OBC', 'SC', 'ST'] },
         gender: { type: String, enum: ['Male', 'Female', 'Other'] },
-        caste: { type: String, enum: ['General', 'OBC', 'SC', 'ST'] },
-        age: { type: Number },
-        occupation: { type: String }
+        age: { type: Number }
     },
     createdAt: {
         type: Date,
@@ -45,7 +50,6 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-// encrypting pass before saving 
 UserSchema.pre('save', async function(next){
     if(!this.isModified('password')){
         next();
@@ -54,12 +58,10 @@ UserSchema.pre('save', async function(next){
     this.password = await bcrypt.hash(this.password , salt)
 });
 
-// matching pass and hashed password
 UserSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword , this.password);
 };
 
-// generating and returning jwt token
 UserSchema.methods.getSignedJwtToken = function(){
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
@@ -67,4 +69,3 @@ UserSchema.methods.getSignedJwtToken = function(){
 }
 
 export default mongoose.model('User', UserSchema)
-

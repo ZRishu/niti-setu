@@ -1,12 +1,21 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, BookOpen, Search, MessageSquare, Upload } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsOpen(false);
+  };
 
   return (
     <nav className="bg-white shadow-md border-b border-gray-100 sticky top-0 z-50">
@@ -19,10 +28,45 @@ const Navbar = () => {
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
             <NavLink to="/chat" icon={<MessageSquare className="w-4 h-4"/>} text="AI Assistant" active={isActive('/chat')} />
-            <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
+            {user?.role === 'admin' && (
+              <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
+            )}
+            
+            <div className="h-6 w-px bg-slate-200 mx-2" />
+            
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <User className="w-4 h-4 text-slate-500" />
+                  <span>{user?.name}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-primary-600 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center md:hidden">
@@ -37,11 +81,47 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden bg-white border-b border-gray-100 animate-in slide-in-from-top duration-200">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
             <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
             <MobileNavLink to="/chat" text="AI Assistant" onClick={() => setIsOpen(false)} />
-            <MobileNavLink to="/admin/ingest" text="Admin Upload" onClick={() => setIsOpen(false)} />
+            {user?.role === 'admin' && (
+              <MobileNavLink to="/admin/ingest" text="Admin Upload" onClick={() => setIsOpen(false)} />
+            )}
+          </div>
+          <div className="px-4 py-4 space-y-2">
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-700 px-2 py-1">
+                  <User className="w-4 h-4 text-slate-500" />
+                  <span>{user?.name} ({user?.role})</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full px-3 py-2 text-center text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full px-3 py-2 text-center text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -54,8 +134,8 @@ const NavLink = ({ to, text, active, icon }: { to: string; text: string; active:
     to={to}
     className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
       active
-        ? 'text-primary-600 bg-primary-50'
-        : 'text-slate-600 hover:text-primary-600 hover:bg-slate-50'
+        ? 'text-blue-600 bg-blue-50'
+        : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
     }`}
   >
     {icon}
@@ -67,7 +147,7 @@ const MobileNavLink = ({ to, text, onClick }: { to: string; text: string; onClic
   <Link
     to={to}
     onClick={onClick}
-    className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-slate-50"
+    className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50"
   >
     {text}
   </Link>
