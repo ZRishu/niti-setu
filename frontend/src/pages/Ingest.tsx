@@ -81,7 +81,7 @@ const Ingest = () => {
               required
               value={schemeName}
               onChange={(e) => setSchemeName(e.target.value)}
-              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2.5"
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2.5 bg-white text-slate-900"
               placeholder="e.g., Pradhan Mantri Awas Yojana"
             />
           </div>
@@ -94,7 +94,7 @@ const Ingest = () => {
               type="number"
               value={benefitsValue}
               onChange={(e) => setBenefitsValue(e.target.value)}
-              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2.5"
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2.5 bg-white text-slate-900"
               placeholder="e.g., 50000"
             />
           </div>
