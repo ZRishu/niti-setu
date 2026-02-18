@@ -148,7 +148,7 @@ export const checkEligibility = async (schemeText , userProfile) => {
 };
 
 // smart recommendation query generator 
-export const generateProfileQuery = aysnc (userProfile) => {
+export const generateProfileQuery = async (userProfile) => {
   const { state , gender , caste , occupation , age } = userProfile;
-  return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${caste ? `category ${caste}`: ''}';
+  return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${caste ? `category ${caste}` : ''}`;
 }
