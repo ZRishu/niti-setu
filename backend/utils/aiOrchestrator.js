@@ -110,3 +110,45 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
     };
   }
 };
+
+// eligibilty check yes or a no
+export const checkEligibility = async (schemeText , userProfile) => {
+  try{
+    const model = genAI.getGenerativeModel({model : "gemini-1.5-flash"});
+
+    const prompt = `
+    You are a strict government eligibility officer.
+    Analyze the scheme rules below and compare them with the applicant's profile.
+    
+    Scheme Rules:
+    "${schemeText.substring(0,3000)}"
+    
+    Applicant Profile: 
+    ${JSON.stringify(userProfile)}
+    
+    Task:
+      Determine if the applicant is eligible.
+      Return ONLY a JSON object (no markdown) with this structure:
+      {
+        "isEligible": boolean,
+        "reason": "Clear explanation of why (e.g., 'Land holding is 5 acres, but limit is 2 acres')",
+        "missing_criteria": ["List specific requirements they failed, if any"],
+        "citation": "Quote the exact sentence from the text that proves this rule"
+      }
+    `
+
+    const result = await model.generateContent(prompt)
+    const text = result.response.text().replace(/```json|```/g, "").trim();
+    return JSON.parse(text);
+  }
+  catch(error){
+    console.log("Eligibility Check Error:", error);
+    return {isEligible: false , reason: "Error analyzing rules", citation: "N/A"}
+  }
+};
+
+// smart recommendation query generator 
+export const generateProfileQuery = aysnc (userProfile) => {
+  const { state , gender , caste , occupation , age } = userProfile;
+  return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${caste ? `category ${caste}`: ''}';
+}
