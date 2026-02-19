@@ -309,7 +309,9 @@ export const getRecommendedSchemes = async( req , res) => {
                 $project: {
                     name: 1,
                     "benefits": 1,
-                    score: { $meta: "vectorSearchScore" }
+                    score: { $meta: "vectorSearchScore" },
+                    snippet: "$text_chunks.content",      
+                    page: "$text_chunks.page_number" 
                 }
             }, 
             // group by scheme name to remove duplicates from same scheme
@@ -318,7 +320,9 @@ export const getRecommendedSchemes = async( req , res) => {
                     _id: "$_id",
                     name: { $first: "$name" },
                     benefits: { $first: "$benefits" },
-                    score: { $max: "$score" }
+                    score: { $max: "$score" },
+                    proof_text: { $first: "$snippet" },
+                    page_number: { $first: "$page" }
                 }
             },
             { $sort: { score: -1 } },
@@ -339,3 +343,5 @@ export const getRecommendedSchemes = async( req , res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 }
+
+

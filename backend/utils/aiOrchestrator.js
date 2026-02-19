@@ -152,3 +152,36 @@ export const generateProfileQuery = async (userProfile) => {
   const { state , gender , caste , occupation , age } = userProfile;
   return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${caste ? `category ${caste}` : ''}`;
 }
+
+// Extarct sturctured profile from voice text hindi and english
+
+export const extractProfileFromText = async(rawText) => {
+  try{
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const prompt = `
+    You are an AI assistant helping Indian farmers.
+      Extract the farmer's details from the text below (which may be in Hindi, English, or mixed).
+      Translate and standardize the extracted data into English.
+      
+      Return ONLY a JSON object (no markdown, no backticks) with these exact keys. 
+      If a detail is missing, set its value to null.
+
+      - state: string (e.g., "Maharashtra")
+      - district: string (e.g., "Pune")
+      - land_holding_acres: number (Convert bigha/hectares to acres if necessary. E.g., 2.5)
+      - crop_type: string (e.g., "Cotton", "Wheat")
+      - caste: string (Strictly use "General", "OBC", "SC", "ST", or "All")
+
+      Farmer's Spoken Text: "${rawText}"
+    `;
+
+    const result = await model.generateContent(prompt);
+    const jsonString = result.response.text().replace(/```json|\n```/g, '').replace(/```/g, '').trim();
+    return JSON.parse(jsonString);
+  }
+  catch(error){
+    console.error("Profile Extraction Error:", error);
+    throw new Error("Failed to extract profile from text");
+  }
+}
