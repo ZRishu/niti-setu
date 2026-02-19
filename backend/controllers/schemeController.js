@@ -1,7 +1,7 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
-import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility, generateProfileQuery} from '../utils/aiOrchestrator.js';
+import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility,checkEligibilityWithCitations, generateProfileQuery} from '../utils/aiOrchestrator.js';
 import { normalize } from 'path';
 import { error, log } from 'console';
 import { text } from 'stream/consumers';
@@ -24,7 +24,7 @@ export const ingestScheme = async (req, res) => {
         disabledCombineTextItems: false,
       }
 
-      return pageData.getTextContext(render_options)
+      return pageData.getTextContent(render_options)
       .then(function(textContent){
         let lastY, text = '';
         for(let item of textContent.items){
@@ -114,7 +114,7 @@ export const ingestScheme = async (req, res) => {
       text_chunks: textChunks,
     });
 
-    fs.synclinkSync(req.file.path);
+    fs.unlinkSync(req.file.path);
 
     res.status(201).json({
       success: true,
