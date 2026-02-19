@@ -31,7 +31,7 @@ export const getEmbedding = async (text) => {
 
 export const extractSchemeDetails = async (text) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const prompt = `Analyze the following government scheme document text and extract structured data.
       Return ONLY a JSON object (no markdown) with these fields:
@@ -57,7 +57,7 @@ export const extractSchemeDetails = async (text) => {
 
 export const generateAnswer = async (userQuery, contextChunks) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
       You are a helpful government scheme assistant. 
       Answer the user's question using ONLY the provided context information below.
@@ -80,7 +80,7 @@ export const generateAnswer = async (userQuery, contextChunks) => {
 
 export const checkEligibilityWithCitations = async (userProfile, schemeContext) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
       Analyze the eligibility of a user based on their profile and the scheme context provided. 
       Determine if they are Eligible or Not Eligible.
@@ -114,7 +114,7 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
 // eligibilty check yes or a no
 export const checkEligibility = async (schemeText , userProfile) => {
   try{
-    const model = genAI.getGenerativeModel({model : "gemini-1.5-flash"});
+    const model = genAI.getGenerativeModel({model : "gemini-2.5-flash"});
 
     const prompt = `
     You are a strict government eligibility officer.
