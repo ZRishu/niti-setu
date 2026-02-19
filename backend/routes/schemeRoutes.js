@@ -222,5 +222,68 @@ router.get('/debug', getAllSchemes);
  */
 router.post('/chat', protect, chatWithScheme);
 
+import {
+    ingestScheme,
+    searchSchemes,
+    chatWithScheme,
+    checkSchemeEligibility,   // <--- New
+    getRecommendedSchemes     // <--- New
+} from '../controllers/schemeController.js';
+
+
+/**
+ * @swagger
+ * /schemes/recommend:
+ *   post:
+ *     summary: Get smart recommendations based on profile
+ *     tags: [Schemes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userProfile]
+ *             properties:
+ *               userProfile:
+ *                 type: object
+ *                 example:
+ *                   state: Maharashtra
+ *                   gender: Female
+ *                   occupation: Farmer
+ *     responses:
+ *       200:
+ *         description: List of top 5 recommended schemes
+ */
+router.post('/recommend', getRecommendedSchemes); // Open route (or protect if you want)
+
+/**
+ * @swagger
+ * /schemes/eligibility:
+ *   post:
+ *     summary: Check strict eligibility for a specific scheme
+ *     tags: [Schemes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [schemeId, userProfile]
+ *             properties:
+ *               schemeId:
+ *                 type: string
+ *                 example: "65d4..."
+ *               userProfile:
+ *                 type: object
+ *                 example:
+ *                   age: 25
+ *                   land_area: 5
+ *     responses:
+ *       200:
+ *         description: Yes/No decision with proof
+ */
+router.post('/eligibility', checkSchemeEligibility);
+
 
 export default router;
