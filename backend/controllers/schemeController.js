@@ -68,7 +68,7 @@ export const ingestScheme = async (req, res) => {
       const pageNum = pageContent.split('---')[0].trim();
       const cleanContent = pageContent.split('---')[1];
 
-      if(cleanContent && cleanContent > 50){
+      if(cleanContent && cleanContent.length > 50){
         // For better granular search , we should split large pages into smaller chunks
         // using splitter utility logic
 
