@@ -2,9 +2,8 @@ import fs from 'fs';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
 import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility,checkEligibilityWithCitations, generateProfileQuery} from '../utils/aiOrchestrator.js';
-import { normalize } from 'path';
-import { error, log } from 'console';
-import { text } from 'stream/consumers';
+import { extractProfileFromText } from '../utils/aiOrchestrator.js';
+import { error } from 'console';
 
 export const ingestScheme = async (req, res) => {
   try {
@@ -344,4 +343,28 @@ export const getRecommendedSchemes = async( req , res) => {
   }
 }
 
+// parse voice text into profile
+export const parseVoiceProfile = async(req , res) => {
+  try{
+    const { spokenText } = req.body;
+
+    if(!spokenText){
+      return res.status(400).json({success: false, error: "Spoken text is required" })
+    }
+    
+    console.log(` Processing Voice Text: "${spokenText}"`);
+
+    // Ai converts english hindi to json profile
+    const structuredProfile = await extractProfileFromText(spokenText);
+
+    res.status(200).json({
+      success: true,
+      message: "Profile extracted successfully",
+      profile: structuredProfile
+    });
+  }
+  catch(err){
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
 
