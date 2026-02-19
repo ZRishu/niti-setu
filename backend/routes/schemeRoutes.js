@@ -1,6 +1,13 @@
 import express from 'express';
 import multer from 'multer';
-import { ingestScheme, searchSchemes, getAllSchemes, chatWithScheme } from '../controllers/schemeController.js';
+import { 
+  ingestScheme, 
+  searchSchemes, 
+  getAllSchemes, 
+  chatWithScheme,
+  checkSchemeEligibility,  
+  getRecommendedSchemes     
+} from '../controllers/schemeController.js';
 import { protect , authorize } from '../middleware/auth.js';
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -247,7 +254,7 @@ router.post('/chat', protect, chatWithScheme);
  *       200:
  *         description: List of top 5 recommended schemes
  */
-router.post('/recommend', getRecommendedSchemes); // Open route (or protect if you want)
+router.post('/recommend', getRecommendedSchemes); 
 
 /**
  * @swagger
