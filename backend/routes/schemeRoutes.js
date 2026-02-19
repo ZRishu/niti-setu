@@ -222,14 +222,6 @@ router.get('/debug', getAllSchemes);
  */
 router.post('/chat', protect, chatWithScheme);
 
-import {
-    ingestScheme,
-    searchSchemes,
-    chatWithScheme,
-    checkSchemeEligibility,   // <--- New
-    getRecommendedSchemes     // <--- New
-} from '../controllers/schemeController.js';
-
 
 /**
  * @swagger
