@@ -52,6 +52,12 @@ const Chat = () => {
       recognition.current.onerror = () => setIsListening(false);
       recognition.current.onend = () => setIsListening(false);
     }
+
+    return () => {
+      if (recognition.current) {
+        recognition.current.stop();
+      }
+    };
   }, []);
 
   const toggleListening = () => {
