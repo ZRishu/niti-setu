@@ -31,6 +31,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
             <NavLink to="/chat" icon={<MessageSquare className="w-4 h-4"/>} text="AI Assistant" active={isActive('/chat')} />
+            {isAuthenticated && (
+              <NavLink to="/dashboard" icon={<User className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
+            )}
             {user?.role === 'admin' && (
               <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
             )}

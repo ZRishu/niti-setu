@@ -114,4 +114,9 @@ export const getAllSchemes = async () => {
     return response.data;
 }
 
+export const getDashboardMetrics = async () => {
+  const response = await api.get('/schemes/metrics');
+  return response.data;
+};
+
 export default api;

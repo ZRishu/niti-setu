@@ -56,7 +56,7 @@ const Home = () => {
 
         <div className="flex flex-wrap items-center justify-center gap-6 mt-4">
           {isAuthenticated ? (
-            <Link to="/search" className="flex items-center gap-2 text-slate-700 font-bold hover:text-primary-600 transition-colors">
+            <Link to="/dashboard" className="flex items-center gap-2 text-slate-700 font-bold hover:text-primary-600 transition-colors">
               <LayoutDashboard className="w-5 h-5 text-primary-500" />
               Go to Your Dashboard
             </Link>
