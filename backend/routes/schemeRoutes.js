@@ -7,28 +7,7 @@ import {
   chatWithScheme,
   checkSchemeEligibility,  
   getRecommendedSchemes     
-} from './**
- * @swagger
- * /schemes/extract-profile:
- *   post:
- *     summary: Convert transcribed voice text (Hindi/English) into a structured JSON profile
- *     tags: [Schemes]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [spokenText]
- *             properties:
- *               spokenText:
- *                 type: string
- *                 example: "मैं महाराष्ट्र के पुणे से हूँ। मेरे पास 2 एकड़ जमीन है और मैं कपास उगाता हूँ। मेरी जाति ओबीसी है।"
- *     responses:
- *       200:
- *         description: Structured profile extracted successfully
- */
-router.post('/extract-profile', parseVoiceProfile);./controllers/schemeController.js';
+} from '../controllers/schemeController.js';
 import { protect , authorize } from '../middleware/auth.js';
 import { parseVoiceProfile } from '../controllers/schemeController.js';
 
