@@ -6,7 +6,8 @@ import {
   getAllSchemes, 
   chatWithScheme,
   checkSchemeEligibility,  
-  getRecommendedSchemes     
+  getRecommendedSchemes,     
+  getDashboardMetrics
 } from '../controllers/schemeController.js';
 import { protect , authorize } from '../middleware/auth.js';
 import { parseVoiceProfile } from '../controllers/schemeController.js';
@@ -309,5 +310,19 @@ router.post('/eligibility', checkSchemeEligibility);
  *         description: Structured profile extracted successfully
  */
 router.post('/extract-profile', parseVoiceProfile);
+
+
+/**
+ * @swagger
+ * /schemes/metrics:
+ *   get:
+ *     summary: Get impact metrics for the User Dashboard
+ *     tags: [Schemes]
+ *     responses:
+ *       200:
+ *         description: Metrics retrieved successfully
+ */
+router.get('/metrics', getDashboardMetrics);
+
 
 export default router;
