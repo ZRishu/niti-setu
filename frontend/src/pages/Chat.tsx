@@ -156,8 +156,8 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-10rem)]">
-      <div className="p-4 border-b border-slate-100 bg-primary-50 flex items-center justify-between">
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[400px]">
+      <div className="p-4 border-b border-slate-100 bg-primary-50 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-primary-100 p-2 rounded-full">
             <Bot className="w-6 h-6 text-primary-600" />
