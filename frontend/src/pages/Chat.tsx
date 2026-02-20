@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Mic, MicOff } from 'lucide-react';
-import { chatWithScheme } from '../services/api';
+import { Send, Bot, User, Loader2, Mic, MicOff, RefreshCw, Check, X, UserPlus } from 'lucide-react';
+import { chatWithScheme, parseVoiceProfile } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 interface Message {
@@ -11,7 +11,7 @@ interface Message {
 }
 
 const Chat = () => {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -23,38 +23,86 @@ const Chat = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Voice Input Logic
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+  const recognition = useRef<any>(null);
 
-  if (recognition) {
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-IN'; // Can be changed to 'hi-IN' for Hindi
+  useEffect(() => {
+    if (SpeechRecognition) {
+      recognition.current = new SpeechRecognition();
+      recognition.current.continuous = false;
+      recognition.current.interimResults = false;
+      recognition.current.lang = 'hi-IN'; // Default to Hindi for better profile extraction
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      setIsListening(false);
-    };
+      recognition.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+        // Automatically trigger profile extraction if it sounds like a self-intro
+        if (transcript.length > 20) {
+          handleExtractProfile(transcript);
+        }
+      };
 
-    recognition.onerror = () => {
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-  }
+      recognition.current.onerror = () => setIsListening(false);
+      recognition.current.onend = () => setIsListening(false);
+    }
+  }, []);
 
   const toggleListening = () => {
     if (isListening) {
-      recognition?.stop();
+      recognition.current?.stop();
     } else {
       setIsListening(true);
-      recognition?.start();
+      recognition.current?.start();
+    }
+  };
+
+  const handleExtractProfile = async (text: string) => {
+    setExtracting(true);
+    try {
+      const response = await parseVoiceProfile(text);
+      if (response.success && response.profile) {
+        // Only suggest if AI actually found something
+        const hasData = Object.values(response.profile).some(v => v !== null && v !== undefined && v !== '');
+        if (hasData) {
+          setSuggestedProfile(response.profile);
+        }
+      }
+    } catch (err) {
+      console.error('Profile extraction failed:', err);
+    } finally {
+      setExtracting(false);
+    }
+  };
+
+  const applyProfileUpdate = () => {
+    if (user && suggestedProfile) {
+      const updatedUser = {
+        ...user,
+        profile: {
+          ...user.profile,
+          ...suggestedProfile
+        }
+      };
+      // In a real app, we'd call an API to save this. 
+      // For now, update context so it reflects in the session.
+      const token = localStorage.getItem('token') || '';
+      login(updatedUser, token);
+      setSuggestedProfile(null);
+      
+      const botMsg: Message = {
+        id: Date.now(),
+        text: "Dhanyawad! I have updated your profile with the details you mentioned. This will help me give you better recommendations.",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
     }
   };
 
@@ -64,7 +112,7 @@ const Chat = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, suggestedProfile, extracting]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,6 +198,54 @@ const Chat = () => {
             </div>
           </div>
         ))}
+
+        {extracting && (
+          <div className="flex justify-start">
+            <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex items-center gap-3">
+              <RefreshCw className="w-4 h-4 animate-spin text-amber-600" />
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">AI is extracting profile details...</span>
+            </div>
+          </div>
+        )}
+
+        {suggestedProfile && (
+          <div className="flex justify-start animate-in zoom-in-95 duration-300">
+            <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 max-w-sm shadow-md space-y-4">
+              <div className="flex items-center gap-2 text-indigo-900 mb-2">
+                <UserPlus className="w-5 h-5" />
+                <h4 className="font-bold">Update your profile?</h4>
+              </div>
+              <p className="text-xs text-indigo-700 leading-relaxed">
+                I noticed some details about you. Should I save them to your profile?
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(suggestedProfile).map(([key, value]) => (
+                  value && (
+                    <div key={key} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase">{key}</p>
+                      <p className="text-sm font-bold text-indigo-900">{String(value)}</p>
+                    </div>
+                  )
+                ))}
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={applyProfileUpdate}
+                  className="flex-grow bg-indigo-600 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition-all"
+                >
+                  <Check className="w-4 h-4" /> Save
+                </button>
+                <button 
+                  onClick={() => setSuggestedProfile(null)}
+                  className="px-4 border border-indigo-200 text-indigo-600 py-2 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {loading && (
           <div className="flex justify-start">
             <div className="flex gap-3 max-w-[80%]">

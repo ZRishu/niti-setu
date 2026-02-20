@@ -114,6 +114,21 @@ export const getAllSchemes = async () => {
     return response.data;
 }
 
+export const getRecommendedSchemes = async (userProfile: UserProfile) => {
+  const response = await api.post('/schemes/recommend', { userProfile });
+  return response.data;
+};
+
+export const checkSchemeEligibility = async (schemeId: string, userProfile: UserProfile) => {
+  const response = await api.post('/schemes/eligibility', { schemeId, userProfile });
+  return response.data;
+};
+
+export const parseVoiceProfile = async (spokenText: string) => {
+  const response = await api.post('/schemes/extract-profile', { spokenText });
+  return response.data;
+};
+
 export const getDashboardMetrics = async () => {
   const response = await api.get('/schemes/metrics');
   return response.data;

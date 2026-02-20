@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { searchSchemes } from '../services/api';
-import type { Scheme } from '../services/api';
-import { Filter, User, MapPin, IndianRupee, CheckCircle2, XCircle, Info, Quote } from 'lucide-react';
+import { searchSchemes, checkSchemeEligibility } from '../services/api';
+import type { Scheme, UserProfile } from '../services/api';
+import { Filter, User, MapPin, IndianRupee, CheckCircle2, XCircle, Info, Quote, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const SearchPage = () => {
@@ -14,6 +14,11 @@ const SearchPage = () => {
   const [results, setResults] = useState<Scheme[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Strict analysis state
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [strictResults, setStrictResults] = useState<Record<string, any>>({});
 
   // Filters - initialized from user profile if available
   const [state, setState] = useState(user?.profile?.state || '');
@@ -35,7 +40,7 @@ const SearchPage = () => {
     setLoading(true);
     setError('');
     try {
-      const userProfile = user?.profile || {
+      const userProfile: UserProfile = user?.profile || {
         state: state || undefined,
         gender: gender || undefined,
         socialCategory: socialCategory || undefined,
@@ -52,6 +57,26 @@ const SearchPage = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStrictCheck = async (schemeId: string) => {
+    if (!user?.profile) {
+      setError('Please complete your profile in the Dashboard for deep analysis.');
+      return;
+    }
+
+    setAnalyzingId(schemeId);
+    try {
+      const response = await checkSchemeEligibility(schemeId, user.profile);
+      if (response.success) {
+        setStrictResults(prev => ({ ...prev, [schemeId]: response.result }));
+        setExpandedId(schemeId);
+      }
+    } catch (err) {
+      console.error('Strict check failed:', err);
+    } finally {
+      setAnalyzingId(null);
     }
   };
 
@@ -174,27 +199,58 @@ const SearchPage = () => {
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                           {scheme.benefits?.type || 'Agricultural'}
                         </span>
-                        {scheme.eligibility?.benefitAmount && (
+                        {scheme.benefits?.max_value_inr > 0 && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            Benefit: {scheme.eligibility.benefitAmount}
+                            Up to ₹{scheme.benefits.max_value_inr.toLocaleString()}
                           </span>
                         )}
                       </div>
                     </div>
                     
-                    {scheme.eligibility && (
-                      <div className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold border-2 ${
-                        scheme.eligibility.isEligible 
-                          ? 'bg-green-50 text-green-700 border-green-200' 
-                          : 'bg-red-50 text-red-700 border-red-200'
-                      }`}>
-                        {scheme.eligibility.isEligible ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                        {scheme.eligibility.isEligible ? 'Eligible' : 'Not Eligible'}
-                      </div>
-                    )}
+                    <button 
+                      onClick={() => handleStrictCheck(scheme._id)}
+                      disabled={analyzingId === scheme._id}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold border-2 transition-all ${
+                        strictResults[scheme._id]
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-white text-indigo-600 border-indigo-100 hover:border-indigo-600'
+                      } disabled:opacity-50`}
+                    >
+                      {analyzingId === scheme._id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Zap className="w-4 h-4" />
+                      )}
+                      Deep Analysis
+                    </button>
                   </div>
 
-                  {scheme.eligibility && (
+                  {strictResults[scheme._id] && (
+                    <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
+                      <div className="p-5 rounded-xl bg-indigo-50 border border-indigo-100 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-bold text-indigo-900 flex items-center gap-2">
+                            <Info className="w-4 h-4" />
+                            AI Eligibility Verdict
+                          </h4>
+                          <button 
+                            onClick={() => setExpandedId(expandedId === scheme._id ? null : scheme._id)}
+                            className="text-indigo-600"
+                          >
+                            {expandedId === scheme._id ? <ChevronUp /> : <ChevronDown />}
+                          </button>
+                        </div>
+                        
+                        <div className="text-indigo-800 text-sm leading-relaxed whitespace-pre-wrap">
+                          {expandedId === scheme._id 
+                            ? strictResults[scheme._id] 
+                            : `${strictResults[scheme._id].substring(0, 150)}...`}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!strictResults[scheme._id] && scheme.eligibility && (
                     <div className={`mb-6 p-4 rounded-xl border ${
                       scheme.eligibility.isEligible ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'
                     }`}>
@@ -202,18 +258,6 @@ const SearchPage = () => {
                         <Info className={`w-4 h-4 mt-0.5 ${scheme.eligibility.isEligible ? 'text-green-600' : 'text-red-600'}`} />
                         <p className="text-sm font-semibold">{scheme.eligibility.reason}</p>
                       </div>
-                      
-                      {scheme.eligibility.citation && (
-                        <div className="mt-3 pt-3 border-t border-slate-200/50">
-                          <div className="flex items-center gap-1.5 mb-1.5">
-                            <Quote className="w-3 h-3 text-slate-400" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Official Document Proof</span>
-                          </div>
-                          <p className="text-xs text-slate-600 italic leading-relaxed bg-white/50 p-3 rounded-lg border border-slate-100">
-                            "{scheme.eligibility.citation}"
-                          </p>
-                        </div>
-                      )}
                     </div>
                   )}
 
@@ -222,12 +266,6 @@ const SearchPage = () => {
                   </p>
 
                   <div className="flex flex-wrap gap-6 text-xs font-bold text-slate-400 pt-4 border-t border-slate-50 uppercase tracking-tight">
-                    {scheme.benefits?.max_value_inr > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <IndianRupee className="w-3.5 h-3.5" />
-                        <span>Up to ₹{scheme.benefits.max_value_inr.toLocaleString()}</span>
-                      </div>
-                    )}
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5" />
                       <span>{scheme.filters?.state?.join(', ') || 'Pan-India'}</span>
