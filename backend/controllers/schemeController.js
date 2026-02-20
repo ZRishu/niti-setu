@@ -3,7 +3,8 @@ import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import Scheme from '../models/Scheme.js';
 import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility,checkEligibilityWithCitations, generateProfileQuery} from '../utils/aiOrchestrator.js';
 import { extractProfileFromText } from '../utils/aiOrchestrator.js';
-import { error } from 'console';
+import Analytics from '../models/Analytics.js';
+import { response } from 'express';
 
 export const ingestScheme = async (req, res) => {
   try {
@@ -239,6 +240,7 @@ export const chatWithScheme = async (req, res) => {
 
 // check strict eligibility 
 export const checkSchemeEligibility = async( req , res) => {
+  const startTime = Date.now();
   try{
     const {schemeId , userProfile } = req.body;
 
@@ -259,6 +261,9 @@ export const checkSchemeEligibility = async( req , res) => {
 
     const analysis = await checkEligibility(fullRules , userProfile);
 
+    const endTime = Date.now()
+    await Analytics.create({ responseTimeMs: endTime - startTime});
+
     res.json({
       success: true,
       scheme_name: scheme.name,
@@ -270,7 +275,6 @@ export const checkSchemeEligibility = async( req , res) => {
     res.status(500).json({success: false, error: err.message});
   }
 };
-
 
 // smart recommendations 
 export const getRecommendedSchemes = async( req , res) => {
@@ -368,3 +372,38 @@ export const parseVoiceProfile = async(req , res) => {
   }
 };
 
+
+// Get impact metrics for dashboard
+export const getDashboardMetrics = async (req , res) => {
+  try{
+    //count totalSchemes in system
+    const schemesAnalyzed = await Scheme.countDocuments();
+
+    // checksPerformed count
+    const checksPerformed = await Analytics.countDocuments({eventType: 'eligibilty_check' })
+
+    // calculating average response time
+    const timeData = await Analytics.aggregate([
+      {$match : { eventType: 'eligiblity_check' }},
+      { $group: {_id: null , averageTime: { $avg: "$responseTimeMs" }}}
+    ]);
+
+    // format milliseconds to seconds
+    let avgTimeSeconds = 0;
+    if(timeData.length > 0){
+      avgTimeSeconds = (timeData[0].averageTime / 1000).toFixed(2);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        schemes_analyzed : schemesAnalyzed,
+        eligibility_checks_performed: checksPerformed,
+        average_response_time_seconds: `${avgTimeSeconds}s`
+      }
+    });
+  }
+  catch(err){
+    res.status(500).json({success: false, error: err.message});
+  }
+};
