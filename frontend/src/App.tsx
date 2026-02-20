@@ -5,6 +5,7 @@ import Search from './pages/Search';
 import Chat from './pages/Chat';
 import Ingest from './pages/Ingest';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Footer from './components/Footer';
@@ -34,6 +35,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 } 
               />

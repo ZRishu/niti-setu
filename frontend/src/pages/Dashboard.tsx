@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getDashboardMetrics, getRecommendedSchemes, type User, type Scheme } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, CheckCircle, Clock, User as UserIcon, Mail, Phone, MapPin, Briefcase, Sparkles, ChevronRight, IndianRupee } from 'lucide-react';
+import { LayoutDashboard, FileText, CheckCircle, Clock, User as UserIcon, Mail, Phone, MapPin, Briefcase, Sparkles, ChevronRight, IndianRupee, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Metrics {
@@ -151,31 +151,46 @@ const Dashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Profile Section */}
+        {/* Quick Profile Summary Section */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-24">
-            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                 <UserIcon className="h-5 w-5 text-indigo-600" />
-                Your Profile
+                Quick Profile
               </h2>
+              <Link to="/profile" className="text-indigo-600 hover:text-indigo-800 p-1">
+                <ExternalLink className="w-4 h-4" />
+              </Link>
             </div>
-            <div className="p-6 space-y-6">
-              <div className="space-y-4">
-                <ProfileItem icon={<UserIcon />} label="Full Name" value={user?.name} />
-                <ProfileItem icon={<Mail />} label="Email" value={user?.email} />
-                <ProfileItem icon={<Phone />} label="Phone" value={user?.phoneNumber} />
-                <ProfileItem icon={<MapPin />} label="State" value={user?.profile?.state} />
-                <ProfileItem icon={<Briefcase />} label="Occupation" value={user?.profile?.occupation} />
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xl">
+                  {user?.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">{user?.name}</p>
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">{user?.role}</p>
+                </div>
               </div>
-              <div className="pt-4 border-t border-slate-100">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Account Status</span>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                  user?.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-indigo-100 text-indigo-800'
-                }`}>
-                  {user?.role?.toUpperCase()}
-                </span>
+              
+              <div className="pt-4 border-t border-slate-50 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Location</span>
+                  <span className="font-semibold text-slate-700">{user?.profile?.state || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Occupation</span>
+                  <span className="font-semibold text-slate-700">{user?.profile?.occupation || 'Farmer'}</span>
+                </div>
               </div>
+
+              <Link 
+                to="/profile" 
+                className="block w-full text-center py-2.5 rounded-xl border-2 border-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:border-slate-200 transition-all mt-4"
+              >
+                View Full Profile
+              </Link>
             </div>
           </div>
         </div>
@@ -199,18 +214,6 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, bgColor }) 
     <div>
       <p className="text-sm font-medium text-slate-500">{title}</p>
       <p className="text-2xl font-bold text-slate-900">{value}</p>
-    </div>
-  </div>
-);
-
-const ProfileItem: React.FC<{ icon: React.ReactNode, label: string, value?: string }> = ({ icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="text-slate-400 mt-1">
-      {React.cloneElement(icon as React.ReactElement, { size: 16 })}
-    </div>
-    <div>
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">{label}</p>
-      <p className="text-slate-900 font-semibold text-sm">{value || 'Not specified'}</p>
     </div>
   </div>
 );
