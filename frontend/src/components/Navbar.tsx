@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut } from 'lucide-react';
+import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -32,7 +32,7 @@ const Navbar = () => {
             <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
             <NavLink to="/chat" icon={<MessageSquare className="w-4 h-4"/>} text="AI Assistant" active={isActive('/chat')} />
             {isAuthenticated && (
-              <NavLink to="/dashboard" icon={<User className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
+              <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
             )}
             {user?.role === 'admin' && (
               <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
