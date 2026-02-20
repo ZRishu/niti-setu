@@ -127,13 +127,18 @@ export const checkEligibility = async (schemeText , userProfile) => {
     ${JSON.stringify(userProfile)}
     
     Task:
-      Determine if the applicant is eligible.
-      Return ONLY a JSON object (no markdown) with this structure:
+      1. Determine if the applicant is eligible.
+      2. Find the exact text proving this.
+      3. List the exact documents required to apply for this scheme.
+
+      Return ONLY a JSON object (no markdown , no backticks) with this structure:
       {
         "isEligible": boolean,
         "reason": "Clear explanation of why (e.g., 'Land holding is 5 acres, but limit is 2 acres')",
         "missing_criteria": ["List specific requirements they failed, if any"],
         "citation": "Quote the exact sentence from the text that proves this rule"
+        "documents_required": ["Aadhar Card", "Land Ownership Proof", "etc..."] 
+      
       }
     `
 
@@ -143,7 +148,7 @@ export const checkEligibility = async (schemeText , userProfile) => {
   }
   catch(error){
     console.log("Eligibility Check Error:", error);
-    return {isEligible: false , reason: "Error analyzing rules", citation: "N/A"}
+    return {isEligible: false , reason: "Error analyzing rules", citation: "N/A", documents_required: []}
   }
 };
 
