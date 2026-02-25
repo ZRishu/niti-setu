@@ -384,7 +384,7 @@ export const getDashboardMetrics = async (req , res) => {
 
     // calculating average response time
     const timeData = await Analytics.aggregate([
-      {$match : { eventType: 'eligiblity_check' }},
+      {$match : { eventType: 'eligibility_check' }},
       { $group: {_id: null , averageTime: { $avg: "$responseTimeMs" }}}
     ]);
 
