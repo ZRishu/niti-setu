@@ -380,7 +380,7 @@ export const getDashboardMetrics = async (req , res) => {
     const schemesAnalyzed = await Scheme.countDocuments();
 
     // checksPerformed count
-    const checksPerformed = await Analytics.countDocuments({eventType: 'eligibilty_check' })
+    const checksPerformed = await Analytics.countDocuments({eventType: 'eligibility_check' })
 
     // calculating average response time
     const timeData = await Analytics.aggregate([
