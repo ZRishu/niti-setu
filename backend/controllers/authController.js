@@ -3,15 +3,21 @@ import User from "../models/User.js";
 export const register = async (req , res) => {
     try{
         const {name , email , phoneNumber, password, profile, adminSecret } = req.body;
-
-        const userExists = await User.findOne({ email });
+        
+        // Normalize string inputs: trim and lowercase email
+        const trimmedEmail = email?.trim().toLowerCase();
+        const trimmedName = name?.trim();
+        const trimmedPhone = phoneNumber?.trim();
+        
+        const userExists = await User.findOne({ email: trimmedEmail });
         if(userExists){
             return res.status(400).json({ success: false, error: 'User already exists with this email' });
         }
 
         let role = 'user';
         if (adminSecret) {
-            if (adminSecret === process.env.ADMIN_SECRET) {
+            const trimmedSecret = adminSecret.trim();
+            if (trimmedSecret === process.env.ADMIN_SECRET) {
                 role = 'admin';
             } else {
                 return res.status(401).json({ success: false, error: 'Invalid Admin Secret Key' });
@@ -19,9 +25,9 @@ export const register = async (req , res) => {
         }
 
         const user = await User.create({
-            name, 
-            email,
-            phoneNumber,
+            name: trimmedName, 
+            email: trimmedEmail,
+            phoneNumber: trimmedPhone,
             password,
             role,
             profile,
@@ -47,7 +53,10 @@ export const login = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Please provide an email and password' })
         }
 
-        const user = await User.findOne({ email }).select('+password');
+        // Normalize string inputs: trim and lowercase email
+        const trimmedEmail = email.trim().toLowerCase();
+
+        const user = await User.findOne({ email: trimmedEmail }).select('+password');
         if(!user){
             return res.status(401).json({success: false, error : 'Invalid credentials' })
         }
@@ -59,7 +68,8 @@ export const login = async (req, res) => {
 
         // Handle Admin Login specific check
         if (adminSecret) {
-            if (adminSecret === process.env.ADMIN_SECRET) {
+            const trimmedSecret = adminSecret.trim();
+            if (trimmedSecret === process.env.ADMIN_SECRET) {
                 if (user.role !== 'admin') {
                     user.role = 'admin';
                     await user.save();

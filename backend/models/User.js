@@ -11,10 +11,18 @@ const allStates = [
   "Delhi NCR", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
+// Helper to capitalize first letter of each word
+const capitalizeWords = (str) => {
+    if (!str) return str;
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'Please add a name'],
+        trim: true,
+        set: capitalizeWords,
         match: [
             /^[a-zA-Z\s]+$/,
             'Name can only contain letters and spaces'
@@ -25,6 +33,8 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add an email'],
         unique: true,
+        lowercase: true,
+        trim: true,
         match: [
             /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
             'Please add a valid email with @ and . characters'
@@ -34,6 +44,7 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: [true, 'Please add a phone number'],
+        trim: true,
         match: [
             /^\d{10}$/,
             'Phone number must be exactly 10 digits'
@@ -43,6 +54,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please add a password'],
+        trim: true,
         minlength: [8, 'Password must be at least 8 characters long'],
         match: [
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -53,13 +65,15 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['user','admin'],
-        default: 'user'
+        default: 'user',
+        trim: true
     },
 
     profile: {
         state: { 
             type: String,
             required: [true, 'Please select a state'],
+            trim: true,
             enum: {
                 values: allStates,
                 message: 'Please select a valid Indian state or UT from the list'
@@ -67,6 +81,8 @@ const UserSchema = new mongoose.Schema({
         },
         district: { 
             type: String,
+            trim: true,
+            set: capitalizeWords,
             match: [
                 /^[a-zA-Z\s]+$/,
                 'District name can only contain letters and spaces'
@@ -78,6 +94,8 @@ const UserSchema = new mongoose.Schema({
         },
         cropType: { 
             type: String,
+            trim: true,
+            set: capitalizeWords,
             match: [
                 /^[a-zA-Z\s]+$/,
                 'Crop name can only contain letters and spaces'
@@ -85,6 +103,7 @@ const UserSchema = new mongoose.Schema({
         },
         socialCategory: { 
             type: String, 
+            trim: true,
             enum: {
                 values: ['General', 'OBC', 'SC', 'ST'],
                 message: 'Please select a valid social category'
@@ -92,6 +111,7 @@ const UserSchema = new mongoose.Schema({
         },
         gender: { 
             type: String, 
+            trim: true,
             enum: {
                 values: ['Male', 'Female', 'Other'],
                 message: 'Please select a valid gender'
