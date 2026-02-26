@@ -349,7 +349,7 @@ const Signup: React.FC = () => {
             </div>
 
             <Link
-              to="/admin/login"
+              to="/admin/login?mode=register"
               className="flex items-center justify-center gap-2 w-full py-2.5 px-4 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all group"
             >
               <ShieldAlert className="w-4 h-4 text-slate-400 group-hover:text-indigo-600" />

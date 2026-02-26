@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { login as apiLogin, register as apiRegister } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, ArrowLeft, Key, UserPlus, LogIn, Mail, Lock, User, Phone, MapPin, Calendar } from 'lucide-react';
@@ -17,7 +17,9 @@ const unionTerritories = [
 ];
 
 const AdminLogin: React.FC = () => {
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isRegisterMode, setIsRegisterMode] = useState(searchParams.get('mode') === 'register');
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,6 +39,16 @@ const AdminLogin: React.FC = () => {
   
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  // Sync mode if query param changes
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'register') {
+      setIsRegisterMode(true);
+    } else {
+      setIsRegisterMode(false);
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -160,7 +172,7 @@ const AdminLogin: React.FC = () => {
                     name="name"
                     type="text"
                     required
-                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
@@ -193,7 +205,7 @@ const AdminLogin: React.FC = () => {
                       type="number"
                       required
                       className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Enter your age"
+                      placeholder="Enter age"
                       value={formData.age}
                       onChange={handleChange}
                     />
@@ -209,7 +221,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="state"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                       value={formData.state}
                       onChange={handleChange}
                     >
@@ -245,7 +257,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="gender"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                       value={formData.gender}
                       onChange={handleChange}
                     >
@@ -260,7 +272,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="socialCategory"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                       value={formData.socialCategory}
                       onChange={handleChange}
                     >
@@ -353,11 +365,11 @@ const AdminLogin: React.FC = () => {
             </button>
 
             <Link
-              to="/login"
+              to={isRegisterMode ? "/signup" : "/login"}
               className="flex items-center justify-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to regular login
+              Back to regular user {isRegisterMode ? "signup" : "login"}
             </Link>
           </div>
         </form>
