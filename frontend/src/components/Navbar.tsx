@@ -61,12 +61,13 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-primary-600 transition-colors"
-                >
-                  Login
-                </Link>
+                <NavLink 
+                  to="/login" 
+                  text="Login" 
+                  active={isActive('/login')} 
+                  icon={<LogIn className="w-4 h-4" />}
+                  variant="green"
+                />
                 <Link
                   to="/signup"
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors"
@@ -137,19 +138,39 @@ const Navbar = () => {
   );
 };
 
-const NavLink = ({ to, text, active, icon }: { to: string; text: string; active: boolean, icon: React.ReactNode }) => (
-  <Link
-    to={to}
-    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-      active
-        ? 'text-blue-600 bg-blue-50'
-        : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
-    }`}
-  >
-    {icon}
-    {text}
-  </Link>
-);
+const NavLink = ({ 
+  to, 
+  text, 
+  active, 
+  icon, 
+  variant = 'blue' 
+}: { 
+  to: string; 
+  text: string; 
+  active: boolean; 
+  icon: React.ReactNode;
+  variant?: 'blue' | 'green';
+}) => {
+  const activeStyles = variant === 'green' 
+    ? 'text-primary-600 bg-primary-50' 
+    : 'text-blue-600 bg-blue-50';
+    
+  const hoverStyles = variant === 'green'
+    ? 'hover:text-primary-600 hover:bg-primary-50'
+    : 'hover:text-blue-600 hover:bg-slate-50';
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+        active ? activeStyles : `text-slate-600 ${hoverStyles}`
+      }`}
+    >
+      {icon}
+      {text}
+    </Link>
+  );
+};
 
 const MobileNavLink = ({ to, text, onClick }: { to: string; text: string; onClick: () => void }) => (
   <Link
