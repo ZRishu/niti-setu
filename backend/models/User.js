@@ -65,12 +65,24 @@ const UserSchema = new mongoose.Schema({
                 message: 'Please select a valid Indian state or UT from the list'
             }
         },
-        district: { type: String },
+        district: { 
+            type: String,
+            match: [
+                /^[a-zA-Z\s]+$/,
+                'District name can only contain letters and spaces'
+            ]
+        },
         landHolding: { 
             type: Number,
             min: [0, 'Land holding cannot be negative']
         },
-        cropType: { type: String },
+        cropType: { 
+            type: String,
+            match: [
+                /^[a-zA-Z\s]+$/,
+                'Crop name can only contain letters and spaces'
+            ]
+        },
         socialCategory: { 
             type: String, 
             enum: {

@@ -80,6 +80,11 @@ const AdminLogin: React.FC = () => {
         return "Admin must be at least 18 years old";
       }
 
+      // District validation
+      if (!/^[a-zA-Z\s]+$/.test(formData.district)) {
+        return "District name must only contain letters and spaces";
+      }
+
       if (formData.password !== formData.confirmPassword) {
         return 'Passwords do not match';
       }
@@ -108,8 +113,8 @@ const AdminLogin: React.FC = () => {
       return;
     }
 
-    // Proactive name restriction: allow only letters and spaces
-    if (name === 'name') {
+    // Proactive name, district restriction: allow only letters and spaces
+    if (['name', 'district'].includes(name)) {
       const onlyLetters = value.replace(/[^a-zA-Z\s]/g, '');
       setFormData({ ...formData, [name]: onlyLetters });
       return;
