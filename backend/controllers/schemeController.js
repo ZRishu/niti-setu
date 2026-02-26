@@ -169,8 +169,12 @@ export const searchSchemes = async (req, res) => {
 
 //GET all schemes
 export const getAllSchemes = async (req, res) => {
-  const schemes = await Scheme.find({}, { name: 1, filters: 1 }); 
-  res.json(schemes);
+  try {
+    const schemes = await Scheme.find({}, { name: 1, filters: 1, createdAt: 1, original_pdf_url: 1 }).sort({ createdAt: -1 }); 
+    res.json({ success: true, data: schemes });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 };
 
 // RAG
