@@ -238,22 +238,22 @@ const AdminLogin: React.FC = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      Age
-                    </label>
-                    <input
-                      name="age"
-                      type="number"
-                      required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Enter age"
-                      value={formData.age}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                                      <Calendar className="w-4 h-4 text-slate-400" />
+                                      Age
+                                    </label>
+                                    <input
+                                      name="age"
+                                      type="number"
+                                      min="18"
+                                      required
+                                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                      placeholder="Enter age"
+                                      value={formData.age}
+                                      onChange={handleChange}
+                                    />
+                                  </div>                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
