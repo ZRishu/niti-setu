@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login as apiLogin, register as apiRegister } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ArrowLeft, Key, UserPlus, LogIn } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Key, UserPlus, LogIn, Mail, Lock, User, Phone, MapPin, Calendar } from 'lucide-react';
 
 const states = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
@@ -107,18 +107,18 @@ const AdminLogin: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-indigo-50">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 mb-4">
             {isRegisterMode ? <UserPlus className="h-6 w-6 text-indigo-600" /> : <ShieldCheck className="h-6 w-6 text-indigo-600" />}
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900">
-            {isRegisterMode ? 'Register as Admin' : 'Admin Verification'}
+            {isRegisterMode ? 'Register Admin' : 'Admin Verification'}
           </h2>
           <p className="mt-2 text-sm text-slate-600">
             {isRegisterMode 
-              ? 'Create a new administrative account using the master secret.' 
-              : 'Enter your credentials and the master secret key to access administrative features.'}
+              ? 'Create an administrative account' 
+              : 'Sign in to access administrative features'}
           </p>
         </div>
 
@@ -129,7 +129,7 @@ const AdminLogin: React.FC = () => {
             className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${!isRegisterMode ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <LogIn className="w-4 h-4" />
-            Verify / Login
+            Verify
           </button>
           <button
             onClick={() => setIsRegisterMode(true)}
@@ -152,13 +152,16 @@ const AdminLogin: React.FC = () => {
             {isRegisterMode && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                    <User className="w-4 h-4 text-slate-400" />
+                    Full Name
+                  </label>
                   <input
                     name="name"
                     type="text"
                     required
                     className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    placeholder="John Doe"
+                    placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
                   />
@@ -166,25 +169,31 @@ const AdminLogin: React.FC = () => {
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-slate-400" />
+                      Phone
+                    </label>
                     <input
                       name="phoneNumber"
                       type="tel"
                       required
                       className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="1234567890"
+                      placeholder="Mobile number"
                       value={formData.phoneNumber}
                       onChange={handleChange}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      Age
+                    </label>
                     <input
                       name="age"
                       type="number"
                       required
                       className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="30"
+                      placeholder="Enter your age"
                       value={formData.age}
                       onChange={handleChange}
                     />
@@ -193,7 +202,10 @@ const AdminLogin: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">State / UT</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      State / UT
+                    </label>
                     <select
                       name="state"
                       required
@@ -201,7 +213,7 @@ const AdminLogin: React.FC = () => {
                       value={formData.state}
                       onChange={handleChange}
                     >
-                      <option value="">Select</option>
+                      <option value="">Select State</option>
                       <optgroup label="States">
                         {states.map(s => <option key={s} value={s}>{s}</option>)}
                       </optgroup>
@@ -211,13 +223,16 @@ const AdminLogin: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">District</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      District
+                    </label>
                     <input
                       name="district"
                       type="text"
                       required
                       className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="District Name"
+                      placeholder="Enter district"
                       value={formData.district}
                       onChange={handleChange}
                     />
@@ -234,7 +249,7 @@ const AdminLogin: React.FC = () => {
                       value={formData.gender}
                       onChange={handleChange}
                     >
-                      <option value="">Select</option>
+                      <option value="">Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
@@ -249,7 +264,7 @@ const AdminLogin: React.FC = () => {
                       value={formData.socialCategory}
                       onChange={handleChange}
                     >
-                      <option value="">Select</option>
+                      <option value="">Select Category</option>
                       <option value="General">General</option>
                       <option value="OBC">OBC</option>
                       <option value="SC">SC</option>
@@ -261,13 +276,16 @@ const AdminLogin: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email address</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-slate-400" />
+                Email Address
+              </label>
               <input
                 name="email"
                 type="email"
                 required
                 className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="admin@nitisetu.com"
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -275,26 +293,32 @@ const AdminLogin: React.FC = () => {
             
             <div className={`grid ${isRegisterMode ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-slate-400" />
+                  Password
+                </label>
                 <input
                   name="password"
                   type="password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder="Enter password"
                   value={formData.password}
                   onChange={handleChange}
                 />
               </div>
               {isRegisterMode && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                    Confirm Password
+                  </label>
                   <input
                     name="confirmPassword"
                     type="password"
                     required
                     className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    placeholder="••••••••"
+                    placeholder="Repeat password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                   />
@@ -323,7 +347,7 @@ const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
+              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
             >
               {loading ? 'Processing...' : (isRegisterMode ? 'Create Admin Account' : 'Verify & Access Admin Panel')}
             </button>
