@@ -172,7 +172,7 @@ const AdminLogin: React.FC = () => {
                     name="name"
                     type="text"
                     required
-                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
@@ -221,7 +221,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="state"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={formData.state}
                       onChange={handleChange}
                     >
@@ -257,7 +257,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="gender"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={formData.gender}
                       onChange={handleChange}
                     >
@@ -272,7 +272,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="socialCategory"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={formData.socialCategory}
                       onChange={handleChange}
                     >
