@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login as apiLogin } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { ShieldAlert } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,11 @@ const Login: React.FC = () => {
       const response = await apiLogin({ email, password });
       if (response.success) {
         login(response.user, response.token);
-        navigate('/');
+        if (response.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(response.error || 'Failed to login');
       }
@@ -52,6 +57,7 @@ const Login: React.FC = () => {
               {error}
             </div>
           )}
+          
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -70,7 +76,7 @@ const Login: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" title="Password" className="sr-only">
                 Password
               </label>
               <input
@@ -87,14 +93,31 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-4">
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors"
+              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
+
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-slate-100"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="px-2 bg-white text-slate-400">Restricted Access</span>
+              </div>
+            </div>
+
+            <Link
+              to="/admin/login"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-4 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all group"
+            >
+              <ShieldAlert className="w-4 h-4 text-slate-400 group-hover:text-indigo-600" />
+              Register / Verify as Admin
+            </Link>
           </div>
         </form>
       </div>

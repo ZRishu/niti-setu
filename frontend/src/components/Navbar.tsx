@@ -35,7 +35,10 @@ const Navbar = () => {
               <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
             )}
             {user?.role === 'admin' && (
-              <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
+              <>
+                <NavLink to="/admin/dashboard" icon={<LayoutDashboard className="w-4 h-4 text-indigo-600"/>} text="Admin Panel" active={isActive('/admin/dashboard')} />
+                <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
+              </>
             )}
             
             <div className="h-6 w-px bg-slate-200 mx-2" />
