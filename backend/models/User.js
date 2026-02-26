@@ -10,23 +10,31 @@ const UserSchema = new mongoose.Schema({
 
     email: {
         type: String,
-        required: [true, 'Please add a email'],
+        required: [true, 'Please add an email'],
         unique: true,
         match: [
             /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please add a valid email'
+            'Please add a valid email with @ and . characters'
         ]
     },
 
     phoneNumber: {
         type: String,
-        required: [true, 'Please add a phone number']
+        required: [true, 'Please add a phone number'],
+        match: [
+            /^\d{10}$/,
+            'Phone number must be exactly 10 digits'
+        ]
     },
 
     password: {
         type: String,
         required: [true, 'Please add a password'],
-        minlength: 6,
+        minlength: [8, 'Password must be at least 8 characters long'],
+        match: [
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
+        ],
         select: false
     },
     role: {
@@ -36,13 +44,35 @@ const UserSchema = new mongoose.Schema({
     },
 
     profile: {
-        state: { type: String },
+        state: { 
+            type: String,
+            required: [true, 'Please select a state']
+        },
         district: { type: String },
-        landHolding: { type: Number },
+        landHolding: { 
+            type: Number,
+            min: [0, 'Land holding cannot be negative']
+        },
         cropType: { type: String },
-        socialCategory: { type: String, enum: ['General', 'OBC', 'SC', 'ST'] },
-        gender: { type: String, enum: ['Male', 'Female', 'Other'] },
-        age: { type: Number }
+        socialCategory: { 
+            type: String, 
+            enum: {
+                values: ['General', 'OBC', 'SC', 'ST'],
+                message: 'Please select a valid social category'
+            }
+        },
+        gender: { 
+            type: String, 
+            enum: {
+                values: ['Male', 'Female', 'Other'],
+                message: 'Please select a valid gender'
+            }
+        },
+        age: { 
+            type: Number,
+            min: [18, 'Age must be at least 18 years'],
+            required: [true, 'Please provide your age']
+        }
     },
     createdAt: {
         type: Date,

@@ -37,6 +37,47 @@ const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const validateForm = () => {
+    // Email validation
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(formData.email)) {
+      return "Please enter a valid email address (e.g., user@example.com)";
+    }
+
+    // Phone validation
+    if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      return "Phone number must be exactly 10 digits";
+    }
+
+    // Age validation
+    const ageNum = parseInt(formData.age);
+    if (isNaN(ageNum) || ageNum < 18) {
+      return "You must be at least 18 years old to register";
+    }
+
+    // Password complexity validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      return "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      return 'Passwords do not match';
+    }
+
+    // Land holding validation
+    if (formData.landHolding && parseFloat(formData.landHolding) < 0) {
+      return "Land holding cannot be negative";
+    }
+
+    // Selection validations
+    if (!formData.state) return "Please select your State / UT";
+    if (!formData.gender) return "Please select your gender";
+    if (!formData.socialCategory) return "Please select your social category";
+
+    return null;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -48,8 +89,10 @@ const Signup: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -63,11 +106,11 @@ const Signup: React.FC = () => {
       profile: {
         state: formData.state,
         district: formData.district,
-        landHolding: formData.landHolding ? parseFloat(formData.landHolding) : undefined,
+        landHolding: formData.landHolding ? parseFloat(formData.landHolding) : 0,
         cropType: formData.cropType,
         socialCategory: formData.socialCategory,
         gender: formData.gender,
-        age: formData.age ? parseInt(formData.age) : undefined
+        age: parseInt(formData.age)
       }
     };
 
@@ -90,8 +133,8 @@ const Signup: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 mb-4">
-            <UserPlus className="h-6 w-6 text-primary-600" />
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 mb-4">
+            <UserPlus className="h-6 w-6 text-indigo-600" />
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900">
             Farmer Registration
@@ -123,7 +166,7 @@ const Signup: React.FC = () => {
                 name="name"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={handleChange}
@@ -139,7 +182,7 @@ const Signup: React.FC = () => {
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
@@ -155,7 +198,7 @@ const Signup: React.FC = () => {
                 name="phoneNumber"
                 type="tel"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="10-digit mobile number"
                 value={formData.phoneNumber}
                 onChange={handleChange}
@@ -171,7 +214,7 @@ const Signup: React.FC = () => {
                 name="age"
                 type="number"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter your age"
                 value={formData.age}
                 onChange={handleChange}
@@ -191,7 +234,7 @@ const Signup: React.FC = () => {
               <select
                 name="state"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.state}
                 onChange={handleChange}
               >
@@ -214,7 +257,7 @@ const Signup: React.FC = () => {
                 name="district"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter district"
                 value={formData.district}
                 onChange={handleChange}
@@ -226,7 +269,7 @@ const Signup: React.FC = () => {
               <select
                 name="gender"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.gender}
                 onChange={handleChange}
               >
@@ -242,7 +285,7 @@ const Signup: React.FC = () => {
               <select
                 name="socialCategory"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.socialCategory}
                 onChange={handleChange}
               >
@@ -266,7 +309,7 @@ const Signup: React.FC = () => {
                 type="number"
                 step="0.1"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="e.g. 2.5"
                 value={formData.landHolding}
                 onChange={handleChange}
@@ -279,7 +322,7 @@ const Signup: React.FC = () => {
                 name="cropType"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="e.g. Wheat, Cotton"
                 value={formData.cropType}
                 onChange={handleChange}
@@ -300,7 +343,7 @@ const Signup: React.FC = () => {
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
@@ -316,7 +359,7 @@ const Signup: React.FC = () => {
                 name="confirmPassword"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Repeat password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -328,13 +371,13 @@ const Signup: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-primary-100"
+              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
             >
               {loading ? 'Creating Profile...' : 'Complete Farmer Registration'}
             </button>
 
             <div className="text-center">
-              <Link to="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors">
+              <Link to="/login" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
                 Already have an account? <span className="font-bold underline">Sign in</span>
               </Link>
             </div>

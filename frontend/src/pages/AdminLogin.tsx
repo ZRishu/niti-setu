@@ -50,6 +50,47 @@ const AdminLogin: React.FC = () => {
     }
   }, [searchParams]);
 
+  const validateForm = () => {
+    // Email validation
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(formData.email)) {
+      return "Please enter a valid email address";
+    }
+
+    // Password complexity validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      return "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character";
+    }
+
+    if (isRegisterMode) {
+      // Phone validation
+      if (!/^\d{10}$/.test(formData.phoneNumber)) {
+        return "Phone number must be exactly 10 digits";
+      }
+
+      // Age validation
+      const ageNum = parseInt(formData.age);
+      if (isNaN(ageNum) || ageNum < 18) {
+        return "Admin must be at least 18 years old";
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        return 'Passwords do not match';
+      }
+
+      if (!formData.state) return "Please select your State / UT";
+      if (!formData.gender) return "Please select your gender";
+      if (!formData.socialCategory) return "Please select your social category";
+    }
+
+    if (!formData.adminSecret) {
+      return "Admin Secret Key is required";
+    }
+
+    return null;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -60,16 +101,18 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (isRegisterMode) {
-        if (formData.password !== formData.confirmPassword) {
-          setError('Passwords do not match');
-          setLoading(false);
-          return;
-        }
-
         const registrationData = {
           name: formData.name,
           email: formData.email,
@@ -81,7 +124,7 @@ const AdminLogin: React.FC = () => {
             district: formData.district,
             socialCategory: formData.socialCategory,
             gender: formData.gender,
-            age: formData.age ? parseInt(formData.age) : undefined
+            age: parseInt(formData.age)
           }
         };
 
@@ -268,7 +311,7 @@ const AdminLogin: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Social Category</label>
                     <select
                       name="socialCategory"
                       required

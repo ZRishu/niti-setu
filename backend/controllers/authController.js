@@ -6,12 +6,16 @@ export const register = async (req , res) => {
 
         const userExists = await User.findOne({ email });
         if(userExists){
-            return res.status(400).json({ success: false, error: 'User already exists' });
+            return res.status(400).json({ success: false, error: 'User already exists with this email' });
         }
 
         let role = 'user';
-        if (adminSecret && adminSecret === process.env.ADMIN_SECRET) {
-            role = 'admin';
+        if (adminSecret) {
+            if (adminSecret === process.env.ADMIN_SECRET) {
+                role = 'admin';
+            } else {
+                return res.status(401).json({ success: false, error: 'Invalid Admin Secret Key' });
+            }
         }
 
         const user = await User.create({
@@ -26,13 +30,18 @@ export const register = async (req , res) => {
         sendTokenResponse(user, 200 , res);
     }
     catch(err){
+        // Handle Mongoose Validation Errors
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(val => val.message);
+            return res.status(400).json({ success: false, error: messages[0] });
+        }
         res.status(500).json({ success: false, error: err.message });
     };
 };
 
 export const login = async (req, res) => {
     try {
-        const {email , password } = req.body;
+        const {email , password, adminSecret } = req.body;
 
         if(!email || !password){
             return res.status(400).json({ success: false, error: 'Please provide an email and password' })
@@ -46,6 +55,18 @@ export const login = async (req, res) => {
         const isMatch = await user.matchPassword(password);
         if(!isMatch){
             return res.status(401).json({ success: false , error: 'Invalid credentials'})
+        }
+
+        // Handle Admin Login specific check
+        if (adminSecret) {
+            if (adminSecret === process.env.ADMIN_SECRET) {
+                if (user.role !== 'admin') {
+                    user.role = 'admin';
+                    await user.save();
+                }
+            } else {
+                return res.status(401).json({ success: false, error: 'Invalid Admin Secret Key' });
+            }
         }
 
         sendTokenResponse(user, 200 , res);

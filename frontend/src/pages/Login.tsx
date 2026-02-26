@@ -13,9 +13,32 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const validateForm = () => {
+    // Email validation
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address";
+    }
+
+    // Password complexity validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character";
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -101,7 +124,7 @@ const Login: React.FC = () => {
             </button>
 
             <div className="text-center">
-              <Link to="/signup" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+              <Link to="/signup" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
                 Don't have an account? <span className="font-bold underline">Create one</span>
               </Link>
             </div>
