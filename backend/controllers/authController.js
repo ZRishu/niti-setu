@@ -71,8 +71,9 @@ export const login = async (req, res) => {
             const trimmedSecret = adminSecret.trim();
             if (trimmedSecret === process.env.ADMIN_SECRET) {
                 if (user.role !== 'admin') {
+                    // Use findByIdAndUpdate to bypass validation on the hashed password
+                    await User.findByIdAndUpdate(user.id, { role: 'admin' });
                     user.role = 'admin';
-                    await user.save();
                 }
             } else {
                 return res.status(401).json({ success: false, error: 'Invalid Admin Secret Key' });
