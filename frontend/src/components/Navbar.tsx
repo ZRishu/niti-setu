@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
+import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard, LogIn, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -31,14 +31,13 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
             <NavLink to="/chat" icon={<MessageSquare className="w-4 h-4"/>} text="AI Assistant" active={isActive('/chat')} />
-            {isAuthenticated && (
+            
+            {isAuthenticated && user?.role !== 'admin' && (
               <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
             )}
+
             {user?.role === 'admin' && (
-              <>
-                <NavLink to="/admin/dashboard" icon={<LayoutDashboard className="w-4 h-4 text-indigo-600"/>} text="Admin Panel" active={isActive('/admin/dashboard')} />
-                <NavLink to="/admin/ingest" icon={<Upload className="w-4 h-4"/>} text="Admin Upload" active={isActive('/admin/ingest')} />
-              </>
+              <NavLink to="/admin/dashboard" icon={<ShieldCheck className="w-4 h-4 text-indigo-600"/>} text="Admin Panel" active={isActive('/admin/dashboard')} />
             )}
             
             <div className="h-6 w-px bg-slate-200 mx-2" />
@@ -94,8 +93,10 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
             <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
             <MobileNavLink to="/chat" text="AI Assistant" onClick={() => setIsOpen(false)} />
-            {user?.role === 'admin' && (
-              <MobileNavLink to="/admin/ingest" text="Admin Upload" onClick={() => setIsOpen(false)} />
+            {user?.role === 'admin' ? (
+              <MobileNavLink to="/admin/dashboard" text="Admin Panel" onClick={() => setIsOpen(false)} />
+            ) : isAuthenticated && (
+              <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
             )}
           </div>
           <div className="px-4 py-4 space-y-2">

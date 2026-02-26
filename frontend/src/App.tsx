@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Chat from './pages/Chat';
-import Ingest from './pages/Ingest';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -57,14 +56,6 @@ function App() {
                 element={
                   <ProtectedRoute adminOnly>
                     <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/ingest" 
-                element={
-                  <ProtectedRoute adminOnly>
-                    <Ingest />
                   </ProtectedRoute>
                 } 
               />
