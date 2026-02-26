@@ -236,7 +236,7 @@ const AdminLogin: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                    <User className="w-4 h-4 text-slate-400" />
+                    <User className="w-4 h-4 text-indigo-500" />
                     Full Name
                   </label>
                   <input
@@ -253,7 +253,7 @@ const AdminLogin: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-slate-400" />
+                      <Phone className="w-4 h-4 text-indigo-500" />
                       Phone
                     </label>
                     <input
@@ -268,7 +268,7 @@ const AdminLogin: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <Calendar className="w-4 h-4 text-indigo-500" />
                       Age
                     </label>
                     <input
@@ -287,7 +287,7 @@ const AdminLogin: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-slate-400" />
+                      <MapPin className="w-4 h-4 text-indigo-500" />
                       State / UT
                     </label>
                     <select
@@ -308,7 +308,7 @@ const AdminLogin: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-slate-400" />
+                      <MapPin className="w-4 h-4 text-indigo-500" />
                       District
                     </label>
                     <input
@@ -361,7 +361,7 @@ const AdminLogin: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400" />
+                <Mail className="w-4 h-4 text-indigo-500" />
                 Email Address
               </label>
               <input
@@ -378,7 +378,7 @@ const AdminLogin: React.FC = () => {
             <div className={`grid ${isRegisterMode ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-slate-400" />
+                  <Lock className="w-4 h-4 text-indigo-500" />
                   Password
                 </label>
                 <input
@@ -394,7 +394,7 @@ const AdminLogin: React.FC = () => {
               {isRegisterMode && (
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-slate-400" />
+                    <Lock className="w-4 h-4 text-indigo-500" />
                     Confirm Password
                   </label>
                   <input

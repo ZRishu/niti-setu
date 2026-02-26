@@ -85,7 +85,7 @@ const Login: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400" />
+                <Mail className="w-4 h-4 text-primary-500" />
                 Email Address
               </label>
               <input
@@ -100,7 +100,7 @@ const Login: React.FC = () => {
             
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-primary-500" />
                 Password
               </label>
               <input

@@ -202,14 +202,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <User className="w-4 h-4 text-slate-400" />
+                <User className="w-4 h-4 text-primary-500" />
                 Full Name
               </label>
               <input
                 name="name"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={handleChange}
@@ -218,14 +218,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400" />
+                <Mail className="w-4 h-4 text-primary-500" />
                 Email Address
               </label>
               <input
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
@@ -234,14 +234,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-slate-400" />
+                <Phone className="w-4 h-4 text-primary-500" />
                 Phone Number
               </label>
               <input
                 name="phoneNumber"
                 type="tel"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="10-digit mobile number"
                 value={formData.phoneNumber}
                 onChange={handleChange}
@@ -250,7 +250,7 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-400" />
+                <Calendar className="w-4 h-4 text-primary-500" />
                 Age
               </label>
               <input
@@ -258,7 +258,7 @@ const Signup: React.FC = () => {
                 type="number"
                 min="18"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Enter your age"
                 value={formData.age}
                 onChange={handleChange}
@@ -272,13 +272,13 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-slate-400" />
+                <MapPin className="w-4 h-4 text-primary-500" />
                 State / UT
               </label>
               <select
                 name="state"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={formData.state}
                 onChange={handleChange}
               >
@@ -294,14 +294,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-slate-400" />
+                <MapPin className="w-4 h-4 text-primary-500" />
                 District
               </label>
               <input
                 name="district"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Enter district"
                 value={formData.district}
                 onChange={handleChange}
@@ -313,7 +313,7 @@ const Signup: React.FC = () => {
               <select
                 name="gender"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={formData.gender}
                 onChange={handleChange}
               >
@@ -329,7 +329,7 @@ const Signup: React.FC = () => {
               <select
                 name="socialCategory"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={formData.socialCategory}
                 onChange={handleChange}
               >
@@ -352,7 +352,7 @@ const Signup: React.FC = () => {
                 name="landHolding"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="e.g. 2.5"
                 value={formData.landHolding}
                 onChange={handleChange}
@@ -365,7 +365,7 @@ const Signup: React.FC = () => {
                 name="cropType"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="e.g. Wheat, Cotton"
                 value={formData.cropType}
                 onChange={handleChange}
@@ -379,14 +379,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-primary-500" />
                 Password
               </label>
               <input
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
@@ -395,14 +395,14 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-primary-500" />
                 Confirm Password
               </label>
               <input
                 name="confirmPassword"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Repeat password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -414,7 +414,7 @@ const Signup: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
+              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all shadow-lg shadow-primary-100"
             >
               {loading ? 'Creating Profile...' : 'Complete Farmer Registration'}
             </button>
@@ -438,7 +438,7 @@ const Signup: React.FC = () => {
               to="/admin/login?mode=register"
               className="flex items-center justify-center gap-2 w-full py-2.5 px-4 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all group"
             >
-              <ShieldAlert className="w-4 h-4 text-slate-400 group-hover:text-indigo-600" />
+              <ShieldAlert className="w-4 h-4 text-slate-400 group-hover:text-primary-600" />
               Register / Verify as Admin
             </Link>
           </div>
