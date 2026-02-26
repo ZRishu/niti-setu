@@ -64,9 +64,14 @@ const AdminLogin: React.FC = () => {
     }
 
     if (isRegisterMode) {
+      // Name validation: Letters and spaces only
+      if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+        return "Name must only contain letters and spaces";
+      }
+
       // Phone validation
       if (!/^\d{10}$/.test(formData.phoneNumber)) {
-        return "Phone number must be exactly 10 digits";
+        return "Phone number must be exactly 10 digits and contain only numbers";
       }
 
       // Age validation
@@ -92,9 +97,27 @@ const AdminLogin: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Proactive phone number restriction: allow only digits
+    if (name === 'phoneNumber') {
+      const onlyNums = value.replace(/[^0-9]/g, '');
+      if (onlyNums.length <= 10) {
+        setFormData({ ...formData, [name]: onlyNums });
+      }
+      return;
+    }
+
+    // Proactive name restriction: allow only letters and spaces
+    if (name === 'name') {
+      const onlyLetters = value.replace(/[^a-zA-Z\s]/g, '');
+      setFormData({ ...formData, [name]: onlyLetters });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -238,22 +261,23 @@ const AdminLogin: React.FC = () => {
                       onChange={handleChange}
                     />
                   </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                                      <Calendar className="w-4 h-4 text-slate-400" />
-                                      Age
-                                    </label>
-                                    <input
-                                      name="age"
-                                      type="number"
-                                      min="18"
-                                      required
-                                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                      placeholder="Enter age"
-                                      value={formData.age}
-                                      onChange={handleChange}
-                                    />
-                                  </div>                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      Age
+                    </label>
+                    <input
+                      name="age"
+                      type="number"
+                      min="18"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="Enter age"
+                      value={formData.age}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>

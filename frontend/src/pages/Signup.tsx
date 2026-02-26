@@ -38,6 +38,11 @@ const Signup: React.FC = () => {
   const { login } = useAuth();
 
   const validateForm = () => {
+    // Name validation: Letters and spaces only
+    if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+      return "Name must only contain letters and spaces";
+    }
+
     // Email validation
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(formData.email)) {
@@ -46,7 +51,7 @@ const Signup: React.FC = () => {
 
     // Phone validation
     if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      return "Phone number must be exactly 10 digits";
+      return "Phone number must be exactly 10 digits and contain only numbers";
     }
 
     // Age validation
@@ -79,9 +84,27 @@ const Signup: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Proactive phone number restriction: allow only digits
+    if (name === 'phoneNumber') {
+      const onlyNums = value.replace(/[^0-9]/g, '');
+      if (onlyNums.length <= 10) {
+        setFormData({ ...formData, [name]: onlyNums });
+      }
+      return;
+    }
+
+    // Proactive name restriction: allow only letters and spaces
+    if (name === 'name') {
+      const onlyLetters = value.replace(/[^a-zA-Z\s]/g, '');
+      setFormData({ ...formData, [name]: onlyLetters });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 

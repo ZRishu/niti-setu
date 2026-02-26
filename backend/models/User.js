@@ -14,7 +14,11 @@ const allStates = [
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Please add a name']
+        required: [true, 'Please add a name'],
+        match: [
+            /^[a-zA-Z\s]+$/,
+            'Name can only contain letters and spaces'
+        ]
     },
 
     email: {
