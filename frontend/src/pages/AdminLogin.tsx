@@ -1,18 +1,49 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login as apiLogin } from '../services/api';
+import { login as apiLogin, register as apiRegister } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ArrowLeft, Key } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Key, UserPlus, LogIn } from 'lucide-react';
+
+const states = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
+  "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+];
+
+const unionTerritories = [
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Delhi NCR", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+];
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [adminSecret, setAdminSecret] = useState('');
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    confirmPassword: '',
+    adminSecret: '',
+    state: '',
+    district: '',
+    socialCategory: '',
+    gender: '',
+    age: ''
+  });
+  
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,94 +51,281 @@ const AdminLogin: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await apiLogin({ email, password, adminSecret });
-      if (response.success) {
-        login(response.user, response.token);
-        if (response.user.role === 'admin') {
+      if (isRegisterMode) {
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match');
+          setLoading(false);
+          return;
+        }
+
+        const registrationData = {
+          name: formData.name,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          password: formData.password,
+          adminSecret: formData.adminSecret,
+          profile: {
+            state: formData.state,
+            district: formData.district,
+            socialCategory: formData.socialCategory,
+            gender: formData.gender,
+            age: formData.age ? parseInt(formData.age) : undefined
+          }
+        };
+
+        const response = await apiRegister(registrationData);
+        if (response.success) {
+          login(response.user, response.token);
           navigate('/admin/dashboard');
         } else {
-          setError('Verification failed. Role not upgraded.');
+          setError(response.error || 'Registration failed');
         }
       } else {
-        setError(response.error || 'Failed to verify admin status');
+        const response = await apiLogin({ 
+          email: formData.email, 
+          password: formData.password, 
+          adminSecret: formData.adminSecret 
+        });
+        
+        if (response.success) {
+          login(response.user, response.token);
+          if (response.user.role === 'admin') {
+            navigate('/admin/dashboard');
+          } else {
+            setError('Verification failed. Role not upgraded.');
+          }
+        } else {
+          setError(response.error || 'Failed to verify admin status');
+        }
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'An error occurred during verification');
+      setError(err.response?.data?.error || 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-indigo-50">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4">
-            <ShieldCheck className="h-6 w-6 text-indigo-600" />
+            {isRegisterMode ? <UserPlus className="h-6 w-6 text-indigo-600" /> : <ShieldCheck className="h-6 w-6 text-indigo-600" />}
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900">
-            Admin Verification
+            {isRegisterMode ? 'Register as Admin' : 'Admin Verification'}
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Enter your credentials and the master secret key to access administrative features.
+            {isRegisterMode 
+              ? 'Create a new administrative account using the master secret.' 
+              : 'Enter your credentials and the master secret key to access administrative features.'}
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        {/* Mode Toggle */}
+        <div className="flex p-1 bg-slate-100 rounded-xl mb-6">
+          <button
+            onClick={() => setIsRegisterMode(false)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${!isRegisterMode ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <LogIn className="w-4 h-4" />
+            Verify / Login
+          </button>
+          <button
+            onClick={() => setIsRegisterMode(true)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${isRegisterMode ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <UserPlus className="w-4 h-4" />
+            Register
+          </button>
+        </div>
+
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
 
-          <div className="rounded-md shadow-sm space-y-4">
+          <div className="space-y-4">
+            {/* Common Fields */}
+            {isRegisterMode && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                  <input
+                    name="name"
+                    type="text"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                    <input
+                      name="phoneNumber"
+                      type="tel"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="1234567890"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                    <input
+                      name="age"
+                      type="number"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="30"
+                      value={formData.age}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">State / UT</label>
+                    <select
+                      name="state"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={formData.state}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select</option>
+                      <optgroup label="States">
+                        {states.map(s => <option key={s} value={s}>{s}</option>)}
+                      </optgroup>
+                      <optgroup label="UTs">
+                        {unionTerritories.map(ut => <option key={ut} value={ut}>{ut}</option>)}
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">District</label>
+                    <input
+                      name="district"
+                      type="text"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="District Name"
+                      value={formData.district}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
+                    <select
+                      name="gender"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={formData.gender}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                    <select
+                      name="socialCategory"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={formData.socialCategory}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select</option>
+                      <option value="General">General</option>
+                      <option value="OBC">OBC</option>
+                      <option value="SC">SC</option>
+                      <option value="ST">ST</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email address</label>
               <input
+                name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="admin@nitisetu.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <input
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            <div className={`grid ${isRegisterMode ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+              {isRegisterMode && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
             </div>
 
-            <div>
+            <div className="pt-2">
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                 <Key className="w-4 h-4 text-amber-500" />
                 Admin Secret Key
               </label>
               <input
+                name="adminSecret"
                 type="password"
                 required
                 className="appearance-none relative block w-full px-3 py-2 border border-amber-200 bg-amber-50/30 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
                 placeholder="Enter master secret"
-                value={adminSecret}
-                onChange={(e) => setAdminSecret(e.target.value)}
+                value={formData.adminSecret}
+                onChange={handleChange}
               />
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4">
             <button
               type="submit"
               disabled={loading}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
             >
-              {loading ? 'Verifying...' : 'Verify & Access Admin Panel'}
+              {loading ? 'Processing...' : (isRegisterMode ? 'Create Admin Account' : 'Verify & Access Admin Panel')}
             </button>
 
             <Link
