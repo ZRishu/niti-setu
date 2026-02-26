@@ -133,8 +133,8 @@ const Signup: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 mb-4">
-            <UserPlus className="h-6 w-6 text-indigo-600" />
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 mb-4">
+            <UserPlus className="h-6 w-6 text-primary-600" />
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900">
             Farmer Registration
