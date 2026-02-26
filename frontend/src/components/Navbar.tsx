@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
