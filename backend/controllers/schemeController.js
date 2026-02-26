@@ -4,7 +4,6 @@ import Scheme from '../models/Scheme.js';
 import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility,checkEligibilityWithCitations, generateProfileQuery} from '../utils/aiOrchestrator.js';
 import { extractProfileFromText } from '../utils/aiOrchestrator.js';
 import Analytics from '../models/Analytics.js';
-import { response } from 'express';
 
 export const ingestScheme = async (req, res) => {
   try {

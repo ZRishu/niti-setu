@@ -1,10 +1,9 @@
-import { response } from "express";
 import mongoose from "mongoose";
 
 const AnalyticsSchema = new mongoose.Schema({
     eventType: {
         type: String,
-        default: 'eligibilty_check'
+        default: 'eligibility_check'
     },
     responseTimeMs: {
         type: Number,

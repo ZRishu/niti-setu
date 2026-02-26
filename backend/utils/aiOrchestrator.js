@@ -111,7 +111,7 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
   }
 };
 
-// eligibilty check yes or a no
+// eligibility check yes or a no
 export const checkEligibility = async (schemeText , userProfile) => {
   try{
     const model = genAI.getGenerativeModel({model : "gemini-2.5-flash"});
