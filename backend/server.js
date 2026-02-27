@@ -7,8 +7,12 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./config/swagger.js";
 import schemeRoutes from './routes/schemeRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // calling to connect mongodb
 connectDB();
@@ -28,9 +32,14 @@ app.use(cookieParser());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api/v1/schemes', schemeRoutes);
 app.use('/api/v1/auth', authRoutes);
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+
 // route for test or heath check
-app.get("/", (req, res) => {
-  res.send("Niti-Setu API is running...");
+app.get("*", (req, res) => {
+
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
 //Start server on port 5000
