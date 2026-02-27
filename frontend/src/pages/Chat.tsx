@@ -170,14 +170,9 @@ const Chat = () => {
   };
 
   return (
-    /* 
-       h-[calc(100dvh-64px)] ensures perfect fit on mobile address bars (dvh)
-       Subtract 64px for the navbar.
-       lg:h-[calc(100vh-14rem)] restores original desktop height.
-    */
-    <div className="flex flex-col h-[calc(100dvh-64px)] lg:h-[calc(100vh-14rem)] w-full lg:max-w-4xl lg:mx-auto bg-white lg:rounded-2xl lg:shadow-sm lg:border lg:border-slate-200 overflow-hidden transition-all">
-      {/* Dynamic Header */}
-      <div className={`px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-white lg:bg-primary-50'} flex items-center justify-between flex-shrink-0 sticky top-0 z-10 shadow-sm lg:shadow-none lg:static`}>
+    <div className="flex flex-col h-[calc(100dvh-64px)] lg:h-[calc(100vh-14rem)] w-full max-w-full lg:max-w-4xl lg:mx-auto bg-white lg:rounded-2xl lg:shadow-sm lg:border lg:border-slate-200 overflow-hidden transition-all">
+      {/* Immersive Header */}
+      <div className={`px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-white lg:bg-primary-50'} flex items-center justify-between flex-shrink-0 sticky top-0 z-10 shadow-sm lg:shadow-none lg:static w-full`}>
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className={`${isAdmin ? 'bg-indigo-100' : 'bg-primary-50 lg:bg-primary-100'} p-2 rounded-xl lg:rounded-full`}>
@@ -199,8 +194,8 @@ const Chat = () => {
         </div>
       </div>
 
-      {/* Message Area */}
-      <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-6 bg-[#F8F9FD] lg:bg-slate-50/30">
+      {/* Edge-to-Edge Message Area */}
+      <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-6 bg-[#F8F9FD] lg:bg-slate-50/30 w-full">
         <div className="text-center mb-8">
           <span className="bg-slate-200/50 text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
             Today
@@ -210,32 +205,21 @@ const Chat = () => {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} w-full`}
           >
             <div
-              className={`flex ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%]`}
+              className={`flex flex-col gap-1 max-w-[85%] sm:max-w-[75%]`}
             >
-              {/* Desktop-only Avatar */}
-              <div className={`hidden lg:flex w-8 h-8 rounded-full items-center justify-center flex-shrink-0 shadow-sm ${
+              <div className={`px-4 py-3 rounded-2xl text-sm lg:text-sm shadow-sm ${
                 msg.sender === 'user' 
-                  ? 'bg-white border border-slate-200' 
-                  : (isAdmin ? 'bg-indigo-600 text-white' : 'bg-primary-600 text-white')
+                  ? 'bg-primary-600 lg:bg-slate-800 text-white rounded-tr-none' 
+                  : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
               }`}>
-                {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
+                {msg.text}
               </div>
-
-              <div className={`flex flex-col gap-1`}>
-                <div className={`px-4 py-3 rounded-2xl text-sm lg:text-sm shadow-sm ${
-                  msg.sender === 'user' 
-                    ? 'bg-primary-600 lg:bg-slate-800 text-white rounded-tr-none' 
-                    : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
-                }`}>
-                  {msg.text}
-                </div>
-                <span className={`text-[9px] font-bold text-slate-400 uppercase ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
+              <span className={`text-[9px] font-bold text-slate-400 uppercase ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           </div>
         ))}
@@ -288,23 +272,18 @@ const Chat = () => {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="flex gap-3 max-w-[80%]">
-              <div className={`w-8 h-8 rounded-full ${isAdmin ? 'bg-indigo-600' : 'bg-primary-600'} flex items-center justify-center flex-shrink-0 animate-pulse`}>
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
-                <Loader2 className={`w-4 h-4 animate-spin ${isAdmin ? 'text-indigo-500' : 'text-primary-500'}`} />
-                <span className="text-slate-500 text-sm">Reviewing...</span>
-              </div>
+            <div className="bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-3 shadow-sm">
+              <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
+              <span className="text-slate-400 text-xs font-bold animate-pulse uppercase tracking-wider">Thinking...</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 bg-white sticky bottom-0 lg:static">
-        <form onSubmit={handleSend} className="flex items-center gap-2 sm:gap-3">
+      {/* Fixed Width Input Area */}
+      <div className="px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 bg-white sticky bottom-0 lg:static w-full max-w-full overflow-hidden">
+        <form onSubmit={handleSend} className="flex items-center gap-2 sm:gap-3 w-full">
           <button
             type="button"
             onClick={toggleListening}
@@ -323,7 +302,7 @@ const Chat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : "Ask Niti-Setu..."}
-            className={`flex-grow bg-slate-50 border-slate-200 lg:border rounded-xl lg:rounded-full py-3 px-4 lg:px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} transition-all outline-none text-sm lg:bg-slate-50 lg:focus:bg-white`}
+            className={`flex-1 min-w-0 bg-slate-50 border-slate-200 lg:border rounded-xl lg:rounded-full py-3 px-4 lg:px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} transition-all outline-none text-sm lg:bg-slate-50 lg:focus:bg-white`}
             disabled={loading}
           />
           
