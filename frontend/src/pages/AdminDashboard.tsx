@@ -605,8 +605,8 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
 
 const AdminDashboard: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
-  const [setLoading] = useState(true);
-  const [setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isIngestOpen, setIsIngestOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -657,7 +657,7 @@ const AdminDashboard: React.FC = () => {
         </div>
         <div className="bg-white p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-4 group hover:scale-105 transition-all">
           <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
-            <FileText className="h-6 w-6 text-white" />
+            {loading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <FileText className="h-6 w-6 text-white" />}
           </div>
           <div className="pr-4">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Live Schemes</p>
@@ -667,6 +667,13 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
+          <AlertCircle className="h-5 w-5" />
+          <p className="font-medium">{error}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Primary Action: Ingest */}

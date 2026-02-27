@@ -94,7 +94,7 @@ const Profile: React.FC = () => {
 const InfoRow = ({ icon, label, value }: { icon: React.ReactNode, label: string, value?: string | number }) => (
   <div className="flex items-center gap-4 group">
     <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-      {React.cloneElement(icon as React.ReactElement, { size: 18 })}
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}
     </div>
     <div>
       <p className="text-xs font-medium text-slate-400 leading-none mb-1">{label}</p>

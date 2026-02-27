@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDashboardMetrics, getRecommendedSchemes, type Scheme } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
-import { LayoutDashboard, FileText, CheckCircle, Clock, User as UserIcon, Mail, Phone, MapPin, Briefcase, Sparkles, ChevronRight, IndianRupee, ExternalLink, Loader2 } from 'lucide-react';
+import { LayoutDashboard, FileText, CheckCircle, Clock, User as UserIcon, Mail, Phone, MapPin, Briefcase, Sparkles, ChevronRight, IndianRupee, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 
 interface Metrics {
   schemes_analyzed: number;
@@ -71,6 +71,13 @@ const Dashboard: React.FC = () => {
           <LayoutDashboard className="h-7 w-7 text-white" />
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
+          <AlertCircle className="h-5 w-5" />
+          <p className="font-medium">{error}</p>
+        </div>
+      )}
 
       {/* Impact Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
