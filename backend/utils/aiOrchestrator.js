@@ -185,7 +185,7 @@ export const checkEligibility = async (schemeText , userProfile) => {
     Analyze the scheme rules below and compare them with the applicant's profile.
     
     Scheme Rules:
-    "${schemeText.substring(0,3000)}"
+    "${schemeText.substring(0,10000)}"
     
     Applicant Profile: 
     ${JSON.stringify(userProfile)}
