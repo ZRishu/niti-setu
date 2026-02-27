@@ -114,7 +114,7 @@ const Navbar = () => {
             onClick={() => setIsOpen(false)}
           />
           
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xl animate-in slide-in-from-top duration-300 origin-top z-50">
+          <div className="md:hidden absolute top-[4.5rem] left-4 right-4 bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl overflow-hidden animate-in slide-in-from-top-4 duration-300 origin-top z-50">
             <div className="px-4 pt-4 pb-3 space-y-1 sm:px-6">
               {!isAdmin && (
                 <>
