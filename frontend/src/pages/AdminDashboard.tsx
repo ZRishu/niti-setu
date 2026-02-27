@@ -11,6 +11,7 @@ import {
   AlertCircle,
   X,
   CheckCircle,
+  ShieldCheck,
   Search,
   IndianRupee,
   MessageSquare,
@@ -413,7 +414,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all active:scale-[0.98]"
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70 transition-all active:scale-[0.98]"
                 >
                   {loading ? (
                     <>
@@ -551,9 +552,9 @@ const AdminDashboard: React.FC = () => {
       <div className="block lg:hidden space-y-6">
         <div className="flex items-center justify-between px-1">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Control Center</h1>
+            <h1 className="text-xl font-bold text-slate-900">Admin Dashboard</h1>
             <p className="text-[11px] text-indigo-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
-              <Database className="w-3 h-3" /> Intelligence Engine
+              <Database className="w-3 h-3" /> Control Center
             </p>
           </div>
           <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-100">
@@ -594,7 +595,7 @@ const AdminDashboard: React.FC = () => {
               <div className="p-2.5 bg-indigo-50 rounded-xl mb-3">
                 <MessageSquare className="h-5 w-5 text-indigo-600" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900">Test AI</h3>
+              <h3 className="text-sm font-bold text-slate-900">AI Assistant</h3>
               <p className="text-slate-400 text-[10px] mt-1">Verify Responses</p>
             </button>
           </div>
