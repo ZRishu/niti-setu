@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, BookOpen, Search, MessageSquare, User, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar() {
+function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
@@ -225,6 +225,7 @@ export default function Navbar() {
   );
 }
 
+export default Navbar;
 const NavLink = ({ 
   to, 
   text, 
