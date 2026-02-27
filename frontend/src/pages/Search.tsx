@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { searchSchemes, checkSchemeEligibility } from '../services/api';
 import type { Scheme, UserProfile } from '../services/api';
-import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp, Search as SearchIcon } from 'lucide-react';
+import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp, Search as SearchIcon, AlertCircle, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const states = [
@@ -277,24 +277,77 @@ const SearchPage = () => {
 
                   {strictResults[scheme._id] && (
                     <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
-                      <div className="p-4 sm:p-5 rounded-xl bg-indigo-50 border border-indigo-100 space-y-4">
+                      <div className={`p-4 sm:p-5 rounded-xl border space-y-4 ${
+                        strictResults[scheme._id].isEligible 
+                          ? 'bg-emerald-50 border-emerald-100' 
+                          : 'bg-rose-50 border-rose-100'
+                      }`}>
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-indigo-900 flex items-center gap-2 text-sm sm:text-base">
-                            <Info className="w-4 h-4" />
-                            AI Eligibility Verdict
+                          <h4 className={`font-bold flex items-center gap-2 text-sm sm:text-base ${
+                            strictResults[scheme._id].isEligible ? 'text-emerald-900' : 'text-rose-900'
+                          }`}>
+                            {strictResults[scheme._id].isEligible ? <Zap className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                            AI Eligibility Verdict: {strictResults[scheme._id].isEligible ? 'Eligible' : 'Not Eligible'}
                           </h4>
                           <button 
                             onClick={() => setExpandedId(expandedId === scheme._id ? null : scheme._id)}
-                            className="text-indigo-600"
+                            className={strictResults[scheme._id].isEligible ? 'text-emerald-600' : 'text-rose-600'}
                           >
                             {expandedId === scheme._id ? <ChevronUp /> : <ChevronDown />}
                           </button>
                         </div>
                         
-                        <div className="text-indigo-800 text-sm leading-relaxed whitespace-pre-wrap">
-                          {expandedId === scheme._id 
-                            ? strictResults[scheme._id] 
-                            : `${strictResults[scheme._id].substring(0, 150)}...`}
+                        <div className={`text-sm leading-relaxed ${
+                            strictResults[scheme._id].isEligible ? 'text-emerald-800' : 'text-rose-800'
+                          }`}>
+                          <p className="font-bold mb-1">Reason:</p>
+                          <p className={expandedId === scheme._id ? '' : 'line-clamp-2'}>
+                            {strictResults[scheme._id].reason}
+                          </p>
+                          
+                          {expandedId === scheme._id && (
+                            <div className="space-y-4 mt-4 pt-4 border-t border-black/5 animate-in fade-in duration-500">
+                              {strictResults[scheme._id].missing_criteria?.length > 0 && (
+                                <div>
+                                  <p className="font-bold mb-1 text-rose-900 flex items-center gap-1.5">
+                                    <AlertCircle className="w-3.5 h-3.5" />
+                                    Missing Criteria:
+                                  </p>
+                                  <ul className="list-disc list-inside space-y-1 ml-1">
+                                    {strictResults[scheme._id].missing_criteria.map((item: string, i: number) => (
+                                      <li key={i}>{item}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              
+                              {strictResults[scheme._id].documents_required?.length > 0 && (
+                                <div>
+                                  <p className="font-bold mb-1 flex items-center gap-1.5">
+                                    <FileText className="w-3.5 h-3.5" />
+                                    Documents Required:
+                                  </p>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {strictResults[scheme._id].documents_required.map((doc: string, i: number) => (
+                                      <span key={i} className="px-2 py-1 bg-white/50 rounded text-xs font-medium border border-black/5">
+                                        {doc}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {strictResults[scheme._id].citation && (
+                                <div className="bg-white/40 p-3 rounded-lg border border-black/5 italic">
+                                  <p className="text-[10px] font-bold mb-1 uppercase tracking-wider opacity-50 flex items-center gap-1">
+                                    <Info className="w-3 h-3" />
+                                    Official Guideline Reference:
+                                  </p>
+                                  <span className="text-xs">"{strictResults[scheme._id].citation}"</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
