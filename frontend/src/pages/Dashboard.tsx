@@ -26,6 +26,7 @@ const Dashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        setError(null);
         const metricsRes = await getDashboardMetrics();
         if (metricsRes.success) {
           setMetrics(metricsRes.data);
@@ -61,6 +62,12 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="animate-fade-in pb-12">
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-4 duration-300">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <p className="text-sm font-semibold">{error}</p>
+        </div>
+      )}
       {/* MOBILE ONLY REDESIGN */}
       <div className="block lg:hidden space-y-6">
         <div className="flex items-center justify-between px-1">

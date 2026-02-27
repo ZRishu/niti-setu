@@ -22,7 +22,6 @@ import {
   Send,
   UserPlus,
   Check,
-  LayoutDashboard,
   Sparkles,
   Database,
 } from 'lucide-react';
