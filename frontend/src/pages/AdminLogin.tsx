@@ -189,13 +189,13 @@ const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <div className="min-h-[80vh] flex items-center justify-center px-2 sm:px-4 py-8 sm:py-12">
+      <div className="max-w-xl w-full space-y-6 sm:space-y-8 bg-white p-5 sm:p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 mb-4">
             {isRegisterMode ? <UserPlus className="h-6 w-6 text-indigo-600" /> : <ShieldCheck className="h-6 w-6 text-indigo-600" />}
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
             {isRegisterMode ? 'Register Admin' : 'Admin Verification'}
           </h2>
           <p className="mt-2 text-sm text-slate-600">
@@ -223,7 +223,7 @@ const AdminLogin: React.FC = () => {
           </button>
         </div>
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-4 sm:mt-8 space-y-4" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
@@ -243,14 +243,14 @@ const AdminLogin: React.FC = () => {
                     name="name"
                     type="text"
                     required
-                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                       <Phone className="w-4 h-4 text-indigo-500" />
@@ -260,8 +260,8 @@ const AdminLogin: React.FC = () => {
                       name="phoneNumber"
                       type="tel"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Mobile number"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
+                      placeholder="Mobile"
                       value={formData.phoneNumber}
                       onChange={handleChange}
                     />
@@ -276,15 +276,15 @@ const AdminLogin: React.FC = () => {
                       type="number"
                       min="18"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Enter age"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
+                      placeholder="Age"
                       value={formData.age}
                       onChange={handleChange}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-indigo-500" />
@@ -293,7 +293,7 @@ const AdminLogin: React.FC = () => {
                     <select
                       name="state"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                       value={formData.state}
                       onChange={handleChange}
                     >
@@ -315,40 +315,40 @@ const AdminLogin: React.FC = () => {
                       name="district"
                       type="text"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Enter district"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
+                      placeholder="District"
                       value={formData.district}
                       onChange={handleChange}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
                     <select
                       name="gender"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                       value={formData.gender}
                       onChange={handleChange}
                     >
-                      <option value="">Select Gender</option>
+                      <option value="">Select</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Social Category</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                     <select
                       name="socialCategory"
                       required
-                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                       value={formData.socialCategory}
                       onChange={handleChange}
                     >
-                      <option value="">Select Category</option>
+                      <option value="">Select</option>
                       <option value="General">General</option>
                       <option value="OBC">OBC</option>
                       <option value="SC">SC</option>
@@ -368,14 +368,14 @@ const AdminLogin: React.FC = () => {
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
             
-            <div className={`grid ${isRegisterMode ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
+            <div className={`grid ${isRegisterMode ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-3`}>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                   <Lock className="w-4 h-4 text-indigo-500" />
@@ -385,7 +385,7 @@ const AdminLogin: React.FC = () => {
                   name="password"
                   type="password"
                   required
-                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                   placeholder="Enter password"
                   value={formData.password}
                   onChange={handleChange}
@@ -395,13 +395,13 @@ const AdminLogin: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                     <Lock className="w-4 h-4 text-indigo-500" />
-                    Confirm Password
+                    Confirm
                   </label>
                   <input
                     name="confirmPassword"
                     type="password"
                     required
-                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-base"
                     placeholder="Repeat password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -419,7 +419,7 @@ const AdminLogin: React.FC = () => {
                 name="adminSecret"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-amber-200 bg-amber-50/30 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-amber-200 bg-amber-50/30 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-base"
                 placeholder="Enter master secret"
                 value={formData.adminSecret}
                 onChange={handleChange}

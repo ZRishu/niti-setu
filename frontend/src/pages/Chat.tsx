@@ -174,41 +174,41 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[400px]">
-      <div className={`p-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-primary-50'} flex items-center justify-between flex-shrink-0 transition-colors`}>
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-14rem)] min-h-[450px]">
+      <div className={`p-3 sm:p-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-primary-50'} flex items-center justify-between flex-shrink-0 transition-colors`}>
         <div className="flex items-center gap-3">
           <div className={`${isAdmin ? 'bg-indigo-100' : 'bg-primary-100'} p-2 rounded-full transition-colors`}>
-            <Bot className={`w-6 h-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+            <Bot className={`w-5 h-5 sm:w-6 sm:h-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
           </div>
           <div>
-            <h2 className="font-semibold text-slate-900">Niti-Setu Assistant</h2>
-            <p className={`text-xs ${isAdmin ? 'text-indigo-700' : 'text-primary-700'} font-medium transition-colors`}>
+            <h2 className="font-semibold text-slate-900 text-sm sm:text-base">Niti-Setu Assistant</h2>
+            <p className={`text-[10px] sm:text-xs ${isAdmin ? 'text-indigo-700' : 'text-primary-700'} font-medium transition-colors`}>
               {user ? `Personalized for ${user.name}` : 'Agricultural Scheme Expert'}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+      <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 bg-slate-50/30">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`flex gap-3 max-w-[85%] ${
+              className={`flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] ${
                 msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
               }`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
                 msg.sender === 'user' 
                   ? 'bg-white border border-slate-200' 
                   : (isAdmin ? 'bg-indigo-600 text-white' : 'bg-primary-600 text-white')
               }`}>
-                {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
+                {msg.sender === 'user' ? <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" /> : <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </div>
               
-              <div className={`p-4 rounded-2xl shadow-sm text-sm leading-relaxed ${
+              <div className={`p-3 sm:p-4 rounded-2xl shadow-sm text-xs sm:text-sm leading-relaxed ${
                 msg.sender === 'user' 
                   ? 'bg-slate-800 text-white rounded-tr-none' 
                   : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
