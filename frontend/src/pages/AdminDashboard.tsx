@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { getAllSchemes, ingestScheme } from '../services/api';
+import React, { useEffect, useState, useRef } from 'react';
+import { getAllSchemes, ingestScheme, chatWithScheme, parseVoiceProfile } from '../services/api';
 import { 
   LayoutDashboard, 
   Upload, 
@@ -14,9 +14,246 @@ import {
   CheckCircle,
   Search,
   IndianRupee,
-  Filter
+  Filter,
+  MessageSquare,
+  Bot,
+  User,
+  Mic,
+  MicOff,
+  RefreshCw,
+  Send,
+  UserPlus,
+  Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+interface Message {
+  id: number;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
+}
+
+const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const { user, login } = useAuth();
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      text: "Namaste! I'm Niti-Setu AI. I can help you find government agricultural schemes you are eligible for. You can type or use the microphone to talk to me.",
+      sender: 'bot',
+      timestamp: new Date()
+    }
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isAdmin = user?.role === 'admin';
+
+  // Voice Input Logic
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  const recognition = useRef<any>(null);
+
+  useEffect(() => {
+    if (SpeechRecognition && isOpen) {
+      recognition.current = new SpeechRecognition();
+      recognition.current.continuous = false;
+      recognition.current.interimResults = false;
+      recognition.current.lang = 'hi-IN';
+
+      recognition.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+        if (transcript.length > 20) {
+          handleExtractProfile(transcript);
+        }
+      };
+
+      recognition.current.onerror = () => setIsListening(false);
+      recognition.current.onend = () => setIsListening(false);
+    }
+
+    return () => {
+      if (recognition.current) {
+        recognition.current.stop();
+      }
+    };
+  }, [isOpen]);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognition.current?.stop();
+    } else {
+      setIsListening(true);
+      recognition.current?.start();
+    }
+  };
+
+  const handleExtractProfile = async (text: string) => {
+    setExtracting(true);
+    try {
+      const response = await parseVoiceProfile(text);
+      if (response.success && response.profile) {
+        const hasData = Object.values(response.profile).some(v => v !== null && v !== undefined && v !== '');
+        if (hasData) {
+          setSuggestedProfile(response.profile);
+        }
+      }
+    } catch (err) {
+      console.error('Profile extraction failed:', err);
+    } finally {
+      setExtracting(false);
+    }
+  };
+
+  const applyProfileUpdate = () => {
+    if (user && suggestedProfile) {
+      const updatedUser = {
+        ...user,
+        profile: {
+          ...user.profile,
+          ...suggestedProfile
+        }
+      };
+      const token = localStorage.getItem('token') || '';
+      login(updatedUser, token);
+      setSuggestedProfile(null);
+      
+      const botMsg: Message = {
+        id: Date.now(),
+        text: "Dhanyawad! I have updated your profile with the details you mentioned. This will help me give you better recommendations.",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+    }
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, suggestedProfile, extracting]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now(),
+      text: input,
+      sender: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const userProfile = user?.profile || { state: 'Pan-India' };
+      const response = await chatWithScheme(userMessage.text, userProfile);
+      
+      const botMessage: Message = {
+        id: Date.now() + 1,
+        text: response.answer || "I couldn't find an answer to that.",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error(error);
+      const errorMessage: Message = {
+        id: Date.now() + 1,
+        text: "Sorry, I encountered an error. Please try again.",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[70] overflow-hidden">
+      <div className="flex items-center justify-center h-full p-4 text-center">
+        <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        </div>
+        <div className="inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+          <div className={`p-4 border-b border-slate-100 bg-indigo-50 flex items-center justify-between flex-shrink-0`}>
+            <div className="flex items-center gap-3">
+              <div className={`bg-indigo-100 p-2 rounded-full`}>
+                <Bot className={`w-6 h-6 text-indigo-600`} />
+              </div>
+              <div>
+                <h2 className="font-semibold text-slate-900">Niti-Setu Assistant</h2>
+                <p className={`text-xs text-indigo-700 font-medium`}>
+                  Admin Control Mode
+                </p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 hover:bg-white rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex-grow overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-white border border-slate-200' : 'bg-indigo-600 text-white'}`}>
+                    {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
+                  </div>
+                  <div className={`p-4 rounded-2xl shadow-sm text-sm leading-relaxed ${msg.sender === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'}`}>
+                    {msg.text}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="flex gap-3 max-w-[80%]">
+                  <div className={`w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0 animate-pulse`}>
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
+                    <Loader2 className={`w-4 h-4 animate-spin text-indigo-50`} />
+                    <span className="text-slate-500 text-sm">AI is thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="p-4 border-t border-slate-100 bg-white">
+            <form onSubmit={handleSend} className="relative flex items-center gap-2">
+              <button type="button" onClick={toggleListening} className={`p-3 rounded-full transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </button>
+              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a scheme..." className="flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm" disabled={loading} />
+              <button type="submit" disabled={loading || !input.trim()} className="bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 disabled:opacity-50 text-white p-3 rounded-full transition-all shadow-md active:scale-95">
+                <Send className="w-5 h-5" />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose: () => void; onRefresh: () => void }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -293,6 +530,7 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isIngestOpen, setIsIngestOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -394,6 +632,27 @@ const AdminDashboard: React.FC = () => {
         </button>
       </div>
 
+      {/* AI Assistant Button (Admin Only) */}
+      <div className="pt-2">
+        <button 
+          onClick={() => setIsChatOpen(true)}
+          className="w-full bg-white border border-indigo-100 p-6 rounded-[2rem] shadow-lg shadow-indigo-50 flex items-center justify-between group hover:border-indigo-300 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+              <MessageSquare className="h-6 w-6" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-bold text-slate-900">AI Assistant Control</h3>
+              <p className="text-xs text-slate-500">Test AI responses and scheme knowledge directly.</p>
+            </div>
+          </div>
+          <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all flex items-center gap-2">
+            Open Chat <ChevronRight className="h-4 w-4" />
+          </div>
+        </button>
+      </div>
+
       <IngestModal 
         isOpen={isIngestOpen} 
         onClose={() => setIsIngestOpen(false)} 
@@ -404,6 +663,11 @@ const AdminDashboard: React.FC = () => {
         isOpen={isHistoryOpen} 
         onClose={() => setIsHistoryOpen(false)} 
         schemes={schemes}
+      />
+
+      <ChatModal 
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
       />
     </div>
   );
