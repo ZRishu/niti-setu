@@ -500,7 +500,7 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
                   ref={searchInputRef}
                   type="text" 
                   placeholder="Search by name..." 
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
@@ -510,7 +510,7 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
                 <input 
                   type="text" 
                   placeholder="Date (DD/MM/YYYY)" 
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
                 />
@@ -520,7 +520,7 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
                 <input 
                   type="number" 
                   placeholder="Min Value (INR)" 
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
                   value={valueFilter}
                   onChange={(e) => setValueFilter(e.target.value)}
                 />
