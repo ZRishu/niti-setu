@@ -11,7 +11,8 @@ import {
   Loader2,
   AlertCircle,
   X,
-  CheckCircle
+  CheckCircle,
+  Search
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -174,6 +175,8 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 
 const AdminDashboard: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
+  const [filteredSchemes, setFilteredSchemes] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -184,6 +187,7 @@ const AdminDashboard: React.FC = () => {
       const response = await getAllSchemes();
       if (response.success) {
         setSchemes(response.data);
+        setFilteredSchemes(response.data);
       } else {
         setError('Failed to fetch ingestion history');
       }
@@ -198,6 +202,19 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  // Real-time search filtering
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredSchemes(schemes);
+    } else {
+      const lowerQuery = searchQuery.toLowerCase();
+      const filtered = schemes.filter(s => 
+        s.name.toLowerCase().includes(lowerQuery)
+      );
+      setFilteredSchemes(filtered);
+    }
+  }, [searchQuery, schemes]);
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -239,10 +256,26 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Admin Search Bar */}
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+        </div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search ingested schemes by name..."
+          className="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all font-medium text-slate-900 placeholder-slate-400"
+        />
+      </div>
+
       <div className="space-y-4">
         <div className="flex items-center gap-2 px-2">
           <History className="h-5 w-5 text-indigo-600" />
-          <h2 className="text-xl font-bold text-slate-800">Ingestion History</h2>
+          <h2 className="text-xl font-bold text-slate-800">
+            {searchQuery ? `Search Results (${filteredSchemes.length})` : 'Ingestion History'}
+          </h2>
         </div>
 
         {loading && schemes.length === 0 ? (
@@ -254,7 +287,7 @@ const AdminDashboard: React.FC = () => {
             <AlertCircle className="h-6 w-6" />
             <p className="font-medium">{error}</p>
           </div>
-        ) : schemes.length > 0 ? (
+        ) : filteredSchemes.length > 0 ? (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -266,7 +299,7 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {schemes.map((scheme) => (
+                  {filteredSchemes.map((scheme) => (
                     <tr key={scheme._id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -300,19 +333,12 @@ const AdminDashboard: React.FC = () => {
         ) : (
           <div className="bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 py-16 text-center space-y-4">
             <div className="p-4 bg-white rounded-full w-fit mx-auto shadow-sm">
-              <FileText className="h-10 w-10 text-slate-300" />
+              <Search className="h-10 w-10 text-slate-300" />
             </div>
             <div>
-              <p className="text-slate-500 font-bold">No schemes have been ingested yet.</p>
-              <p className="text-slate-400 text-sm">Start building your knowledge base by uploading a PDF.</p>
+              <p className="text-slate-500 font-bold">No matching schemes found.</p>
+              <p className="text-slate-400 text-sm">Try searching with a different name or keyword.</p>
             </div>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
-            >
-              <Upload className="h-5 w-5" />
-              Ingest Your First Scheme
-            </button>
           </div>
         )}
       </div>

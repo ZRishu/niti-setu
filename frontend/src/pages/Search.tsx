@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Navigate } from 'react-router-dom';
 import { searchSchemes, checkSchemeEligibility } from '../services/api';
 import type { Scheme, UserProfile } from '../services/api';
 import { Filter, User, MapPin, IndianRupee, CheckCircle2, XCircle, Info, Quote, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
@@ -24,6 +24,11 @@ const SearchPage = () => {
   const [state, setState] = useState(user?.profile?.state || '');
   const [gender, setGender] = useState(user?.profile?.gender || '');
   const [socialCategory, setSocialCategory] = useState(user?.profile?.socialCategory || '');
+
+  // Redirect admin to their own control panel for search/management
+  if (user?.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   useEffect(() => {
     if (user?.profile) {
