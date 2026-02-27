@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -33,62 +33,64 @@ const FaviconSwitcher = () => {
 
 const AppContent = () => {
   const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
+  const isChatPage = location.pathname === '/chat';
   
   useEffect(() => {
     console.log('App Auth State:', { isAuthenticated, user, loading });
   }, [isAuthenticated, user, loading]);
 
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen bg-slate-50">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/search" element={<Search />} />
-            <Route 
-              path="/chat" 
-              element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/login" 
-              element={<AdminLogin />} 
-            />
-            <Route 
-              path="/admin/dashboard" 
-              element={
-                <ProtectedRoute adminOnly>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
-        </main>
+    <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
+      <Navbar />
+      <main className={`flex-grow flex flex-col ${isChatPage ? 'w-full lg:container lg:mx-auto lg:px-4 lg:py-8' : 'container mx-auto px-4 py-8'}`}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route 
+            path="/chat" 
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/login" 
+            element={<AdminLogin />} 
+          />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </main>
+      <div className={isChatPage ? 'hidden lg:block' : 'block'}>
         <Footer />
       </div>
-    </Router>
+    </div>
   );
 };
 
@@ -96,7 +98,9 @@ function App() {
   return (
     <AuthProvider>
       <FaviconSwitcher />
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }

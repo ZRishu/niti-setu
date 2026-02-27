@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Mic, MicOff, RefreshCw, Check, X, UserPlus } from 'lucide-react';
+import { Send, Bot, User, Loader2, Mic, MicOff, RefreshCw, Check, X, UserPlus, Sparkles } from 'lucide-react';
 import { chatWithScheme, parseVoiceProfile } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -49,13 +49,12 @@ const Chat = () => {
       recognition.current = new SpeechRecognition();
       recognition.current.continuous = false;
       recognition.current.interimResults = false;
-      recognition.current.lang = 'hi-IN'; // Default to Hindi for better profile extraction
+      recognition.current.lang = 'hi-IN';
 
       recognition.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
         setIsListening(false);
-        // Automatically trigger profile extraction if it sounds like a self-intro
         if (transcript.length > 20) {
           handleExtractProfile(transcript);
         }
@@ -86,7 +85,6 @@ const Chat = () => {
     try {
       const response = await parseVoiceProfile(text);
       if (response.success && response.profile) {
-        // Only suggest if AI actually found something
         const hasData = Object.values(response.profile).some(v => v !== null && v !== undefined && v !== '');
         if (hasData) {
           setSuggestedProfile(response.profile);
@@ -108,8 +106,6 @@ const Chat = () => {
           ...suggestedProfile
         }
       };
-      // In a real app, we'd call an API to save this. 
-      // For now, update context so it reflects in the session.
       const token = localStorage.getItem('token') || '';
       login(updatedUser, token);
       setSuggestedProfile(null);
@@ -174,46 +170,71 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-14rem)] min-h-[450px]">
-      <div className={`p-3 sm:p-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-primary-50'} flex items-center justify-between flex-shrink-0 transition-colors`}>
+    /* 
+       h-[calc(100dvh-64px)] ensures perfect fit on mobile address bars (dvh)
+       Subtract 64px for the navbar.
+       lg:h-[calc(100vh-14rem)] restores original desktop height.
+    */
+    <div className="flex flex-col h-[calc(100dvh-64px)] lg:h-[calc(100vh-14rem)] w-full lg:max-w-4xl lg:mx-auto bg-white lg:rounded-2xl lg:shadow-sm lg:border lg:border-slate-200 overflow-hidden transition-all">
+      {/* Dynamic Header */}
+      <div className={`px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-white lg:bg-primary-50'} flex items-center justify-between flex-shrink-0 sticky top-0 z-10 shadow-sm lg:shadow-none lg:static`}>
         <div className="flex items-center gap-3">
-          <div className={`${isAdmin ? 'bg-indigo-100' : 'bg-primary-100'} p-2 rounded-full transition-colors`}>
-            <Bot className={`w-5 h-5 sm:w-6 sm:h-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+          <div className="relative">
+            <div className={`${isAdmin ? 'bg-indigo-100' : 'bg-primary-50 lg:bg-primary-100'} p-2 rounded-xl lg:rounded-full`}>
+              <Bot className={`w-5 h-5 sm:w-6 sm:h-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full lg:hidden"></div>
           </div>
           <div>
-            <h2 className="font-semibold text-slate-900 text-sm sm:text-base">Niti-Setu Assistant</h2>
-            <p className={`text-[10px] sm:text-xs ${isAdmin ? 'text-indigo-700' : 'text-primary-700'} font-medium transition-colors`}>
+            <h2 className="font-bold lg:font-semibold text-slate-900 text-sm sm:text-base leading-none mb-1 lg:mb-0">
+              Niti-Setu {lgHiddenSpan('AI Assistant')}
+            </h2>
+            <p className={`text-[10px] sm:text-xs font-bold lg:font-medium ${isAdmin ? 'text-indigo-600' : 'text-primary-600 lg:text-primary-700'} uppercase lg:capitalize tracking-wide lg:tracking-normal`}>
               {user ? `Personalized for ${user.name}` : 'Agricultural Scheme Expert'}
             </p>
           </div>
         </div>
+        <div className="flex items-center gap-2 lg:hidden">
+          <Sparkles className="w-4 h-4 text-slate-400" />
+        </div>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 bg-slate-50/30">
+      {/* Message Area */}
+      <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-6 bg-[#F8F9FD] lg:bg-slate-50/30">
+        <div className="text-center mb-8">
+          <span className="bg-slate-200/50 text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+            Today
+          </span>
+        </div>
+
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] ${
-                msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
-              }`}
+              className={`flex ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%]`}
             >
-              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+              {/* Desktop-only Avatar */}
+              <div className={`hidden lg:flex w-8 h-8 rounded-full items-center justify-center flex-shrink-0 shadow-sm ${
                 msg.sender === 'user' 
                   ? 'bg-white border border-slate-200' 
                   : (isAdmin ? 'bg-indigo-600 text-white' : 'bg-primary-600 text-white')
               }`}>
-                {msg.sender === 'user' ? <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" /> : <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
               </div>
-              
-              <div className={`p-3 sm:p-4 rounded-2xl shadow-sm text-xs sm:text-sm leading-relaxed ${
-                msg.sender === 'user' 
-                  ? 'bg-slate-800 text-white rounded-tr-none' 
-                  : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
-              }`}>
-                {msg.text}
+
+              <div className={`flex flex-col gap-1`}>
+                <div className={`px-4 py-3 rounded-2xl text-sm lg:text-sm shadow-sm ${
+                  msg.sender === 'user' 
+                    ? 'bg-primary-600 lg:bg-slate-800 text-white rounded-tr-none' 
+                    : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
+                }`}>
+                  {msg.text}
+                </div>
+                <span className={`text-[9px] font-bold text-slate-400 uppercase ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
             </div>
           </div>
@@ -221,45 +242,44 @@ const Chat = () => {
 
         {extracting && (
           <div className="flex justify-start">
-            <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex items-center gap-3">
-              <RefreshCw className="w-4 h-4 animate-spin text-amber-600" />
-              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">AI is extracting profile details...</span>
+            <div className="bg-white border border-amber-100 px-4 py-2.5 rounded-2xl flex items-center gap-3 shadow-sm">
+              <RefreshCw className="w-3 h-3 animate-spin text-amber-600" />
+              <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">AI is processing...</span>
             </div>
           </div>
         )}
 
         {suggestedProfile && (
-          <div className="flex justify-start animate-in zoom-in-95 duration-300">
-            <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 max-w-sm shadow-md space-y-4">
-              <div className="flex items-center gap-2 text-indigo-900 mb-2">
-                <UserPlus className="w-5 h-5" />
-                <h4 className="font-bold">Update your profile?</h4>
+          <div className="flex justify-start animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-white border border-indigo-100 rounded-2xl p-5 w-full max-w-[280px] shadow-lg space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                  <UserPlus className="w-4 h-4 text-indigo-600" />
+                </div>
+                <h4 className="font-bold text-xs text-indigo-900 uppercase">Update Profile?</h4>
               </div>
-              <p className="text-xs text-indigo-700 leading-relaxed">
-                I noticed some details about you. Should I save them to your profile?
-              </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {Object.entries(suggestedProfile).map(([key, value]) => (
                   value ? (
-                    <div key={`profile-${key}`} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
-                      <p className="text-[10px] font-bold text-indigo-400 uppercase">{key}</p>
-                      <p className="text-sm font-bold text-indigo-900">{String(value)}</p>
+                    <div key={`profile-${key}`} className="flex justify-between items-center bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">{key}</span>
+                      <span className="text-[10px] font-bold text-slate-900">{String(value)}</span>
                     </div>
                   ) : null
                 ))}
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2">
                 <button 
                   onClick={applyProfileUpdate}
-                  className="flex-grow bg-indigo-600 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition-all"
+                  className="flex-1 bg-indigo-600 text-white py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-md"
                 >
-                  <Check className="w-4 h-4" /> Save
+                  Save
                 </button>
                 <button 
                   onClick={() => setSuggestedProfile(null)}
-                  className="px-4 border border-indigo-200 text-indigo-600 py-2 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                  className="px-3 bg-slate-100 text-slate-400 py-2 rounded-xl"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -274,7 +294,7 @@ const Chat = () => {
               </div>
               <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
                 <Loader2 className={`w-4 h-4 animate-spin ${isAdmin ? 'text-indigo-500' : 'text-primary-500'}`} />
-                <span className="text-slate-500 text-sm">Reviewing documents...</span>
+                <span className="text-slate-500 text-sm">Reviewing...</span>
               </div>
             </div>
           </div>
@@ -282,17 +302,17 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-slate-100 bg-white">
-        <form onSubmit={handleSend} className="relative flex items-center gap-2">
+      {/* Input Area */}
+      <div className="px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 bg-white sticky bottom-0 lg:static">
+        <form onSubmit={handleSend} className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={toggleListening}
-            className={`p-3 rounded-full transition-all ${
+            className={`p-3 rounded-xl lg:rounded-full transition-all active:scale-90 flex-shrink-0 ${
               isListening 
-                ? 'bg-red-100 text-red-600 animate-pulse' 
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-200' 
+                : 'bg-slate-100 text-slate-500'
             }`}
-            title={isListening ? "Listening..." : "Click to speak"}
           >
             {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
@@ -302,15 +322,19 @@ const Chat = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={isListening ? "Listening..." : "Ask about a scheme..."}
-            className={`flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} focus:bg-white transition-all outline-none text-sm`}
+            placeholder={isListening ? "Listening..." : "Ask Niti-Setu..."}
+            className={`flex-grow bg-slate-50 border-slate-200 lg:border rounded-xl lg:rounded-full py-3 px-4 lg:px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} transition-all outline-none text-sm lg:bg-slate-50 lg:focus:bg-white`}
             disabled={loading}
           />
           
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className={`${isAdmin ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100' : 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'} disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-full transition-all shadow-md active:scale-95`}
+            className={`p-3 rounded-xl lg:rounded-full transition-all active:scale-90 flex-shrink-0 ${
+              isAdmin 
+                ? 'bg-indigo-600 text-white shadow-lg lg:shadow-md' 
+                : 'bg-primary-600 text-white shadow-lg lg:shadow-md'
+            } disabled:opacity-50 disabled:shadow-none`}
           >
             <Send className="w-5 h-5" />
           </button>
@@ -319,5 +343,8 @@ const Chat = () => {
     </div>
   );
 };
+
+// Helper to keep code clean
+const lgHiddenSpan = (text: string) => <span className="hidden lg:inline">{text}</span>;
 
 export default Chat;
