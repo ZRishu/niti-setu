@@ -260,10 +260,10 @@ const SearchPage = () => {
                     <button 
                       onClick={() => handleStrictCheck(scheme._id)}
                       disabled={analyzingId === scheme._id}
-                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold border-2 transition-all w-full sm:w-auto text-sm sm:text-base ${
-                        strictResults[scheme._id]
-                          ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'bg-white text-indigo-600 border-indigo-100 hover:border-indigo-600'
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold border-2 transition-all w-full sm:w-auto text-sm sm:text-base border-indigo-600 ${
+                        strictResults[scheme._id] || analyzingId === scheme._id
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-transparent text-indigo-600 hover:bg-indigo-600 hover:text-white'
                       } disabled:opacity-50`}
                     >
                       {analyzingId === scheme._id ? (
