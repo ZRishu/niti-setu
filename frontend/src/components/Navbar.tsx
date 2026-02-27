@@ -115,12 +115,27 @@ export default function Navbar() {
         <>
           {/* Backdrop */}
           <div 
-            className="md:hidden fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
+            className="md:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity duration-300"
             onClick={() => setIsOpen(false)}
           />
           
           {/* Menu Content */}
-          <div className="md:hidden fixed top-[4.5rem] left-4 right-4 z-50 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl overflow-hidden animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="md:hidden fixed top-4 left-4 right-4 z-50 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl overflow-hidden animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100/50">
+              <div className="flex items-center gap-2">
+                <div className={`p-1 rounded-lg ${isAdmin ? 'bg-indigo-50' : 'bg-primary-50'}`}>
+                  <BookOpen className={`h-4 w-4 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+                </div>
+                <span className="font-bold text-sm text-slate-800">Menu</span>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 active:scale-90 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <div className="p-4 space-y-2">
               {!isAdmin && (
                 <>
