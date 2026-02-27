@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Search from './pages/Search';
@@ -11,11 +12,29 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+const FaviconSwitcher = () => {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+    if (favicon) {
+      if (user?.role === 'admin') {
+        favicon.href = '/favicon-indigo.svg';
+      } else {
+        favicon.href = '/favicon-green.svg';
+      }
+    }
+  }, [user]);
+
+  return null;
+};
 
 function App() {
   return (
     <AuthProvider>
+      <FaviconSwitcher />
       <Router>
         <div className="flex flex-col min-h-screen bg-slate-50">
           <Navbar />
