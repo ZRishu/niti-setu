@@ -1,10 +1,10 @@
-import React from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, BookOpen, Search, MessageSquare, User, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,12 +20,14 @@ const Navbar = () => {
   const isAdmin = user?.role === 'admin';
 
   return (
-    <nav className="bg-white shadow-md border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)] sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex-shrink-0 flex items-center gap-2">
-              <BookOpen className={`h-8 w-8 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+            <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex-shrink-0 flex items-center gap-2 group">
+              <div className={`p-1.5 rounded-xl transition-colors duration-300 ${isAdmin ? 'bg-indigo-50 group-hover:bg-indigo-100' : 'bg-primary-50 group-hover:bg-primary-100'}`}>
+                <BookOpen className={`h-6 w-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
+              </div>
               <span className="font-bold text-xl text-slate-800 tracking-tight">Niti-Setu</span>
             </Link>
           </div>
@@ -94,69 +96,119 @@ const Navbar = () => {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-500 hover:text-slate-700 focus:outline-none p-2"
+              className={`flex items-center justify-center gap-2 h-10 px-4 rounded-full font-semibold transition-all duration-300 active:scale-95 ${
+                isOpen 
+                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' 
+                  : 'bg-white border border-slate-200/60 text-slate-700 hover:bg-slate-50 shadow-[0_2px_10px_rgba(0,0,0,0.04)]'
+              }`}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <span className="text-sm tracking-wide">{isOpen ? 'Close' : 'Menu'}</span>
+              <div className={`transition-transform duration-300 ${isOpen ? 'rotate-90 scale-110' : 'rotate-0'}`}>
+                {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </div>
             </button>
           </div>
         </div>
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 animate-in slide-in-from-top duration-200">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
-            {!isAdmin && (
-              <>
-                <MobileNavLink to={isAuthenticated ? "/search" : "/login?message=Please login first to search for schemes"} text="Find Schemes" onClick={() => setIsOpen(false)} />
-                <MobileNavLink to={isAuthenticated ? "/chat" : "/login?message=Please login first to use the AI Assistant"} text="AI Assistant" onClick={() => setIsOpen(false)} />
-                {isAuthenticated && (
-                  <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
-                )}
-              </>
-            )}
-            {isAuthenticated && (
-              <MobileNavLink to="/profile" text="My Profile" onClick={() => setIsOpen(false)} />
-            )}
-          </div>
-          <div className="px-4 py-4 space-y-2">
-            {isAuthenticated ? (
-              <>
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-700 px-2 py-1">
-                  <User className="w-4 h-4 text-slate-500" />
-                  <span>{user?.name} ({user?.role})</span>
+        <>
+          {/* Backdrop */}
+          <div 
+            className="md:hidden fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Menu Content */}
+          <div className="md:hidden fixed top-[4.5rem] left-4 right-4 z-50 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl overflow-hidden animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="p-4 space-y-2">
+              {!isAdmin && (
+                <>
+                  <MobileNavLink 
+                    to={isAuthenticated ? "/search" : "/login?message=Please login first to search for schemes"} 
+                    icon={<Search className="w-5 h-5"/>} 
+                    text="Find Schemes" 
+                    active={isActive('/search')}
+                    onClick={() => setIsOpen(false)} 
+                  />
+                  <MobileNavLink 
+                    to={isAuthenticated ? "/chat" : "/login?message=Please login first to use the AI Assistant"} 
+                    icon={<MessageSquare className="w-5 h-5"/>} 
+                    text="AI Assistant" 
+                    active={isActive('/chat')}
+                    onClick={() => setIsOpen(false)} 
+                  />
+                  {isAuthenticated && (
+                    <MobileNavLink 
+                      to="/dashboard" 
+                      icon={<LayoutDashboard className="w-5 h-5"/>} 
+                      text="Dashboard" 
+                      active={isActive('/dashboard')}
+                      onClick={() => setIsOpen(false)} 
+                    />
+                  )}
+                </>
+              )}
+              {isAuthenticated && (
+                <MobileNavLink 
+                  to="/profile" 
+                  icon={<User className="w-5 h-5"/>} 
+                  text="My Profile" 
+                  active={isActive('/profile')}
+                  variant={isAdmin ? 'indigo' : 'blue'}
+                  onClick={() => setIsOpen(false)} 
+                />
+              )}
+            </div>
+            
+            <div className="p-4 bg-slate-50/80 border-t border-slate-100/50 space-y-3">
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center justify-between px-2">
+                    <div className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                      <div className={`p-2 rounded-full ${isAdmin ? 'bg-indigo-100 text-indigo-600' : 'bg-primary-100 text-primary-600'}`}>
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900">{user?.name}</span>
+                        <span className="text-xs text-slate-500 capitalize">{user?.role}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-base font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors active:scale-[0.98]"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-2xl transition-all active:scale-[0.98]"
+                  >
+                    <LogIn className="w-5 h-5" />
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center px-4 py-3.5 text-base font-semibold text-white bg-primary-600 hover:bg-primary-700 shadow-md shadow-primary-600/20 rounded-2xl transition-all active:scale-[0.98]"
+                  >
+                    Sign Up
+                  </Link>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="block w-full px-3 py-2 text-center text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setIsOpen(false)}
-                  className="block w-full px-3 py-2 text-center text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   );
-};
+}
 
 const NavLink = ({ 
   to, 
@@ -168,7 +220,7 @@ const NavLink = ({
   to: string; 
   text: string; 
   active: boolean; 
-  icon: React.ReactNode;
+  icon: ReactNode;
   variant?: 'blue' | 'green' | 'indigo';
 }) => {
   let activeStyles = 'text-blue-600 bg-blue-50';
@@ -195,14 +247,43 @@ const NavLink = ({
   );
 };
 
-const MobileNavLink = ({ to, text, onClick }: { to: string; text: string; onClick: () => void }) => (
-  <Link
-    to={to}
-    onClick={onClick}
-    className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50"
-  >
-    {text}
-  </Link>
-);
+const MobileNavLink = ({ 
+  to, 
+  text, 
+  icon, 
+  active, 
+  onClick, 
+  variant = 'blue' 
+}: { 
+  to: string; 
+  text: string; 
+  icon?: ReactNode; 
+  active?: boolean; 
+  onClick: () => void; 
+  variant?: 'blue' | 'green' | 'indigo' 
+}) => {
+  let activeStyles = 'text-blue-600 bg-blue-50/80 border-blue-100';
+  let hoverStyles = 'hover:text-blue-600 hover:bg-slate-50 border-transparent';
 
-export default Navbar;
+  if (variant === 'green') {
+    activeStyles = 'text-primary-600 bg-primary-50/80 border-primary-100';
+    hoverStyles = 'hover:text-primary-600 hover:bg-primary-50 border-transparent';
+  } else if (variant === 'indigo') {
+    activeStyles = 'text-indigo-600 bg-indigo-50/80 border-indigo-100';
+    hoverStyles = 'hover:text-indigo-600 hover:bg-indigo-50 border-transparent';
+  }
+
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-base font-semibold transition-all duration-200 border ${
+        active ? activeStyles : `text-slate-600 ${hoverStyles}`
+      }`}
+    >
+      {icon && <div className={`${active ? 'scale-110' : ''} transition-transform duration-200`}>{icon}</div>}
+      {text}
+    </Link>
+  );
+};
+
