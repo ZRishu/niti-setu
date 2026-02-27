@@ -37,7 +37,7 @@ const Navbar = () => {
                   to={isAuthenticated ? "/search" : "/login?message=Please login first to search for schemes"} 
                   icon={<Search className="w-4 h-4"/>} 
                   text="Find Schemes" 
-                  active={isActive('/') || isActive('/search')} 
+                  active={isActive('/search')} 
                 />
                 
                 <NavLink 
