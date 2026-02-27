@@ -7,13 +7,14 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./config/swagger.js";
 import schemeRoutes from './routes/schemeRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
+
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const frontendBuildPath = path.resolve(__dirname, '..', 'frontend', 'dist');
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} request to ${req.originalUrl}`);
+  next();
+});
 // calling to connect mongodb
 connectDB();
 
@@ -33,27 +34,12 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api/v1/schemes', schemeRoutes);
 app.use('/api/v1/auth', authRoutes);
 
-app.use(express.static(frontendBuildPath));
+app.get("/api/v1/health", (req, res) => {
+  res.status(200).json({ status: "API Online", timestamp: new Date() });
+});
 
-
-
-// route for test or heath check
-app.get("*", (req, res) => {
-  if (req.originalUrl.startsWith('/api/v1')) {
-    return res.status(404).json({ message: "API route not found" });
-  }
-
-  const indexPath = path.join(frontendBuildPath, 'index.html');
-
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error("CRITICAL: Frontend index.html not found at:", indexPath);
-      res.status(500).json({
-        error: "Frontend build missing",
-        path_attempted: indexPath
-      });
-    }
-  });
+app.use('/api/v1/*', (req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found on Niti-Setu API` });
 });
 
 //Start server on port 5000
