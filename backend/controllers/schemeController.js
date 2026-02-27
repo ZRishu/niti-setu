@@ -74,7 +74,7 @@ export const ingestScheme = async (req, res) => {
         const splitDocs = await splitTextIntoChunks(cleanContent);
 
         for(const doc of splitDocs){
-          const vector = await getEmbedding(doc.pageContent);
+          const vector = await getEmbedding(doc.pageContent, "document");
           chunksToInsert.push({
             name: schemeName,
             benefits: {
@@ -127,7 +127,7 @@ export const searchSchemes = async (req, res) => {
     const { query, userProfile } = req.body;
     if (!query) return res.status(400).json({ success: false, error: 'Query parameter is required' });
 
-    const rawVector = await getEmbedding(query)
+    const rawVector = await getEmbedding(query);
     const queryVector = Array.from(rawVector);
 
     let searchFilter = {};
@@ -319,7 +319,7 @@ export const getRecommendedSchemes = async( req , res) => {
 
     // generating search string for profile
     const searchQuery = await generateProfileQuery(userProfile);
-    const rawVector = await getEmbedding(searchQuery);
+    const rawVector = await getEmbedding(searchQuery, "query");
     const queryVector = Array.from(rawVector);
 
     // vector search
@@ -335,7 +335,8 @@ export const getRecommendedSchemes = async( req , res) => {
                     filter: {
                         $and: [
                             { "filters.state": { $in: [userProfile.state || "All", "Pan-India", "All"] } },
-                            { "filters.gender": { $in: [userProfile.gender || "All", "All", "Both"] } }
+                            { "filters.gender": { $in: [userProfile.gender || "All", "All", "Both"] } },
+                            { "filters.caste": { $in: [userProfile.caste || userProfile.socialCategory || "All", "General", "All"] } }
                         ]
                     }
                 }

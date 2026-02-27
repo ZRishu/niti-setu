@@ -1,10 +1,28 @@
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
+import { VoyageAIClient } from "voyageai";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import dotenv from 'dotenv';
+import axios from 'axios';
 
 dotenv.config();
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const GROQ_MODEL = "llama-3.1-8b-instant";
+
+const performGoogleSearch = async (query) => {
+  try {
+    const response = await axios.post('https://google.serper.dev/search', 
+      { q: query, gl: "in" }, 
+      { headers: { 'X-API-KEY': process.env.SERPER_API_KEY, 'Content-Type': 'application/json' } }
+    );
+    // Combine top 3 snippets for context
+    return response.data.organic?.slice(0, 3).map(res => `${res.title}: ${res.snippet}`).join("\n") || null;
+  } catch (error) {
+    console.error("Search API Error:", error);
+    return null;
+  }
+};
+
 export const splitTextIntoChunks = async (text) => {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
@@ -15,18 +33,25 @@ export const splitTextIntoChunks = async (text) => {
 
 export const getEmbedding = async (text) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.JINA_API_KEY;
     if (!apiKey) {
-      throw new Error('Google Generative AI API key is not set in environment variables.');
+      throw new Error('JINA AI API key is not set in environment variables.');
     }
-    const response = await ai.models.embedContent({
-      model: "gemini-embedding-001",
-      contents: String(text),
-      config: {
-        outputDimensionality: 768 
+    const response = await axios.post(
+      'https://api.jina.ai/v1/embeddings',
+      {
+        model: 'jina-embeddings-v2-base-en',
+        input: [String(text)],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.JINA_API_KEY}`,
+        },
       }
-    });
-    const vector = response.embeddings[0].values;
+    );
+
+    const vector = response.data.data[0].embedding;
 
     console.log(`[AI Orchestrator] Generated vector dimensions: ${vector.length}`);
     
@@ -36,7 +61,7 @@ export const getEmbedding = async (text) => {
     return vector;
 
   } catch (error) {
-    console.error("Embedding Error:", error);
+    console.error("Jina AI Embedding Error:", error);
     throw error;
   }
 };
@@ -54,12 +79,14 @@ export const extractSchemeDetails = async (text) => {
 
       Text Snippet: "${text.substring(0, 4000)}"`;
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+    const response = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" } // Built-in JSON forcing
     });
-    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
-    return JSON.parse(jsonString);
+    
+    return JSON.parse(response.choices[0].message.content);
+
   } catch (error) {
     console.error("Scheme Details Extraction Error:", error);
     return {
@@ -71,8 +98,15 @@ export const extractSchemeDetails = async (text) => {
 export const generateAnswer = async (userQuery, contextChunks) => {
   try {
     
-    const hasContext = contextChunks && contextChunks.length > 0;
-    const contextString = hasContext ? contextChunks.join("\n\n") : "No specific scheme documents found.";
+   let contextString = contextChunks && contextChunks.length > 0 ? contextChunks.join("\n\n") : "";
+    let source = "database";
+
+    if (!contextString) {
+      console.log("[AI Orchestrator] No local context found. Searching Google...");
+      const searchData = await performGoogleSearch(userQuery);
+      contextString = searchData || "No information found online.";
+      source = "google";
+    }
     const prompt = `
       You are Niti-Setu, a helpful government scheme AI assistant. 
       
@@ -85,16 +119,24 @@ export const generateAnswer = async (userQuery, contextChunks) => {
       1. If Local Database Context is provided, answer the user's question using ONLY that context.
       2. If no Local Database Context is provided AND the user is just greeting you or making small talk, respond politely as an AI assistant.
       3. If no Local Database Context is provided AND the user is asking a specific question about a scheme or policy, USE YOUR GOOGLE SEARCH TOOL to find the latest, accurate information from the internet and answer the question. Start your answer by politely letting the user know you are providing this information from the web.
+      4. Always provide a clear, concise answer in simple language that a common citizen can understand. Avoid jargon and be empathetic to the user's needs.
+      5. Provide citations for any information you provide, whether from the local context or from the web. Cite the exact sentence or data point that supports your answer.
+      6. Provide required documents and application process at the end of the answer if the question is about eligibility or application for a scheme.
+      8. If using web search results, start by saying "Based on current information from the web...".
+      9. Answer the question clearly and accurately using the context above.
     `;
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-            tools: [{ googleSearch: {} }]
-        }
+    const response = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: "You are Niti-Setu, a helpful government scheme assistant. Use the provided context to answer clearly." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.1
     });
-    return response.text;                  
+
+    return response.choices[0].message.content;
+
   } catch (error) {
     console.error("Answer Generation Error:", error);
     return "Sorry, I'm having trouble generating an answer right now. Please try again later.";
@@ -118,12 +160,12 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
       Scheme Context: ${schemeContext}
     `;
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+    const response = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
-    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
-    return JSON.parse(jsonString);
+    return JSON.parse(response.choices[0].message.content);
   } catch (error) {
     console.error("Eligibility Check Error:", error);
     return {
@@ -164,12 +206,12 @@ export const checkEligibility = async (schemeText , userProfile) => {
       }
     `
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+    const response = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
-    const text = response.text.replace(/```json|```/g, "").trim();
-    return JSON.parse(text);
+    return JSON.parse(response.choices[0].message.content);
   }
   catch(error){
     console.log("Eligibility Check Error:", error);
@@ -205,12 +247,12 @@ export const extractProfileFromText = async(rawText) => {
       Farmer's Spoken Text: "${rawText}"
     `;
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+    const response = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
-    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
-    return JSON.parse(jsonString);
+    return JSON.parse(response.choices[0].message.content);
   }
   catch(error){
     console.error("Profile Extraction Error:", error);
