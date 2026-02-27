@@ -61,11 +61,15 @@ const Profile: React.FC = () => {
 
             <div className="space-y-8">
               <div>
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Farming Profile</h3>
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">
+                  {user.role === 'admin' ? 'Work Profile' : 'Farming Profile'}
+                </h3>
                 <div className="space-y-4">
                   <InfoRow icon={<MapPin />} label="Location" value={user.profile?.state ? `${user.profile.district || ''}, ${user.profile.state}` : undefined} />
-                  <InfoRow icon={<Briefcase />} label="Occupation" value={user.profile?.occupation || 'Farmer'} />
-                  <InfoRow icon={<Award />} label="Land Holding" value={user.profile?.landHolding ? `${user.profile.landHolding} Acres` : undefined} />
+                  <InfoRow icon={<Briefcase />} label="Occupation" value={user.role === 'admin' ? 'System Administrator' : (user.profile?.occupation || 'Farmer')} />
+                  {user.role !== 'admin' && (
+                    <InfoRow icon={<Award />} label="Land Holding" value={user.profile?.landHolding ? `${user.profile.landHolding} Acres` : undefined} />
+                  )}
                 </div>
               </div>
             </div>
@@ -74,8 +78,11 @@ const Profile: React.FC = () => {
           <div className="mt-12 pt-8 border-t border-slate-100">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">About Me</h3>
             <p className="text-slate-600 leading-relaxed italic">
-              "I am a {user.profile?.occupation || 'farmer'} from {user.profile?.state || 'India'}. 
-              I use Niti-Setu to stay updated on government schemes that can help improve my livelihood and agricultural productivity."
+              {user.role === 'admin' ? (
+                `"I am an administrator for Niti-Setu. I am dedicated to managing the intelligence engine, ensuring high-quality scheme ingestion, and leveraging AI to empower citizens with precise and accessible information."`
+              ) : (
+                `"I am a ${user.profile?.occupation || 'farmer'} from ${user.profile?.state || 'India'}. I use Niti-Setu to stay updated on government schemes that can help improve my livelihood and agricultural productivity."`
+              )}
             </p>
           </div>
         </div>
