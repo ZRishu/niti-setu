@@ -287,7 +287,7 @@ const Chat = () => {
           <button
             type="button"
             onClick={toggleListening}
-            className={`p-3 rounded-xl lg:rounded-full transition-all active:scale-90 flex-shrink-0 ${
+            className={`p-3 rounded-full transition-all active:scale-90 flex-shrink-0 ${
               isListening 
                 ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-200' 
                 : 'bg-slate-100 text-slate-500'
@@ -302,14 +302,14 @@ const Chat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : "Ask Niti-Setu..."}
-            className={`flex-1 min-w-0 bg-slate-50 border-slate-200 lg:border rounded-xl lg:rounded-full py-3 px-4 lg:px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} transition-all outline-none text-sm lg:bg-slate-50 lg:focus:bg-white`}
+            className={`flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-full py-3 px-4 lg:px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} transition-all outline-none text-sm lg:bg-slate-50 lg:focus:bg-white`}
             disabled={loading}
           />
           
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className={`p-3 rounded-xl lg:rounded-full transition-all active:scale-90 flex-shrink-0 ${
+            className={`p-3 rounded-full transition-all active:scale-90 flex-shrink-0 ${
               isAdmin 
                 ? 'bg-indigo-600 text-white shadow-lg lg:shadow-md' 
                 : 'bg-primary-600 text-white shadow-lg lg:shadow-md'
