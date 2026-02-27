@@ -384,7 +384,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                   required
                   value={schemeName}
                   onChange={(e) => setSchemeName(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
                   placeholder="e.g., PM Kisan Samman Nidhi"
                 />
               </div>
@@ -395,7 +395,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                   type="number"
                   value={benefitsValue}
                   onChange={(e) => setBenefitsValue(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
                   placeholder="e.g., 6000"
                 />
               </div>
@@ -403,7 +403,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Document (PDF)</label>
                 <div className={`mt-1 flex justify-center px-6 pt-4 pb-5 border-2 border-dashed rounded-2xl transition-all ${
-                    file ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300 hover:bg-indigo-50/10'
+                    file ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300 hover:bg-indigo-50/10'
                 }`}>
                   <div className="space-y-2 text-center">
                     <div className={`mx-auto p-3 rounded-full w-fit ${file ? 'bg-indigo-100' : 'bg-slate-100'}`}>
