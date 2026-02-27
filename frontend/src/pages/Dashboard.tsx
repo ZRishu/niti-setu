@@ -80,7 +80,7 @@ const Dashboard: React.FC = () => {
               <FileText className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Analyzed</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Schemes Analyzed</p>
               <p className="text-lg font-black text-slate-900">{metrics?.schemes_analyzed || 0}</p>
             </div>
           </div>
@@ -89,21 +89,9 @@ const Dashboard: React.FC = () => {
               <CheckCircle className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Checks</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Eligibility Checks</p>
               <p className="text-lg font-black text-slate-900">{metrics?.eligibility_checks_performed || 0}</p>
             </div>
-          </div>
-          <div className="col-span-2 bg-gradient-to-r from-primary-600 to-primary-500 p-4 rounded-2xl shadow-md flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-md">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-primary-50 uppercase tracking-widest leading-none mb-1">Avg AI Speed</p>
-                <p className="text-xl font-black text-white">{metrics?.average_response_time_seconds || '0s'}</p>
-              </div>
-            </div>
-            <Sparkles className="h-6 w-6 text-white/40" />
           </div>
         </div>
 
@@ -169,7 +157,7 @@ const Dashboard: React.FC = () => {
       <div className="hidden lg:block space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Namaste, {user?.name.split(' ')[0]}</h1>
             <p className="text-slate-500 font-medium">Overview of your profile and recommended schemes.</p>
           </div>
           <div className="bg-primary-600 p-3 rounded-2xl shadow-xl shadow-primary-100 ring-4 ring-primary-50">
@@ -203,7 +191,7 @@ const Dashboard: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
                 <h2 className="font-bold text-slate-800">Your Profile</h2>
-                <Link to="/profile" className="text-xs font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider">Edit</Link>
+                <Link to="/profile" className="text-xs font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider">View</Link>
               </div>
               <div className="p-6 space-y-4">
                 <ProfileItem icon={<UserIcon className="h-4 w-4" />} label="Name" value={user?.name} />
