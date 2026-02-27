@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { searchSchemes, checkSchemeEligibility } from '../services/api';
 import type { Scheme, UserProfile } from '../services/api';
-import { Filter, User, MapPin, IndianRupee, CheckCircle2, XCircle, Info, Quote, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const SearchPage = () => {

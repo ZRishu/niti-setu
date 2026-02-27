@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getDashboardMetrics, getRecommendedSchemes, type User, type Scheme } from '../services/api';
+import { getDashboardMetrics, getRecommendedSchemes, type Scheme } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { LayoutDashboard, FileText, CheckCircle, Clock, User as UserIcon, Mail, Phone, MapPin, Briefcase, Sparkles, ChevronRight, IndianRupee, ExternalLink, Loader2 } from 'lucide-react';

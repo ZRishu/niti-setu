@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getAllSchemes, ingestScheme, chatWithScheme, parseVoiceProfile } from '../services/api';
 import { 
-  LayoutDashboard, 
   Upload, 
   History, 
   FileText, 
@@ -14,13 +13,11 @@ import {
   CheckCircle,
   Search,
   IndianRupee,
-  Filter,
   MessageSquare,
   Bot,
   User,
   Mic,
   MicOff,
-  RefreshCw,
   Send,
   UserPlus,
   Check
@@ -49,11 +46,10 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
+  const [suggestedProfile, setSuggestedProfile] = useState<Record<string, any> | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
-  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     if (isOpen) {
@@ -609,8 +605,8 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
 
 const AdminDashboard: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [setLoading] = useState(true);
+  const [setError] = useState<string | null>(null);
   const [isIngestOpen, setIsIngestOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
