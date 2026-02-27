@@ -5,7 +5,6 @@ const SchemeSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Please add new Schema name'],
-      unique: true,
       trim: true,
     },
 
@@ -32,16 +31,10 @@ const SchemeSchema = new mongoose.Schema(
 
     // for RAG and Embeddings
     original_pdf_url: String,
-    text_chunks: [
-      {
-        content: String,
-        vector: [Number],
-        page: Number,
-        // embedding: [Number]
-      },
-    ],
+    snippet: String,
+    vector: [Number],
+    page_number: Number,
 
-    // filtering metadata and fast search
   },
   { timestamps: true }
 );

@@ -9,7 +9,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.43.0",
     "@langchain/community": "^0.3.28",
     "@langchain/core": "^0.3.37",
     "@langchain/google-genai": "^0.1.8",

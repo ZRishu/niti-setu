@@ -1,11 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export const splitTextIntoChunks = async (text) => {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
@@ -20,9 +19,22 @@ export const getEmbedding = async (text) => {
     if (!apiKey) {
       throw new Error('Google Generative AI API key is not set in environment variables.');
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
-    const result = await model.embedContent(text);
-    return result.embedding.values;
+    const response = await ai.models.embedContent({
+      model: "gemini-embedding-001",
+      contents: String(text),
+      config: {
+        outputDimensionality: 768 
+      }
+    });
+    const vector = response.embeddings[0].values;
+
+    console.log(`[AI Orchestrator] Generated vector dimensions: ${vector.length}`);
+    
+    if (vector.length !== 768) {
+        throw new Error(`CRITICAL: Expected 768 dimensions, got ${vector.length}`);
+    }
+    return vector;
+
   } catch (error) {
     console.error("Embedding Error:", error);
     throw error;
@@ -31,7 +43,6 @@ export const getEmbedding = async (text) => {
 
 export const extractSchemeDetails = async (text) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const prompt = `Analyze the following government scheme document text and extract structured data.
       Return ONLY a JSON object (no markdown) with these fields:
@@ -43,9 +54,11 @@ export const extractSchemeDetails = async (text) => {
 
       Text Snippet: "${text.substring(0, 4000)}"`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
-    const jsonString = response.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+    });
+    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
     return JSON.parse(jsonString);
   } catch (error) {
     console.error("Scheme Details Extraction Error:", error);
@@ -57,21 +70,31 @@ export const extractSchemeDetails = async (text) => {
 
 export const generateAnswer = async (userQuery, contextChunks) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    
+    const hasContext = contextChunks && contextChunks.length > 0;
+    const contextString = hasContext ? contextChunks.join("\n\n") : "No specific scheme documents found.";
     const prompt = `
-      You are a helpful government scheme assistant. 
-      Answer the user's question using ONLY the provided context information below.
-      If the answer is not in the context, politely say you don't know.
-      Keep the answer concise, accurate, and easy to understand.
-
+      You are Niti-Setu, a helpful government scheme AI assistant. 
+      
       User Question: "${userQuery}"
 
-      Context Information:
-      ${contextChunks.join("\n\n")}
+      Local Database Context:
+      ${contextString}
+
+      Instructions:
+      1. If Local Database Context is provided, answer the user's question using ONLY that context.
+      2. If no Local Database Context is provided AND the user is just greeting you or making small talk, respond politely as an AI assistant.
+      3. If no Local Database Context is provided AND the user is asking a specific question about a scheme or policy, USE YOUR GOOGLE SEARCH TOOL to find the latest, accurate information from the internet and answer the question. Start your answer by politely letting the user know you are providing this information from the web.
     `;
 
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            tools: [{ googleSearch: {} }]
+        }
+    });
+    return response.text;                  
   } catch (error) {
     console.error("Answer Generation Error:", error);
     return "Sorry, I'm having trouble generating an answer right now. Please try again later.";
@@ -80,7 +103,6 @@ export const generateAnswer = async (userQuery, contextChunks) => {
 
 export const checkEligibilityWithCitations = async (userProfile, schemeContext) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
       Analyze the eligibility of a user based on their profile and the scheme context provided. 
       Determine if they are Eligible or Not Eligible.
@@ -96,9 +118,11 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
       Scheme Context: ${schemeContext}
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
-    const jsonString = response.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+    });
+    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
     return JSON.parse(jsonString);
   } catch (error) {
     console.error("Eligibility Check Error:", error);
@@ -114,8 +138,6 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
 // eligibility check yes or a no
 export const checkEligibility = async (schemeText , userProfile) => {
   try{
-    const model = genAI.getGenerativeModel({model : "gemini-2.5-flash"});
-
     const prompt = `
     You are a strict government eligibility officer.
     Analyze the scheme rules below and compare them with the applicant's profile.
@@ -136,14 +158,17 @@ export const checkEligibility = async (schemeText , userProfile) => {
         "isEligible": boolean,
         "reason": "Clear explanation of why (e.g., 'Land holding is 5 acres, but limit is 2 acres')",
         "missing_criteria": ["List specific requirements they failed, if any"],
-        "citation": "Quote the exact sentence from the text that proves this rule"
+        "citation": "Quote the exact sentence from the text that proves this rule",
         "documents_required": ["Aadhar Card", "Land Ownership Proof", "etc..."] 
       
       }
     `
 
-    const result = await model.generateContent(prompt)
-    const text = result.response.text().replace(/```json|```/g, "").trim();
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+    });
+    const text = response.text.replace(/```json|```/g, "").trim();
     return JSON.parse(text);
   }
   catch(error){
@@ -162,7 +187,6 @@ export const generateProfileQuery = async (userProfile) => {
 
 export const extractProfileFromText = async(rawText) => {
   try{
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
     You are an AI assistant helping Indian farmers.
@@ -181,8 +205,11 @@ export const extractProfileFromText = async(rawText) => {
       Farmer's Spoken Text: "${rawText}"
     `;
 
-    const result = await model.generateContent(prompt);
-    const jsonString = result.response.text().replace(/```json|\n```/g, '').replace(/```/g, '').trim();
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+    });
+    const jsonString = response.text.replace(/```json|\n```/g, '').replace(/```/g, '').trim();
     return JSON.parse(jsonString);
   }
   catch(error){
