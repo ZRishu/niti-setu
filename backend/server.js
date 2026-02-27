@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const frontendBuildPath = path.resolve(__dirname, '..', 'frontend', 'dist');
 // calling to connect mongodb
 connectDB();
 
@@ -33,7 +33,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api/v1/schemes', schemeRoutes);
 app.use('/api/v1/auth', authRoutes);
 
-const frontendBuildPath = path.resolve(__dirname, '../frontend/dist');
 app.use(express.static(frontendBuildPath));
 
 
@@ -43,10 +42,16 @@ app.get("*", (req, res) => {
   if (req.originalUrl.startsWith('/api/v1')) {
     return res.status(404).json({ message: "API route not found" });
   }
-  
-  res.sendFile(path.join(frontendBuildPath, 'index.html'), (err) => {
+
+  const indexPath = path.join(frontendBuildPath, 'index.html');
+
+  res.sendFile(indexPath, (err) => {
     if (err) {
-      res.status(500).send("Frontend build not found. Ensure 'npm run build' was executed.");
+      console.error("CRITICAL: Frontend index.html not found at:", indexPath);
+      res.status(500).json({
+        error: "Frontend build missing",
+        path_attempted: indexPath
+      });
     }
   });
 });
