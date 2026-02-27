@@ -34,14 +34,14 @@ const Navbar = () => {
             {!isAdmin && (
               <>
                 <NavLink 
-                  to={isAuthenticated ? "/search" : "/login"} 
+                  to={isAuthenticated ? "/search" : "/login?message=Please login first to search for schemes"} 
                   icon={<Search className="w-4 h-4"/>} 
                   text="Find Schemes" 
                   active={isActive('/') || isActive('/search')} 
                 />
                 
                 <NavLink 
-                  to={isAuthenticated ? "/chat" : "/login"} 
+                  to={isAuthenticated ? "/chat" : "/login?message=Please login first to use the AI Assistant"} 
                   icon={<MessageSquare className="w-4 h-4"/>} 
                   text="AI Assistant" 
                   active={isActive('/chat')} 
@@ -107,8 +107,8 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
             {!isAdmin && (
               <>
-                <MobileNavLink to={isAuthenticated ? "/search" : "/login"} text="Find Schemes" onClick={() => setIsOpen(false)} />
-                <MobileNavLink to={isAuthenticated ? "/chat" : "/login"} text="AI Assistant" onClick={() => setIsOpen(false)} />
+                <MobileNavLink to={isAuthenticated ? "/search" : "/login?message=Please login first to search for schemes"} text="Find Schemes" onClick={() => setIsOpen(false)} />
+                <MobileNavLink to={isAuthenticated ? "/chat" : "/login?message=Please login first to use the AI Assistant"} text="AI Assistant" onClick={() => setIsOpen(false)} />
                 {isAuthenticated && (
                   <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
                 )}
