@@ -33,13 +33,22 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api/v1/schemes', schemeRoutes);
 app.use('/api/v1/auth', authRoutes);
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+const frontendBuildPath = path.resolve(__dirname, '../frontend/dist');
+app.use(express.static(frontendBuildPath));
+
 
 
 // route for test or heath check
 app.get("*", (req, res) => {
-
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  if (req.originalUrl.startsWith('/api/v1')) {
+    return res.status(404).json({ message: "API route not found" });
+  }
+  
+  res.sendFile(path.join(frontendBuildPath, 'index.html'), (err) => {
+    if (err) {
+      res.status(500).send("Frontend build not found. Ensure 'npm run build' was executed.");
+    }
+  });
 });
 
 //Start server on port 5000
