@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Mic, MicOff, RefreshCw, Check, X, UserPlus } from 'lucide-react';
 import { chatWithScheme, parseVoiceProfile } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 interface Message {
   id: number;
@@ -12,6 +13,12 @@ interface Message {
 
 const Chat = () => {
   const { user, login } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  if (isAdmin) {
+    return <Navigate to="/admin/dashboard?chat=true" replace />;
+  }
+
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -24,10 +31,9 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
+  const [suggestedProfile, setSuggestedProfile] = useState<Record<string, any> | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isAdmin = user?.role === 'admin';
 
   // Voice Input Logic
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -229,12 +235,12 @@ const Chat = () => {
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(suggestedProfile).map(([key, value]) => (
-                  value && (
-                    <div key={key} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
+                  value ? (
+                    <div key={`profile-${key}`} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
                       <p className="text-[10px] font-bold text-indigo-400 uppercase">{key}</p>
                       <p className="text-sm font-bold text-indigo-900">{String(value)}</p>
                     </div>
-                  )
+                  ) : null
                 ))}
               </div>
               <div className="flex gap-2 pt-2">

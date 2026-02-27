@@ -25,7 +25,7 @@ import {
   UserPlus,
   Check
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface Message {
@@ -222,6 +222,45 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
                 </div>
               </div>
             ))}
+
+            {suggestedProfile && (
+              <div className="flex justify-start animate-in zoom-in-95 duration-300">
+                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 max-w-sm shadow-md space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-900 mb-2">
+                    <UserPlus className="w-5 h-5" />
+                    <h4 className="font-bold">Update your profile?</h4>
+                  </div>
+                  <p className="text-xs text-indigo-700 leading-relaxed">
+                    I noticed some details about you. Should I save them to your profile?
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(suggestedProfile || {}).map(([key, value]) => (
+                      value && (
+                        <div key={`profile-${key}`} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
+                          <p className="text-[10px] font-bold text-indigo-400 uppercase">{key}</p>
+                          <p className="text-sm font-bold text-indigo-900">{String(value)}</p>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button 
+                      onClick={applyProfileUpdate}
+                      className="flex-grow bg-indigo-600 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition-all"
+                    >
+                      <Check className="w-4 h-4" /> Save
+                    </button>
+                    <button 
+                      onClick={() => setSuggestedProfile(null)}
+                      className="px-4 border border-indigo-200 text-indigo-600 py-2 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {loading && (
               <div className="flex justify-start">
                 <div className="flex gap-3 max-w-[80%]">
