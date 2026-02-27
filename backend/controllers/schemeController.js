@@ -127,16 +127,23 @@ export const searchSchemes = async (req, res) => {
     const { query, userProfile } = req.body;
     if (!query) return res.status(400).json({ success: false, error: 'Query parameter is required' });
 
+    console.log(`[Search] Query: "${query}", Profile:`, userProfile);
+
     const rawVector = await getEmbedding(query);
     const queryVector = Array.from(rawVector);
 
-    let searchFilter = {};
+    const andConditions = [];
     if (userProfile && Object.keys(userProfile).length > 0) {
-      const conditions = [];
-      if (userProfile.state) conditions.push({ 'filters.state': { $in: [userProfile.state, 'Pan-India', 'All India', 'All'] } });
-      if (userProfile.gender) conditions.push({ 'filters.gender': { $in: [userProfile.gender, 'All', 'Both'] } });
-      if (userProfile.socialCategory) conditions.push({ 'filters.caste': { $in: [userProfile.socialCategory, 'General', 'All'] } });
-      if (conditions.length > 0) searchFilter = { $and: conditions };
+      if (userProfile.state) {
+        andConditions.push({ 'filters.state': { $in: [userProfile.state, 'Pan-India', 'All India', 'All'] } });
+      }
+      if (userProfile.gender) {
+        andConditions.push({ 'filters.gender': { $in: [userProfile.gender, 'All', 'Both'] } });
+      }
+      const category = userProfile.caste || userProfile.socialCategory;
+      if (category) {
+        andConditions.push({ 'filters.caste': { $in: [category, 'General', 'All'] } });
+      }
     }
 
     const vectorSearchStage = {
@@ -147,9 +154,11 @@ export const searchSchemes = async (req, res) => {
       limit: 5
     };
 
-    if (Object.keys(searchFilter).length > 0) {
-      vectorSearchStage.filter = searchFilter;
+    if (andConditions.length > 0) {
+      vectorSearchStage.filter = { $and: andConditions };
     }
+
+    console.log(`[Search] Running Vector Search with filter:`, vectorSearchStage.filter || 'none');
 
     const results = await Scheme.aggregate([
       { $vectorSearch: vectorSearchStage },
@@ -166,16 +175,24 @@ export const searchSchemes = async (req, res) => {
       { $sort: { score: -1 } }
     ]);
 
+    console.log(`[Search] Found ${results.length} results.`);
+
     const enhancedResults = await Promise.all(results.map(async (scheme) => {
         if (userProfile && Object.keys(userProfile).length > 0) {
-            const aiDecision = await checkEligibilityWithCitations(userProfile, scheme.snippet);
-            return { ...scheme, _id: scheme.docId, eligibility: aiDecision }; // remap _id for frontend
+            try {
+              const aiDecision = await checkEligibilityWithCitations(userProfile, scheme.snippet);
+              return { ...scheme, _id: scheme.docId, eligibility: aiDecision }; 
+            } catch (aiErr) {
+              console.error(`[Search AI Error]`, aiErr);
+              return { ...scheme, _id: scheme.docId };
+            }
         }
         return { ...scheme, _id: scheme.docId };
     }));
 
     res.status(200).json({ success: true, count: enhancedResults.length, data: enhancedResults });
   } catch (err) {
+    console.error(`[Search Error]`, err);
     res.status(500).json({ success: false, error: err.message });
   }
 };
@@ -209,24 +226,22 @@ export const chatWithScheme = async (req, res) => {
 
     if (!query) return res.status(400).json({success: false, error: 'Query parameter is required'});
     
+    console.log(`[Chat] Query: "${query}", Profile:`, userProfile);
+
     const rawVector = await getEmbedding(query);
     const queryVector = Array.from(rawVector);
-    let searchFilter = {}
-
-
-    if(userProfile && Object.keys(userProfile).length > 0 ) {
-      const conditions = [];
-      if(userProfile.state){
-        conditions.push({"filters.state": {$in: [userProfile.state, "Pan-India", "Pan India", "India", "Central", "All India", "All"]}});
+    
+    const andConditions = [];
+    if (userProfile && Object.keys(userProfile).length > 0) {
+      if (userProfile.state) {
+        andConditions.push({ "filters.state": { $in: [userProfile.state, "Pan-India", "Pan India", "India", "Central", "All India", "All"] } });
       }
-      if(userProfile.gender){
-        conditions.push({"filters.gender": {$in: [userProfile.gender, "All", "Male", "Female", "Women", "Both"]}});
+      if (userProfile.gender) {
+        andConditions.push({ "filters.gender": { $in: [userProfile.gender, "All", "Male", "Female", "Women", "Both"] } });
       }
-      if(userProfile.caste){
-        conditions.push({'filters.caste': {$in: [userProfile.caste, 'General', 'All']}});
-      }
-      if(conditions.length > 0){
-        searchFilter = {$and: conditions};
+      const category = userProfile.caste || userProfile.socialCategory;
+      if (category) {
+        andConditions.push({ "filters.caste": { $in: [category, 'General', 'All'] } });
       }
     }
 
@@ -238,16 +253,20 @@ export const chatWithScheme = async (req, res) => {
       limit: 3
     };
 
-    if (Object.keys(searchFilter).length > 0) vectorSearchStage.filter = searchFilter;
+    if (andConditions.length > 0) {
+      vectorSearchStage.filter = { $and: andConditions };
+    }
+
+    console.log(`[Chat] Running Vector Search with filter:`, vectorSearchStage.filter || 'none');
 
     const searchResults = await Scheme.aggregate([
       { $vectorSearch: vectorSearchStage },
       { $project: { snippet: 1, page: "$page_number" } } 
-
     ]);
 
+    console.log(`[Chat] Found ${searchResults.length} context chunks.`);
+
     if (searchResults.length === 0) {
-      // Pass an empty array to the AI so it can just respond to the greeting
       const casualAnswer = await generateAnswer(query, []);
       return res.json({ success: true, answer: casualAnswer, sources: [] });
     }
@@ -262,6 +281,7 @@ export const chatWithScheme = async (req, res) => {
     });
 
   } catch (err) {
+    console.error(`[Chat Error]`, err);
     res.status(500).json({ success: false, error: err.message });
   }
 }
@@ -317,34 +337,50 @@ export const getRecommendedSchemes = async( req , res) => {
       return res.status(400).json({ success: false, error: "User Profile is required" });
     }
 
+    console.log(`[Recommendations] Generating recommendations for profile:`, userProfile);
+
     // generating search string for profile
     const searchQuery = await generateProfileQuery(userProfile);
-    const rawVector = await getEmbedding(searchQuery, "query");
+    console.log(`[Recommendations] Generated Search Query: "${searchQuery}"`);
+
+    const rawVector = await getEmbedding(searchQuery);
     const queryVector = Array.from(rawVector);
 
-    // vector search
+    // Dynamic filter building
+    const andConditions = [];
+    
+    // State filter
+    if (userProfile.state) {
+      andConditions.push({ "filters.state": { $in: [userProfile.state, "Pan-India", "All India", "All"] } });
+    }
+    
+    // Gender filter
+    if (userProfile.gender) {
+      andConditions.push({ "filters.gender": { $in: [userProfile.gender, "All", "Both"] } });
+    }
+    
+    // Caste filter (handles both caste and socialCategory)
+    const category = userProfile.caste || userProfile.socialCategory;
+    if (category) {
+      andConditions.push({ "filters.caste": { $in: [category, "General", "All"] } });
+    }
+
+    const vectorSearchStage = {
+      index: "vector_index",
+      path: "vector",
+      queryVector: queryVector,
+      numCandidates: 100,
+      limit: 10
+    };
+
+    if (andConditions.length > 0) {
+      vectorSearchStage.filter = { $and: andConditions };
+    }
 
     const pipeline = [
+      { $vectorSearch: vectorSearchStage },
+      { $set: { searchScore: { $meta: 'vectorSearchScore' } } },
       {
-                $vectorSearch: {
-                    index: "vector_index",
-                    path: "vector",
-                    queryVector: queryVector,
-                    numCandidates: 100,
-                    limit: 10,
-                    filter: {
-                        $and: [
-                            { "filters.state": { $in: [userProfile.state || "All", "Pan-India", "All"] } },
-                            { "filters.gender": { $in: [userProfile.gender || "All", "All", "Both"] } },
-                            { "filters.caste": { $in: [userProfile.caste || userProfile.socialCategory || "All", "General", "All"] } }
-                        ]
-                    }
-                }
-            },
-
-            { $set: { searchScore: { $meta: 'vectorSearchScore' } } },
-
-           {
           $group: {
               _id: "$name",
               docId: { $first: "$_id" },
@@ -357,9 +393,11 @@ export const getRecommendedSchemes = async( req , res) => {
       },
       { $sort: { score: -1 } },
       { $limit: 5 }
-    ]
+    ];
 
+    console.log(`[Recommendations] Running Vector Search Pipeline...`);
     const recommendations = await Scheme.aggregate(pipeline);
+    console.log(`[Recommendations] Found ${recommendations.length} matches.`);
 
     res.json({
       success: true,
@@ -370,6 +408,7 @@ export const getRecommendedSchemes = async( req , res) => {
   }
 
   catch(err){
+    console.error(`[Recommendations Error]`, err);
     res.status(500).json({ success: false, error: err.message });
   }
 }
