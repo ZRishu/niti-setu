@@ -73,12 +73,12 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 
   return (
     <div className="fixed inset-0 z-[70] overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-6 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
+        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-4 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -185,12 +185,12 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
 
   return (
     <div className="fixed inset-0 z-[70] overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-6 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-4 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom-4 duration-300">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -318,8 +318,8 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 animate-fade-in pb-12 pt-4">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="max-w-5xl mx-auto space-y-4 animate-fade-in -mt-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-[0.2em] text-[10px]">
             <div className="h-1 w-4 bg-indigo-600 rounded-full" />
@@ -342,7 +342,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Primary Action: Ingest */}
         <button 
           onClick={() => setIsIngestOpen(true)}
@@ -398,7 +398,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard label="Live Schemes" value={schemes.length} color="text-indigo-600" />
         <StatCard label="AI Training Level" value="100%" color="text-green-600" />
         <StatCard label="System Security" value="Verified" color="text-blue-600" />
@@ -420,7 +420,7 @@ const AdminDashboard: React.FC = () => {
 };
 
 const StatCard = ({ label, value, color }: { label: string; value: string | number; color: string }) => (
-  <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-1">
+  <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-1">
     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{label}</p>
     <p className={`text-2xl font-black ${color}`}>{value}</p>
   </div>
