@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Mic, MicOff, RefreshCw, Check, X, UserPlus, Sparkles } from 'lucide-react';
+import { Send, Bot, Loader2, Mic, MicOff, RefreshCw, X, UserPlus, Sparkles } from 'lucide-react';
 import { chatWithScheme, parseVoiceProfile } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
