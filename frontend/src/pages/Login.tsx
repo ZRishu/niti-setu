@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { login as apiLogin } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { ShieldAlert, LogIn, Mail, Lock } from 'lucide-react';
+import { ShieldAlert, LogIn, Mail, Lock, Info } from 'lucide-react';
 
 const Login: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const msg = searchParams.get('message');
+    if (msg) {
+      setInfoMessage(msg);
+    }
+  }, [searchParams]);
 
   const validateForm = () => {
     // Email validation
@@ -76,6 +85,12 @@ const Login: React.FC = () => {
         </div>
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+          {infoMessage && (
+            <div className="bg-indigo-50 border border-indigo-200 text-indigo-600 px-4 py-3 rounded-md text-sm flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              {infoMessage}
+            </div>
+          )}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
