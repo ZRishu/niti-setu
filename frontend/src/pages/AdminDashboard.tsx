@@ -52,7 +52,16 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
   const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        chatInputRef.current?.focus();
+      }, 300);
+    }
+  }, [isOpen]);
 
   // Voice Input Logic
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -282,7 +291,15 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
               <button type="button" onClick={toggleListening} className={`p-3 rounded-full transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                 {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
               </button>
-              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a scheme..." className="flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm" disabled={loading} />
+              <input 
+                ref={chatInputRef}
+                type="text" 
+                value={input} 
+                onChange={(e) => setInput(e.target.value)} 
+                placeholder="Ask about a scheme..." 
+                className="flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm" 
+                disabled={loading} 
+              />
               <button type="submit" disabled={loading || !input.trim()} className="bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 disabled:opacity-50 text-white p-3 rounded-full transition-all shadow-md active:scale-95">
                 <Send className="w-5 h-5" />
               </button>
@@ -300,6 +317,15 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
   const [benefitsValue, setBenefitsValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 300);
+    }
+  }, [isOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -362,7 +388,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                 </div>
                 <h3 className="text-xl font-bold text-slate-900">Ingest New Scheme</h3>
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 hover:bg-slate-50 rounded-lg">
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 hover:bg-white rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -380,6 +406,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Name</label>
                 <input
+                  ref={nameInputRef}
                   type="text"
                   required
                   value={schemeName}
