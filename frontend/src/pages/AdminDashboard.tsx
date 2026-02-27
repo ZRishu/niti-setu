@@ -72,13 +72,12 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-6 text-center sm:block sm:p-0">
+    <div className="fixed inset-0 z-[70] overflow-hidden">
+      <div className="flex items-center justify-center h-full p-4 text-center">
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-4 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
+        <div className="inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -127,7 +126,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Document (PDF)</label>
-                <div className={`mt-1 flex justify-center px-6 pt-8 pb-9 border-2 border-dashed rounded-2xl transition-all ${
+                <div className={`mt-1 flex justify-center px-6 pt-4 pb-5 border-2 border-dashed rounded-2xl transition-all ${
                     file ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300 hover:bg-indigo-50/10'
                 }`}>
                   <div className="space-y-2 text-center">
@@ -184,13 +183,12 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-6 text-center sm:block sm:p-0">
+    <div className="fixed inset-0 z-[70] overflow-hidden">
+      <div className="flex items-center justify-center h-full p-4 text-center">
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-4 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom-4 duration-300">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -238,7 +236,7 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
               </div>
             </div>
 
-            <div className="max-h-[50vh] overflow-y-auto rounded-2xl border border-slate-100">
+            <div className="max-h-[40vh] overflow-y-auto rounded-2xl border border-slate-100">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-slate-50 z-10">
                   <tr>
