@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { Search, ChevronRight, Mic, ShieldCheck, FileText, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,6 +7,11 @@ const Home = () => {
   const { isAuthenticated, user } = useAuth();
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
+
+  // Redirect admin to their own control panel as home has no use for them
+  if (isAuthenticated && user?.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,12 +87,12 @@ const Home = () => {
           <FeatureCard 
             title="PDF Decoded" 
             desc="We read 50-page guidelines so you don't have to. Real citations provided." 
-            icon={<FileText className="w-6 h-6 text-primary-600" />}
+            icon={<FileText className="h-6 w-6 text-primary-600" />}
           />
           <FeatureCard 
             title="Eligibility Engine" 
             desc="Personalized Yes/No decisions based on your land holding, crop, and profile." 
-            icon={<ShieldCheck className="w-6 h-6 text-primary-600" />}
+            icon={<ShieldCheck className="h-6 w-6 text-primary-600" />}
           />
         </div>
       </div>

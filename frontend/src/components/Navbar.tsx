@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, BookOpen, Search, MessageSquare, Upload, User, LogOut, LayoutDashboard, LogIn, ShieldCheck } from 'lucide-react';
+import { Menu, X, BookOpen, Search, MessageSquare, User, LogOut, LayoutDashboard, LogIn, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -17,27 +17,44 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <nav className="bg-white shadow-md border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <BookOpen className="h-8 w-8 text-primary-600" />
+            <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex-shrink-0 flex items-center gap-2">
+              <BookOpen className={`h-8 w-8 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
               <span className="font-bold text-xl text-slate-800 tracking-tight">Niti-Setu</span>
             </Link>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
-            <NavLink to="/chat" icon={<MessageSquare className="w-4 h-4"/>} text="AI Assistant" active={isActive('/chat')} />
+            {!isAdmin && (
+              <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
+            )}
             
-            {isAuthenticated && user?.role !== 'admin' && (
+            <NavLink 
+              to="/chat" 
+              icon={<MessageSquare className="w-4 h-4"/>} 
+              text="AI Assistant" 
+              active={isActive('/chat')} 
+              variant={isAdmin ? 'indigo' : 'blue'}
+            />
+            
+            {isAuthenticated && !isAdmin && (
               <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
             )}
 
-            {user?.role === 'admin' && (
-              <NavLink to="/admin/dashboard" icon={<ShieldCheck className="w-4 h-4 text-indigo-600"/>} text="Admin Panel" active={isActive('/admin/dashboard')} />
+            {isAdmin && (
+              <NavLink 
+                to="/admin/dashboard" 
+                icon={<ShieldCheck className="w-4 h-4"/>} 
+                text="Admin Panel" 
+                active={isActive('/admin/dashboard')} 
+                variant="indigo"
+              />
             )}
             
             <div className="h-6 w-px bg-slate-200 mx-2" />
@@ -49,6 +66,7 @@ const Navbar = () => {
                   icon={<User className="w-4 h-4"/>} 
                   text={user?.name || 'Profile'} 
                   active={isActive('/profile')} 
+                  variant={isAdmin ? 'indigo' : 'blue'}
                 />
                 <button
                   onClick={handleLogout}
@@ -91,9 +109,11 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-b border-gray-100 animate-in slide-in-from-top duration-200">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
-            <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
+            {!isAdmin && (
+              <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
+            )}
             <MobileNavLink to="/chat" text="AI Assistant" onClick={() => setIsOpen(false)} />
-            {user?.role === 'admin' ? (
+            {isAdmin ? (
               <MobileNavLink to="/admin/dashboard" text="Admin Panel" onClick={() => setIsOpen(false)} />
             ) : isAuthenticated && (
               <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
@@ -150,15 +170,18 @@ const NavLink = ({
   text: string; 
   active: boolean; 
   icon: React.ReactNode;
-  variant?: 'blue' | 'green';
+  variant?: 'blue' | 'green' | 'indigo';
 }) => {
-  const activeStyles = variant === 'green' 
-    ? 'text-primary-600 bg-primary-50' 
-    : 'text-blue-600 bg-blue-50';
-    
-  const hoverStyles = variant === 'green'
-    ? 'hover:text-primary-600 hover:bg-primary-50'
-    : 'hover:text-blue-600 hover:bg-slate-50';
+  let activeStyles = 'text-blue-600 bg-blue-50';
+  let hoverStyles = 'hover:text-blue-600 hover:bg-slate-50';
+
+  if (variant === 'green') {
+    activeStyles = 'text-primary-600 bg-primary-50';
+    hoverStyles = 'hover:text-primary-600 hover:bg-primary-50';
+  } else if (variant === 'indigo') {
+    activeStyles = 'text-indigo-600 bg-indigo-50';
+    hoverStyles = 'hover:text-indigo-600 hover:bg-indigo-50';
+  }
 
   return (
     <Link

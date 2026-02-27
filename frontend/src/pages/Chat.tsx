@@ -27,6 +27,7 @@ const Chat = () => {
   const [suggestedProfile, setSuggestedProfile] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isAdmin = user?.role === 'admin';
 
   // Voice Input Logic
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -163,14 +164,14 @@ const Chat = () => {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[400px]">
-      <div className="p-4 border-b border-slate-100 bg-primary-50 flex items-center justify-between flex-shrink-0">
+      <div className={`p-4 border-b border-slate-100 ${isAdmin ? 'bg-indigo-50' : 'bg-primary-50'} flex items-center justify-between flex-shrink-0 transition-colors`}>
         <div className="flex items-center gap-3">
-          <div className="bg-primary-100 p-2 rounded-full">
-            <Bot className="w-6 h-6 text-primary-600" />
+          <div className={`${isAdmin ? 'bg-indigo-100' : 'bg-primary-100'} p-2 rounded-full transition-colors`}>
+            <Bot className={`w-6 h-6 ${isAdmin ? 'text-indigo-600' : 'text-primary-600'}`} />
           </div>
           <div>
             <h2 className="font-semibold text-slate-900">Niti-Setu Assistant</h2>
-            <p className="text-xs text-primary-700 font-medium">
+            <p className={`text-xs ${isAdmin ? 'text-indigo-700' : 'text-primary-700'} font-medium transition-colors`}>
               {user ? `Personalized for ${user.name}` : 'Agricultural Scheme Expert'}
             </p>
           </div>
@@ -189,7 +190,9 @@ const Chat = () => {
               }`}
             >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
-                msg.sender === 'user' ? 'bg-white border border-slate-200' : 'bg-primary-600 text-white'
+                msg.sender === 'user' 
+                  ? 'bg-white border border-slate-200' 
+                  : (isAdmin ? 'bg-indigo-600 text-white' : 'bg-primary-600 text-white')
               }`}>
                 {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
               </div>
@@ -255,11 +258,11 @@ const Chat = () => {
         {loading && (
           <div className="flex justify-start">
             <div className="flex gap-3 max-w-[80%]">
-              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 animate-pulse">
+              <div className={`w-8 h-8 rounded-full ${isAdmin ? 'bg-indigo-600' : 'bg-primary-600'} flex items-center justify-center flex-shrink-0 animate-pulse`}>
                 <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
-                <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
+                <Loader2 className={`w-4 h-4 animate-spin ${isAdmin ? 'text-indigo-500' : 'text-primary-500'}`} />
                 <span className="text-slate-500 text-sm">Reviewing documents...</span>
               </div>
             </div>
@@ -288,14 +291,14 @@ const Chat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : "Ask about a scheme..."}
-            className="flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 focus:ring-primary-500/10 focus:bg-white focus:border-primary-500 transition-all outline-none text-sm"
+            className={`flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 ${isAdmin ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-primary-500/10 focus:border-primary-500'} focus:bg-white transition-all outline-none text-sm`}
             disabled={loading}
           />
           
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-full transition-all shadow-md shadow-primary-200 active:scale-95"
+            className={`${isAdmin ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100' : 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'} disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-full transition-all shadow-md active:scale-95`}
           >
             <Send className="w-5 h-5" />
           </button>
