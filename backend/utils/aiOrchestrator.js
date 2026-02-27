@@ -162,8 +162,12 @@ export const checkEligibilityWithCitations = async (userProfile, schemeContext) 
 
     const response = await groq.chat.completions.create({
       model: GROQ_MODEL,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
+      messages: [
+        { role: "system", content: "You are a highly strict and consistent eligibility engine. If ANY criteria is not met or information is missing, you MUST mark isEligible as false." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0
     });
     return JSON.parse(response.choices[0].message.content);
   } catch (error) {
@@ -191,7 +195,7 @@ export const checkEligibility = async (schemeText , userProfile) => {
     ${JSON.stringify(userProfile)}
     
     Task:
-      1. Determine if the applicant is eligible.
+      1. Determine STRICTLY if the applicant is eligible. If ANY requirement from the scheme is missing or not strictly met by the applicant's profile, "isEligible" MUST be false. Do NOT assume eligibility if information is missing.
       2. Find the exact text proving this.
       3. List the exact documents required to apply for this scheme.
 
@@ -208,8 +212,12 @@ export const checkEligibility = async (schemeText , userProfile) => {
 
     const response = await groq.chat.completions.create({
       model: GROQ_MODEL,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
+      messages: [
+        { role: "system", content: "You are a highly strict and consistent eligibility engine. No assumptions allowed." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0
     });
     return JSON.parse(response.choices[0].message.content);
   }
