@@ -328,13 +328,12 @@ const AdminDashboard: React.FC = () => {
         </div>
         <div className="bg-white p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-4 group hover:scale-105 transition-all">
           <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
-            <LayoutDashboard className="h-6 w-6 text-white" />
+            <FileText className="h-6 w-6 text-white" />
           </div>
           <div className="pr-4">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">System Status</p>
-            <p className="text-sm font-black text-green-600 flex items-center gap-1.5">
-              <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-              AI Active
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Live Schemes</p>
+            <p className="text-sm font-black text-indigo-600 flex items-center gap-1.5">
+              {schemes.length} Documents
             </p>
           </div>
         </div>
@@ -377,7 +376,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="w-full flex items-center justify-between pt-2">
             <div className="flex -space-x-2">
-              {[...Array(3)].map((_, i) => (
+              {[...Array(Math.min(3, schemes.length))].map((_, i) => (
                 <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center">
                   <FileText className="h-4 w-4 text-slate-400" />
                 </div>
@@ -395,13 +394,6 @@ const AdminDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Live Schemes" value={schemes.length} color="text-indigo-600" />
-        <StatCard label="AI Training Level" value="100%" color="text-green-600" />
-        <StatCard label="System Security" value="Verified" color="text-blue-600" />
-      </div>
-
       <IngestModal 
         isOpen={isIngestOpen} 
         onClose={() => setIsIngestOpen(false)} 
@@ -416,12 +408,5 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
-
-const StatCard = ({ label, value, color }: { label: string; value: string | number; color: string }) => (
-  <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-1">
-    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{label}</p>
-    <p className={`text-2xl font-black ${color}`}>{value}</p>
-  </div>
-);
 
 export default AdminDashboard;
