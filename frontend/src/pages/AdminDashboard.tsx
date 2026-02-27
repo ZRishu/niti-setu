@@ -384,7 +384,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                   required
                   value={schemeName}
                   onChange={(e) => setSchemeName(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 p-3 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
                   placeholder="e.g., PM Kisan Samman Nidhi"
                 />
               </div>
@@ -395,29 +395,31 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                   type="number"
                   value={benefitsValue}
                   onChange={(e) => setBenefitsValue(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 p-3 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
                   placeholder="e.g., 6000"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Document (PDF)</label>
-                <div className={`mt-1 flex justify-center px-6 pt-4 pb-5 border-2 border-dashed rounded-2xl transition-all ${
-                    file ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300 hover:bg-indigo-50/10'
+                <label 
+                  htmlFor="file-upload"
+                  className={`mt-1 flex justify-center px-6 pt-8 pb-9 border-2 border-dashed rounded-2xl transition-all cursor-pointer block hover:bg-slate-50/50 ${
+                    file ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300'
                 }`}>
                   <div className="space-y-2 text-center">
                     <div className={`mx-auto p-3 rounded-full w-fit ${file ? 'bg-indigo-100' : 'bg-slate-100'}`}>
                       <FileText className={`h-8 w-8 ${file ? 'text-indigo-600' : 'text-slate-400'}`} />
                     </div>
                     <div className="flex text-sm text-slate-600 justify-center">
-                      <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-bold text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
-                        <span>{file ? file.name : 'Choose a file'}</span>
+                      <span className="relative rounded-md font-bold text-indigo-600 hover:text-indigo-500">
+                        {file ? file.name : 'Choose a file'}
                         <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} />
-                      </label>
+                      </span>
                     </div>
                     {!file && <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">PDF format only</p>}
                   </div>
-                </div>
+                </label>
               </div>
 
               <div className="pt-2">
