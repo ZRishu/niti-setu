@@ -1,10 +1,10 @@
-import React from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, BookOpen, Search, MessageSquare, User, LogOut, LayoutDashboard, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -195,10 +195,9 @@ const Navbar = () => {
           </div>
         </>
       )}
-
     </nav>
   );
-};
+}
 
 const NavLink = ({ 
   to, 
@@ -210,7 +209,7 @@ const NavLink = ({
   to: string; 
   text: string; 
   active: boolean; 
-  icon: React.ReactNode;
+  icon: ReactNode;
   variant?: 'blue' | 'green' | 'indigo';
 }) => {
   let activeStyles = 'text-blue-600 bg-blue-50';
@@ -246,7 +245,7 @@ const MobileNavLink = ({
 }: { 
   to: string; 
   text: string; 
-  icon?: React.ReactNode; 
+  icon?: ReactNode; 
   active?: boolean; 
   onClick: () => void; 
 }) => (
@@ -263,5 +262,3 @@ const MobileNavLink = ({
     {text}
   </Link>
 );
-
-export default Navbar;
