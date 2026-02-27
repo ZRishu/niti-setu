@@ -200,16 +200,16 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom duration-300 flex flex-col h-[95vh] sm:max-h-[90vh] w-full">
+        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 sm:duration-200 flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh]">
           <div className={`p-4 border-b border-slate-100 bg-indigo-50 flex items-center justify-between flex-shrink-0`}>
             <div className="flex items-center gap-3">
               <div className={`bg-indigo-100 p-2 rounded-full`}>
                 <Bot className={`w-6 h-6 text-indigo-600`} />
               </div>
               <div>
-                <h2 className="font-semibold text-slate-900">AI Testing Lab</h2>
+                <h2 className="font-semibold text-slate-900">Niti-Setu Assistant</h2>
                 <p className={`text-xs text-indigo-700 font-medium`}>
-                  Admin Mode
+                  Admin Control Mode
                 </p>
               </div>
             </div>
@@ -218,10 +218,10 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
             </button>
           </div>
 
-          <div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50/30">
+          <div className="flex-grow overflow-y-auto p-6 space-y-6 bg-slate-50/30">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-3 max-w-[90%] sm:max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-white border border-slate-200' : 'bg-indigo-600 text-white'}`}>
                     {msg.sender === 'user' ? <User className="w-4 h-4 text-slate-600" /> : <Bot className="w-4 h-4" />}
                   </div>
@@ -232,6 +232,44 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
               </div>
             ))}
 
+            {suggestedProfile && (
+              <div className="flex justify-start animate-in zoom-in-95 duration-300">
+                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 max-w-sm shadow-md space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-900 mb-2">
+                    <UserPlus className="w-5 h-5" />
+                    <h4 className="font-bold">Update your profile?</h4>
+                  </div>
+                  <p className="text-xs text-indigo-700 leading-relaxed">
+                    I noticed some details about you. Should I save them to your profile?
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(suggestedProfile || {}).map(([key, value]) => (
+                      value && (
+                        <div key={`profile-${key}`} className="bg-white/60 p-2 rounded-lg border border-indigo-100">
+                          <p className="text-[10px] font-bold text-indigo-400 uppercase">{key}</p>
+                          <p className="text-sm font-bold text-indigo-900">{String(value)}</p>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button 
+                      onClick={applyProfileUpdate}
+                      className="flex-grow bg-indigo-600 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition-all"
+                    >
+                      <Check className="w-4 h-4" /> Save
+                    </button>
+                    <button 
+                      onClick={() => setSuggestedProfile(null)}
+                      className="px-4 border border-indigo-200 text-indigo-600 py-2 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {loading && (
               <div className="flex justify-start">
                 <div className="flex gap-3 max-w-[80%]">
@@ -239,8 +277,8 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
-                    <Loader2 className={`w-4 h-4 animate-spin text-indigo-500`} />
-                    <span className="text-slate-500 text-sm">Thinking...</span>
+                    <Loader2 className={`w-4 h-4 animate-spin text-indigo-50`} />
+                    <span className="text-slate-500 text-sm">AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -248,9 +286,9 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-4 border-t border-slate-100 bg-white pb-safe">
+          <div className="p-4 border-t border-slate-100 bg-white">
             <form onSubmit={handleSend} className="relative flex items-center gap-2">
-              <button type="button" onClick={toggleListening} className={`p-3 rounded-xl transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+              <button type="button" onClick={toggleListening} className={`p-3 rounded-full transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                 {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
               </button>
               <input 
@@ -258,11 +296,11 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
                 type="text" 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
-                placeholder="Test a query..." 
-                className="flex-grow bg-slate-50 border-slate-200 border rounded-xl py-3 px-4 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm" 
+                placeholder="Ask about a scheme..." 
+                className="flex-grow bg-slate-50 border-slate-200 border rounded-full py-3 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm" 
                 disabled={loading} 
               />
-              <button type="submit" disabled={loading || !input.trim()} className="bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 disabled:opacity-50 text-white p-3 rounded-xl transition-all shadow-md active:scale-95">
+              <button type="submit" disabled={loading || !input.trim()} className="bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 disabled:opacity-50 text-white p-3 rounded-full transition-all shadow-md active:scale-95">
                 <Send className="w-5 h-5" />
               </button>
             </form>
@@ -314,7 +352,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
     try {
       const response = await ingestScheme(formData);
       if (response.success) {
-        setStatus({ type: 'success', message: 'Processed successfully!' });
+        setStatus({ type: 'success', message: 'Scheme uploaded and processed successfully!' });
         setFile(null);
         setSchemeName('');
         setBenefitsValue('');
@@ -327,7 +365,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
         setStatus({ type: 'error', message: response.error || 'Upload failed.' });
       }
     } catch (error: any) {
-      setStatus({ type: 'error', message: error.message || 'An error occurred.' });
+      setStatus({ type: 'error', message: error.message || 'An error occurred during upload.' });
     } finally {
       setLoading(false);
     }
@@ -341,14 +379,14 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-xl w-full border border-slate-100 animate-in slide-in-from-bottom duration-300">
+        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full sm:max-w-xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 sm:duration-200">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
                   <Upload className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Start Ingestion</h3>
+                <h3 className="text-xl font-bold text-slate-900">Ingest New Scheme</h3>
               </div>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 hover:bg-white rounded-lg">
                 <X className="w-5 h-5" />
@@ -374,12 +412,12 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                   value={schemeName}
                   onChange={(e) => setSchemeName(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 p-3 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
-                  placeholder="e.g., PM Kisan"
+                  placeholder="e.g., PM Kisan Samman Nidhi"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Benefit Value (INR)</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Max Benefit Value (INR)</label>
                 <input
                   type="number"
                   value={benefitsValue}
@@ -390,7 +428,7 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Document (PDF)</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Document (PDF)</label>
                 <label 
                   htmlFor="file-upload"
                   className={`mt-1 flex justify-center px-6 pt-8 pb-9 border-2 border-dashed rounded-2xl transition-all cursor-pointer block hover:bg-slate-50/50 ${
@@ -401,11 +439,12 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                       <FileText className={`h-8 w-8 ${file ? 'text-indigo-600' : 'text-slate-400'}`} />
                     </div>
                     <div className="flex text-sm text-slate-600 justify-center">
-                      <span className="relative rounded-md font-bold text-indigo-600 truncate max-w-[200px]">
-                        {file ? file.name : 'Choose PDF'}
+                      <span className="relative rounded-md font-bold text-indigo-600 hover:text-indigo-500">
+                        {file ? file.name : 'Choose a file'}
                         <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} />
                       </span>
                     </div>
+                    {!file && <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">PDF format only</p>}
                   </div>
                 </label>
               </div>
@@ -414,15 +453,15 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70 transition-all active:scale-[0.98]"
+                  className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all active:scale-[0.98]"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Ingesting...
+                      Processing AI Model...
                     </>
                   ) : (
-                    'Start Ingestion'
+                    'Start AI Ingestion'
                   )}
                 </button>
               </div>
@@ -437,17 +476,28 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: () => void; schemes: any[] }) => {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [valueFilter, setValueFilter] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
+      const q = searchParams.get('q');
+      if (q) setQuery(q);
+      
+      // Focus after modal animation
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 300);
     }
-  }, [isOpen]);
+  }, [isOpen, searchParams]);
 
-  const filtered = schemes.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = schemes.filter(s => {
+    const matchesName = s.name.toLowerCase().includes(query.toLowerCase());
+    const matchesDate = !dateFilter || new Date(s.createdAt).toLocaleDateString().includes(dateFilter);
+    const matchesValue = !valueFilter || (s.benefits?.max_value_inr && s.benefits.max_value_inr >= parseInt(valueFilter));
+    return matchesName && matchesDate && matchesValue;
+  });
 
   if (!isOpen) return null;
 
@@ -457,54 +507,98 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl w-full border border-slate-100 animate-in slide-in-from-bottom duration-300 flex flex-col h-[90vh] sm:max-h-[85vh]">
-          <div className="bg-white px-6 py-6 sm:p-8 flex-shrink-0">
-            <div className="flex items-center justify-between mb-6">
+        <div className="inline-block bg-white rounded-t-3xl sm:rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all w-full sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300">
+          <div className="bg-white px-6 py-6 sm:p-8">
+            <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600">
                   <History className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Ingestion History</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Ingestion History</h3>
               </div>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-50 rounded-full">
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <input 
-                ref={searchInputRef}
-                type="text" 
-                placeholder="Quick search..." 
-                className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
+            {/* Advanced Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  ref={searchInputRef}
+                  type="text" 
+                  placeholder="Search by name..." 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="Date (DD/MM/YYYY)" 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="number" 
+                  placeholder="Min Value (INR)" 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                  value={valueFilter}
+                  onChange={(e) => setValueFilter(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-grow overflow-y-auto px-6 sm:px-8 pb-8">
-            <div className="space-y-3">
-              {filtered.map((scheme) => (
-                <div key={scheme._id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group active:bg-slate-50 transition-colors">
-                  <div className="min-w-0">
-                    <p className="font-bold text-slate-900 truncate text-sm sm:text-base">{scheme.name}</p>
-                    <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1 mt-0.5">
-                      <Calendar className="w-3 h-3" /> {new Date(scheme.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Link 
-                    to={`/search?q=${encodeURIComponent(scheme.name)}`}
-                    className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all flex-shrink-0"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
-                </div>
-              ))}
-              {filtered.length === 0 && (
-                <div className="text-center py-12 text-slate-400 text-sm">No documents found.</div>
-              )}
+            <div className="max-h-[40vh] overflow-y-auto rounded-2xl border border-slate-100">
+              <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-slate-50 z-10">
+                  <tr>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scheme Details</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Value</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtered.map((scheme) => (
+                    <tr key={scheme._id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-800">{scheme.name}</span>
+                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 mt-1">
+                            <Calendar className="w-3 h-3" /> {new Date(scheme.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-sm font-bold text-slate-600">
+                          ₹{scheme.benefits?.max_value_inr?.toLocaleString() || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link 
+                          to={`/search?q=${encodeURIComponent(scheme.name)}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-white hover:bg-indigo-600 transition-all px-3 py-1.5 rounded-lg border border-indigo-100"
+                        >
+                          Verify AI
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-12 text-center text-slate-400 italic">No matching schemes found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -611,85 +705,113 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* DESKTOP ADMIN LAYOUT - UNTOUCHED */}
-      <div className="hidden lg:block max-w-5xl mx-auto space-y-8 -mt-4">
-        <header className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-[0.2em] text-[10px]">
-              <div className="h-1 w-4 bg-indigo-600 rounded-full" />
-              Control Center
+      {/* DESKTOP ADMIN LAYOUT - RESTORED FROM 5b528fa */}
+      <div className="hidden lg:block">
+        <div className="max-w-5xl mx-auto space-y-4 animate-fade-in -mt-4">
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-[0.2em] text-[10px]">
+                <div className="h-1 w-4 bg-indigo-600 rounded-full" />
+                Control Center
+              </div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
+              <p className="text-slate-500 font-medium max-w-lg">Monitor, manage, and train the Niti-Setu intelligence engine.</p>
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
-            <p className="text-slate-500 font-medium max-w-lg">Monitor, manage, and train the Niti-Setu intelligence engine.</p>
+            <div className="bg-white p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-4 group hover:scale-105 transition-all">
+              <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
+                {loading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <FileText className="h-6 w-6 text-white" />}
+              </div>
+              <div className="pr-4">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Live Schemes</p>
+                <p className="text-sm font-black text-indigo-600 flex items-center gap-1.5">
+                  {schemes.length} Documents
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
+              <AlertCircle className="h-5 w-5" />
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Primary Action: Ingest */}
+            <button 
+              onClick={() => setIsIngestOpen(true)}
+              className="relative bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 overflow-hidden group hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                <Upload className="h-32 w-32 text-white" />
+              </div>
+              <div className="relative z-10 flex flex-col items-start text-left space-y-4">
+                <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl">
+                  <Upload className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">Ingest Scheme</h3>
+                  <p className="text-indigo-100/80 text-sm font-medium max-w-[200px]">Upload new government PDF documents to train the AI.</p>
+                </div>
+                <div className="flex items-center gap-2 text-white font-bold text-xs bg-black/10 px-4 py-2 rounded-full backdrop-blur-sm group-hover:bg-black/20 transition-all">
+                  Launch Uploader <ChevronRight className="h-4 w-4" />
+                </div>
+              </div>
+            </button>
+
+            {/* Secondary Action: History/Search */}
+            <button 
+              onClick={() => setIsHistoryOpen(true)}
+              className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-start text-left space-y-4 group hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="p-4 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
+                <History className="h-8 w-8 text-amber-600" />
+              </div>
+              <div className="flex-grow">
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">View History</h3>
+                <p className="text-slate-500 text-sm font-medium">Search and manage {schemes.length} previously ingested schemes.</p>
+              </div>
+              <div className="w-full flex items-center justify-between pt-2">
+                <div className="flex -space-x-2">
+                  {[...Array(Math.min(3, schemes.length))].map((_, i) => (
+                    <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-slate-400" />
+                    </div>
+                  ))}
+                  {schemes.length > 3 && (
+                    <div className="h-8 w-8 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                      +{schemes.length - 3}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-full group-hover:bg-indigo-100 transition-all">
+                  Manage History <Search className="h-4 w-4" />
+                </div>
+              </div>
+            </button>
           </div>
-          <div className="bg-white p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-4">
-            <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg">
-              {loading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <FileText className="h-6 w-6 text-white" />}
-            </div>
-            <div className="pr-4">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Live Schemes</p>
-              <p className="text-sm font-black text-indigo-600">{schemes.length} Documents</p>
-            </div>
+
+          {/* AI Assistant Button (Admin Only) */}
+          <div className="pt-2">
+            <button 
+              onClick={() => setIsChatOpen(true)}
+              className="w-full bg-white border border-indigo-100 p-6 rounded-[2rem] shadow-lg shadow-indigo-50 flex items-center justify-between group hover:border-indigo-300 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <MessageSquare className="h-6 w-6" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-bold text-slate-900">AI Assistant Control</h3>
+                  <p className="text-xs text-slate-500">Test AI responses and scheme knowledge directly.</p>
+                </div>
+              </div>
+              <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all flex items-center gap-2">
+                Open Chat <ChevronRight className="h-4 w-4" />
+              </div>
+            </button>
           </div>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <button onClick={() => setIsIngestOpen(true)} className="relative bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 overflow-hidden group hover:-translate-y-1 transition-all duration-300">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-              <Upload className="h-32 w-32 text-white" />
-            </div>
-            <div className="relative z-10 flex flex-col items-start text-left space-y-4">
-              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl">
-                <Upload className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Ingest Scheme</h3>
-                <p className="text-indigo-100/80 text-sm font-medium max-w-[200px]">Upload new government PDF documents to train the AI.</p>
-              </div>
-              <div className="flex items-center gap-2 text-white font-bold text-xs bg-black/10 px-4 py-2 rounded-full backdrop-blur-sm group-hover:bg-black/20 transition-all">
-                Launch Uploader <ChevronRight className="h-4 w-4" />
-              </div>
-            </div>
-          </button>
-
-          <button onClick={() => setIsHistoryOpen(true)} className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-start text-left space-y-4 group hover:-translate-y-1 transition-all duration-300">
-            <div className="p-4 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
-              <History className="h-8 w-8 text-amber-600" />
-            </div>
-            <div className="flex-grow">
-              <h3 className="text-2xl font-bold text-slate-900 tracking-tight">View History</h3>
-              <p className="text-slate-500 text-sm font-medium">Search and manage {schemes.length} previously ingested schemes.</p>
-            </div>
-            <div className="w-full flex items-center justify-between pt-2">
-              <div className="flex -space-x-2">
-                {[...Array(Math.min(3, schemes.length))].map((_, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-slate-400" />
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-full">
-                Manage History <Search className="h-4 w-4" />
-              </div>
-            </div>
-          </button>
-        </div>
-
-        <div className="pt-2">
-          <button onClick={() => setIsChatOpen(true)} className="w-full bg-white border border-indigo-100 p-6 rounded-[2rem] shadow-lg flex items-center justify-between group hover:border-indigo-300 transition-all">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                <MessageSquare className="h-6 w-6" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-bold text-slate-900">AI Assistant Control</h3>
-                <p className="text-xs text-slate-500">Test AI responses and scheme knowledge directly.</p>
-              </div>
-            </div>
-            <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all flex items-center gap-2">
-              Open Chat <ChevronRight className="h-4 w-4" />
-            </div>
-          </button>
         </div>
       </div>
 
