@@ -200,7 +200,7 @@ const ChatModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-        <div className="inline-block bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 sm:duration-200 flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh]">
+        <div className="inline-block bg-white rounded-none sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-4xl sm:w-full border-0 sm:border border-slate-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 sm:duration-200 flex flex-col h-full sm:h-auto sm:max-h-[90vh]">
           <div className={`p-4 border-b border-slate-100 bg-indigo-50 flex items-center justify-between flex-shrink-0`}>
             <div className="flex items-center gap-3">
               <div className={`bg-indigo-100 p-2 rounded-full`}>
