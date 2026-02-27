@@ -34,6 +34,11 @@ const Chat = () => {
   const [suggestedProfile, setSuggestedProfile] = useState<Record<string, any> | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    chatInputRef.current?.focus();
+  }, []);
 
   // Voice Input Logic
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -293,6 +298,7 @@ const Chat = () => {
           </button>
           
           <input
+            ref={chatInputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
