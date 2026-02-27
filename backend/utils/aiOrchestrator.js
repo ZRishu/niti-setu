@@ -221,8 +221,9 @@ export const checkEligibility = async (schemeText , userProfile) => {
 
 // smart recommendation query generator 
 export const generateProfileQuery = async (userProfile) => {
-  const { state , gender , caste , occupation , age } = userProfile;
-  return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${caste ? `category ${caste}` : ''}`;
+  const { state, gender, occupation, caste, socialCategory } = userProfile;
+  const category = caste || socialCategory || '';
+  return `Government schemes for ${gender || ''} ${occupation || 'citizens'} in ${state || 'India'} ${category ? `category ${category}` : ''}`;
 }
 
 // Extarct sturctured profile from voice text hindi and english
