@@ -25,7 +25,7 @@ import {
   UserPlus,
   Check
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface Message {
@@ -406,9 +406,23 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 };
 
 const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: () => void; schemes: any[] }) => {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [valueFilter, setValueFilter] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const q = searchParams.get('q');
+      if (q) setQuery(q);
+      
+      // Focus after modal animation
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 300);
+    }
+  }, [isOpen, searchParams]);
 
   const filtered = schemes.filter(s => {
     const matchesName = s.name.toLowerCase().includes(query.toLowerCase());
@@ -444,6 +458,7 @@ const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: 
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                 <input 
+                  ref={searchInputRef}
                   type="text" 
                   placeholder="Search by name..." 
                   className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
@@ -531,6 +546,18 @@ const AdminDashboard: React.FC = () => {
   const [isIngestOpen, setIsIngestOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('chat') === 'true') {
+      setIsChatOpen(true);
+    }
+    if (params.get('history') === 'true') {
+      setIsHistoryOpen(true);
+    }
+  }, [location]);
 
   const fetchHistory = async () => {
     try {

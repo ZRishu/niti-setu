@@ -27,7 +27,10 @@ const SearchPage = () => {
 
   // Redirect admin to their own control panel for search/management
   if (user?.role === 'admin') {
-    return <Navigate to="/admin/dashboard" replace />;
+    const params = new URLSearchParams();
+    params.set('history', 'true');
+    if (initialQuery) params.set('q', initialQuery);
+    return <Navigate to={`/admin/dashboard?${params.toString()}`} replace />;
   }
 
   useEffect(() => {
