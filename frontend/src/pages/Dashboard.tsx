@@ -34,15 +34,23 @@ const Dashboard: React.FC = () => {
 
         if (user?.profile) {
           setRecsLoading(true);
-          const recsRes = await getRecommendedSchemes(user.profile);
-          if (recsRes.success) {
-            setRecommendations(recsRes.data);
+          try {
+            const recsRes = await getRecommendedSchemes(user.profile);
+            if (recsRes.success) {
+              setRecommendations(recsRes.data);
+            }
+          } catch (recsErr: any) {
+            console.error('Error fetching recommended schemes:', recsErr);
+            // Don't set global error for just recommendations failing, 
+            // but log it for debugging
+          } finally {
+            setRecsLoading(false);
           }
-          setRecsLoading(false);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
-        setError('An error occurred while fetching dashboard data');
+        const errorMessage = err.response?.data?.error || 'An error occurred while fetching dashboard data';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
