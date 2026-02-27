@@ -29,7 +29,7 @@ const Home = () => {
             Empowering Farmers with AI
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Bureaucracy to <span className="text-primary-600 italic">Benefits</span> <br /> 
+            Bureaucracy to <span className="text-primary-600 italic">Benefits</span> <br className="hidden md:block" /> 
             in Seconds.
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
@@ -44,22 +44,23 @@ const Home = () => {
             </div>
             <input
               type="text"
-              className="block w-full pl-14 pr-32 py-5 bg-white border border-slate-200 rounded-2xl text-lg shadow-xl shadow-slate-200/50 placeholder-slate-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all"
+              className="block w-full pl-14 pr-16 sm:pr-32 py-5 bg-white border border-slate-200 rounded-2xl text-lg shadow-xl shadow-slate-200/50 placeholder-slate-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all"
               placeholder="Search schemes or ask 'Am I eligible?'"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <button
               type="submit"
-              className="absolute right-2.5 top-2.5 bottom-2.5 bg-primary-600 hover:bg-primary-700 text-white px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary-200"
+              className="absolute right-2.5 top-2.5 bottom-2.5 bg-primary-600 hover:bg-primary-700 text-white px-4 sm:px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary-200"
             >
-              Search
-              <ChevronRight className="h-5 w-5" />
+              <Search className="h-5 w-5 sm:hidden" />
+              <span className="hidden sm:inline">Search</span>
+              <ChevronRight className="h-5 w-5 hidden sm:block" />
             </button>
           </form>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-6 mt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-4">
           {isAuthenticated ? (
             <Link to="/dashboard" className="flex items-center gap-2 text-slate-700 font-bold hover:text-primary-600 transition-colors">
               <LayoutDashboard className="w-5 h-5 text-primary-500" />
@@ -67,10 +68,10 @@ const Home = () => {
             </Link>
           ) : (
             <>
-              <Link to="/signup" className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl">
+              <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl">
                 Create Farmer Profile
               </Link>
-              <Link to="/chat" className="px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-md flex items-center gap-2">
+              <Link to="/chat" className="w-full sm:w-auto px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-md flex items-center justify-center gap-2">
                 <Mic className="w-5 h-5 text-primary-600" />
                 Try Voice Search
               </Link>

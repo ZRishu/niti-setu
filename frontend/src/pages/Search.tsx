@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { searchSchemes, checkSchemeEligibility } from '../services/api';
 import type { Scheme, UserProfile } from '../services/api';
-import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp, Search as SearchIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const SearchPage = () => {
@@ -14,6 +14,7 @@ const SearchPage = () => {
   const [results, setResults] = useState<Scheme[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   
   // Strict analysis state
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
@@ -47,6 +48,7 @@ const SearchPage = () => {
 
     setLoading(true);
     setError('');
+    setShowFilters(false);
     try {
       const userProfile: UserProfile = user?.profile || {
         state: state || undefined,
@@ -95,12 +97,22 @@ const SearchPage = () => {
   }, [initialQuery]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-1 sm:px-0">
+      <div className="lg:hidden mb-4">
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-slate-700 shadow-sm"
+        >
+          <Filter className="w-5 h-5 text-primary-600" />
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Filters Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+        <div className={`lg:col-span-1 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:sticky lg:top-24">
             <div className="flex items-center gap-2 mb-6 text-slate-800 font-semibold border-b border-slate-100 pb-4">
               <Filter className="w-5 h-5 text-primary-600" />
               <h2>Filters</h2>
@@ -164,22 +176,23 @@ const SearchPage = () => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for schemes (e.g., land irrigation, subsidy)..."
-                className="w-full rounded-xl border-slate-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-lg py-3.5 px-5 transition-all bg-white text-slate-900"
+                placeholder="Search for schemes..."
+                className="w-full rounded-xl border-slate-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-base sm:text-lg py-3 sm:py-3.5 px-4 sm:px-5 transition-all bg-white text-slate-900"
               />
             </div>
             <button 
               type="submit"
-              className="bg-slate-900 text-white px-8 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
+              className="bg-slate-900 text-white px-4 sm:px-8 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
             >
-              Search
+              <SearchIcon className="w-5 h-5 sm:hidden" />
+              <span className="hidden sm:inline">Search</span>
             </button>
           </form>
 
           {loading && (
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-              <p className="text-slate-500 font-medium animate-pulse">Analyzing eligibility against official documents...</p>
+              <p className="text-slate-500 font-medium animate-pulse text-center px-4">Analyzing eligibility against official documents...</p>
             </div>
           )}
 
@@ -192,23 +205,23 @@ const SearchPage = () => {
 
           <div className="space-y-6">
             {!loading && results.length === 0 && query && !error && (
-               <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-100 shadow-sm">
+               <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-100 shadow-sm px-4">
                  No schemes found matching your criteria. Try adjusting filters or keywords.
                </div>
             )}
 
             {results.map((scheme) => (
               <div key={scheme._id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-2xl font-bold text-slate-900 mb-1">{scheme.name}</h3>
-                      <div className="flex gap-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                    <div className="flex-grow">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 leading-tight">{scheme.name}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-primary-100 text-primary-800">
                           {scheme.benefits?.type || 'Agricultural'}
                         </span>
                         {scheme.benefits?.max_value_inr > 0 && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                             Up to ₹{scheme.benefits.max_value_inr.toLocaleString()}
                           </span>
                         )}
@@ -218,7 +231,7 @@ const SearchPage = () => {
                     <button 
                       onClick={() => handleStrictCheck(scheme._id)}
                       disabled={analyzingId === scheme._id}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold border-2 transition-all ${
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold border-2 transition-all w-full sm:w-auto text-sm sm:text-base ${
                         strictResults[scheme._id]
                           ? 'bg-indigo-600 text-white border-indigo-600'
                           : 'bg-white text-indigo-600 border-indigo-100 hover:border-indigo-600'
@@ -235,9 +248,9 @@ const SearchPage = () => {
 
                   {strictResults[scheme._id] && (
                     <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
-                      <div className="p-5 rounded-xl bg-indigo-50 border border-indigo-100 space-y-4">
+                      <div className="p-4 sm:p-5 rounded-xl bg-indigo-50 border border-indigo-100 space-y-4">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-indigo-900 flex items-center gap-2">
+                          <h4 className="font-bold text-indigo-900 flex items-center gap-2 text-sm sm:text-base">
                             <Info className="w-4 h-4" />
                             AI Eligibility Verdict
                           </h4>
@@ -269,11 +282,11 @@ const SearchPage = () => {
                     </div>
                   )}
 
-                  <p className="text-slate-600 mb-6 line-clamp-2 text-sm leading-relaxed">
+                  <p className="text-slate-600 mb-6 line-clamp-3 text-sm leading-relaxed">
                     {scheme.snippet || scheme.benefits?.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-6 text-xs font-bold text-slate-400 pt-4 border-t border-slate-50 uppercase tracking-tight">
+                  <div className="flex flex-wrap gap-4 sm:gap-6 text-[10px] sm:text-xs font-bold text-slate-400 pt-4 border-t border-slate-50 uppercase tracking-tight">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5" />
                       <span>{scheme.filters?.state?.join(', ') || 'Pan-India'}</span>

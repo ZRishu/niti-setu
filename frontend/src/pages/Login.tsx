@@ -61,13 +61,13 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <div className="min-h-[80vh] flex items-center justify-center px-2 sm:px-4 py-8 sm:py-12">
+      <div className="max-w-xl w-full space-y-6 sm:space-y-8 bg-white p-5 sm:p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 mb-4">
             <LogIn className="h-6 w-6 text-primary-600" />
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
             Welcome Back
           </h2>
           <p className="mt-2 text-sm text-slate-600">
@@ -75,7 +75,7 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
@@ -91,7 +91,7 @@ const Login: React.FC = () => {
               <input
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -106,7 +106,7 @@ const Login: React.FC = () => {
               <input
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -114,7 +114,7 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4 pt-4">
             <button
               type="submit"
               disabled={loading}

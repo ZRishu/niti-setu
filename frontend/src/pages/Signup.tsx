@@ -78,7 +78,7 @@ const Signup: React.FC = () => {
     // Password complexity validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      return "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character";
+      return "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character";
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -173,13 +173,13 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <div className="min-h-[80vh] flex items-center justify-center px-2 sm:px-4 py-8 sm:py-12">
+      <div className="max-w-xl w-full space-y-6 sm:space-y-8 bg-white p-5 sm:p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-50 mb-4">
             <UserPlus className="h-6 w-6 text-primary-600" />
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
             Farmer Registration
           </h2>
           <p className="mt-2 text-sm text-slate-600">
@@ -187,19 +187,16 @@ const Signup: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-4 sm:mt-8 space-y-4" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Personal Info Section */}
-            <div className="space-y-4 md:col-span-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Basic Information</h3>
-            </div>
-
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Basic Information</h3>
+            
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
                 <User className="w-4 h-4 text-primary-500" />
@@ -209,7 +206,7 @@ const Signup: React.FC = () => {
                 name="name"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={handleChange}
@@ -225,192 +222,188 @@ const Signup: React.FC = () => {
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-primary-500" />
-                Phone Number
-              </label>
-              <input
-                name="phoneNumber"
-                type="tel"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="10-digit mobile number"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-primary-500" />
+                  Phone Number
+                </label>
+                <input
+                  name="phoneNumber"
+                  type="tel"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="10-digit mobile number"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-primary-500" />
+                  Age
+                </label>
+                <input
+                  name="age"
+                  type="number"
+                  min="18"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="Enter your age"
+                  value={formData.age}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-primary-500" />
-                Age
-              </label>
-              <input
-                name="age"
-                type="number"
-                min="18"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Enter your age"
-                value={formData.age}
-                onChange={handleChange}
-              />
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 pt-2">Location & Demographics</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary-500" />
+                  State / UT
+                </label>
+                <select
+                  name="state"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  value={formData.state}
+                  onChange={handleChange}
+                >
+                  <option value="">Select State</option>
+                  <optgroup label="States">
+                    {states.map(s => <option key={s} value={s}>{s}</option>)}
+                  </optgroup>
+                  <optgroup label="Union Territories">
+                    {unionTerritories.map(ut => <option key={ut} value={ut}>{ut}</option>)}
+                  </optgroup>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary-500" />
+                  District
+                </label>
+                <input
+                  name="district"
+                  type="text"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="Enter district"
+                  value={formData.district}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            {/* Profile Details Section */}
-            <div className="space-y-4 md:col-span-2 pt-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Location & Demographics</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
+                <select
+                  name="gender"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Social Category</label>
+                <select
+                  name="socialCategory"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  value={formData.socialCategory}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Category</option>
+                  <option value="General">General</option>
+                  <option value="OBC">OBC</option>
+                  <option value="SC">SC</option>
+                  <option value="ST">ST</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary-500" />
-                State / UT
-              </label>
-              <select
-                name="state"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.state}
-                onChange={handleChange}
-              >
-                <option value="">Select State</option>
-                <optgroup label="States">
-                  {states.map(s => <option key={s} value={s}>{s}</option>)}
-                </optgroup>
-                <optgroup label="Union Territories">
-                  {unionTerritories.map(ut => <option key={ut} value={ut}>{ut}</option>)}
-                </optgroup>
-              </select>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 pt-2">Farming Information</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Land Holding (Acres)</label>
+                <input
+                  name="landHolding"
+                  type="text"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="e.g. 2.5"
+                  value={formData.landHolding}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Crop</label>
+                <input
+                  name="cropType"
+                  type="text"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="e.g. Wheat, Cotton"
+                  value={formData.cropType}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary-500" />
-                District
-              </label>
-              <input
-                name="district"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Enter district"
-                value={formData.district}
-                onChange={handleChange}
-              />
-            </div>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 pt-2">Security</h3>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
-              <select
-                name="gender"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.gender}
-                onChange={handleChange}
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Social Category</label>
-              <select
-                name="socialCategory"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 text-slate-900 bg-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.socialCategory}
-                onChange={handleChange}
-              >
-                <option value="">Select Category</option>
-                <option value="General">General</option>
-                <option value="OBC">OBC</option>
-                <option value="SC">SC</option>
-                <option value="ST">ST</option>
-              </select>
-            </div>
-
-            {/* Farming Details Section */}
-            <div className="space-y-4 md:col-span-2 pt-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Farming Information</h3>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Land Holding (Acres)</label>
-              <input
-                name="landHolding"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="e.g. 2.5"
-                value={formData.landHolding}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Primary Crop</label>
-              <input
-                name="cropType"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="e.g. Wheat, Cotton"
-                value={formData.cropType}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Security Section */}
-            <div className="space-y-4 md:col-span-2 pt-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Security</h3>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-primary-500" />
-                Password
-              </label>
-              <input
-                name="password"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Enter password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-primary-500" />
-                Confirm Password
-              </label>
-              <input
-                name="confirmPassword"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Repeat password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary-500" />
+                  Password
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary-500" />
+                  Confirm Password
+                </label>
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-base"
+                  placeholder="Repeat password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4 pt-6">
+          <div className="space-y-4 pt-4">
             <button
               type="submit"
               disabled={loading}
