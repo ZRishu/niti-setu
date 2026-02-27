@@ -33,10 +33,15 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {!isAdmin && (
               <>
-                <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
+                <NavLink 
+                  to={isAuthenticated ? "/search" : "/login"} 
+                  icon={<Search className="w-4 h-4"/>} 
+                  text="Find Schemes" 
+                  active={isActive('/') || isActive('/search')} 
+                />
                 
                 <NavLink 
-                  to="/chat" 
+                  to={isAuthenticated ? "/chat" : "/login"} 
                   icon={<MessageSquare className="w-4 h-4"/>} 
                   text="AI Assistant" 
                   active={isActive('/chat')} 
@@ -102,8 +107,8 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
             {!isAdmin && (
               <>
-                <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
-                <MobileNavLink to="/chat" text="AI Assistant" onClick={() => setIsOpen(false)} />
+                <MobileNavLink to={isAuthenticated ? "/search" : "/login"} text="Find Schemes" onClick={() => setIsOpen(false)} />
+                <MobileNavLink to={isAuthenticated ? "/chat" : "/login"} text="AI Assistant" onClick={() => setIsOpen(false)} />
                 {isAuthenticated && (
                   <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
                 )}

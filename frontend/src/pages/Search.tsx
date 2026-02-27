@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { searchSchemes, checkSchemeEligibility } from '../services/api';
 import type { Scheme, UserProfile } from '../services/api';
@@ -15,6 +15,15 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus search input on mount
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
   
   // Strict analysis state
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
@@ -173,6 +182,7 @@ const SearchPage = () => {
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-grow">
               <input
+                ref={searchInputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}

@@ -15,6 +15,10 @@ const Home = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login?message=Please login first to search for schemes');
+      return;
+    }
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query)}`);
     }
