@@ -78,7 +78,7 @@ export const ingestScheme = async (req, res) => {
           textChunks.push({
               content: doc.pageContent,
               vector: vector,
-              page_number: parseInt(pageNum) || 1 // store the page number
+              page: parseInt(pageNum) || 1 // store the page number
           })
         }
 
@@ -218,7 +218,7 @@ export const chatWithScheme = async (req, res) => {
       {
         $project: {
           "snippet": { "$arrayElemAt": ["$text_chunks.content", 0] },
-          "page": { "$arrayElemAt": ["$text_chunks.page_number", 0] }
+          "page": { "$arrayElemAt": ["$text_chunks.page", 0] }
         }
       }
     ]);
