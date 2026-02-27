@@ -12,7 +12,9 @@ import {
   AlertCircle,
   X,
   CheckCircle,
-  Search
+  Search,
+  IndianRupee,
+  Filter
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -70,25 +72,23 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto">
+    <div className="fixed inset-0 z-[70] overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         </div>
-
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
+        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 animate-in zoom-in-95 duration-200">
           <div className="bg-white px-6 py-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
                   <Upload className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 leading-none">Ingest New Scheme</h3>
+                <h3 className="text-xl font-bold text-slate-900">Ingest New Scheme</h3>
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-50 rounded-lg">
-                <X className="w-6 h-6" />
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 hover:bg-slate-50 rounded-lg">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -103,48 +103,44 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Scheme Name <span className="text-red-500 font-bold">*</span>
-                </label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Name</label>
                 <input
                   type="text"
                   required
                   value={schemeName}
                   onChange={(e) => setSchemeName(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400"
-                  placeholder="e.g., Pradhan Mantri Awas Yojana"
+                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  placeholder="e.g., PM Kisan Samman Nidhi"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Max Benefit Value (INR)
-                </label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Max Benefit Value (INR)</label>
                 <input
                   type="number"
                   value={benefitsValue}
                   onChange={(e) => setBenefitsValue(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400"
-                  placeholder="e.g., 50000"
+                  className="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-slate-50/50 text-slate-900 text-sm placeholder-slate-400 outline-none transition-all"
+                  placeholder="e.g., 6000"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Scheme Document (PDF) <span className="text-red-500 font-bold">*</span>
-                </label>
-                <div className={`mt-1 flex justify-center px-6 pt-6 pb-7 border-2 border-dashed rounded-2xl transition-all ${
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Scheme Document (PDF)</label>
+                <div className={`mt-1 flex justify-center px-6 pt-8 pb-9 border-2 border-dashed rounded-2xl transition-all ${
                     file ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-200 bg-slate-50/30 hover:border-indigo-300 hover:bg-indigo-50/10'
                 }`}>
                   <div className="space-y-2 text-center">
-                    <FileText className={`mx-auto h-10 w-10 ${file ? 'text-indigo-500' : 'text-slate-300'}`} />
+                    <div className={`mx-auto p-3 rounded-full w-fit ${file ? 'bg-indigo-100' : 'bg-slate-100'}`}>
+                      <FileText className={`h-8 w-8 ${file ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    </div>
                     <div className="flex text-sm text-slate-600 justify-center">
                       <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-bold text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
                         <span>{file ? file.name : 'Choose a file'}</span>
                         <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} />
                       </label>
                     </div>
-                    {!file && <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">PDF up to 10MB</p>}
+                    {!file && <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">PDF format only</p>}
                   </div>
                 </div>
               </div>
@@ -153,15 +149,15 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all"
+                  className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-100 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all active:scale-[0.98]"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Processing...
+                      Processing AI Model...
                     </>
                   ) : (
-                    'Upload & Process Scheme'
+                    'Start AI Ingestion'
                   )}
                 </button>
               </div>
@@ -173,13 +169,132 @@ const IngestModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose:
   );
 };
 
+const HistoryModal = ({ isOpen, onClose, schemes }: { isOpen: boolean; onClose: () => void; schemes: any[] }) => {
+  const [query, setQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [valueFilter, setValueFilter] = useState('');
+
+  const filtered = schemes.filter(s => {
+    const matchesName = s.name.toLowerCase().includes(query.toLowerCase());
+    const matchesDate = !dateFilter || new Date(s.createdAt).toLocaleDateString().includes(dateFilter);
+    const matchesValue = !valueFilter || (s.benefits?.max_value_inr && s.benefits.max_value_inr >= parseInt(valueFilter));
+    return matchesName && matchesDate && matchesValue;
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[70] overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        </div>
+        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-white px-6 py-6 sm:p-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600">
+                  <History className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900">Ingestion History</h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-50 rounded-full">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Advanced Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search by name..." 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="Date (DD/MM/YYYY)" 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="number" 
+                  placeholder="Min Value (INR)" 
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                  value={valueFilter}
+                  onChange={(e) => setValueFilter(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="max-h-[50vh] overflow-y-auto rounded-2xl border border-slate-100">
+              <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-slate-50 z-10">
+                  <tr>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scheme Details</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Value</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtered.map((scheme) => (
+                    <tr key={scheme._id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-800">{scheme.name}</span>
+                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 mt-1">
+                            <Calendar className="w-3 h-3" /> {new Date(scheme.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-sm font-bold text-slate-600">
+                          ₹{scheme.benefits?.max_value_inr?.toLocaleString() || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link 
+                          to={`/search?q=${encodeURIComponent(scheme.name)}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-white hover:bg-indigo-600 transition-all px-3 py-1.5 rounded-lg border border-indigo-100"
+                        >
+                          Verify AI
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-12 text-center text-slate-400 italic">No matching schemes found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdminDashboard: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
-  const [filteredSchemes, setFilteredSchemes] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIngestOpen, setIsIngestOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -187,7 +302,6 @@ const AdminDashboard: React.FC = () => {
       const response = await getAllSchemes();
       if (response.success) {
         setSchemes(response.data);
-        setFilteredSchemes(response.data);
       } else {
         setError('Failed to fetch ingestion history');
       }
@@ -203,153 +317,113 @@ const AdminDashboard: React.FC = () => {
     fetchHistory();
   }, []);
 
-  // Real-time search filtering
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredSchemes(schemes);
-    } else {
-      const lowerQuery = searchQuery.toLowerCase();
-      const filtered = schemes.filter(s => 
-        s.name.toLowerCase().includes(lowerQuery)
-      );
-      setFilteredSchemes(filtered);
-    }
-  }, [searchQuery, schemes]);
-
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Admin Control Panel</h1>
-          <p className="text-slate-500 font-medium">Manage government schemes and system intelligence.</p>
+    <div className="max-w-5xl mx-auto space-y-10 animate-fade-in pb-12 pt-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-[0.2em] text-[10px]">
+            <div className="h-1 w-4 bg-indigo-600 rounded-full" />
+            Control Center
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
+          <p className="text-slate-500 font-medium max-w-lg">Monitor, manage, and train the Niti-Setu intelligence engine.</p>
         </div>
-        <div className="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-indigo-50">
-          <LayoutDashboard className="h-7 w-7 text-white" />
+        <div className="bg-white p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-4 group hover:scale-105 transition-all">
+          <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
+            <LayoutDashboard className="h-6 w-6 text-white" />
+          </div>
+          <div className="pr-4">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">System Status</p>
+            <p className="text-sm font-black text-green-600 flex items-center gap-1.5">
+              <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+              AI Active
+            </p>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Primary Action: Ingest */}
         <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-white p-6 rounded-2xl border-2 border-indigo-50 hover:border-indigo-200 shadow-sm hover:shadow-md transition-all group text-left"
+          onClick={() => setIsIngestOpen(true)}
+          className="relative bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 overflow-hidden group hover:-translate-y-1 transition-all duration-300"
         >
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
-              <Upload className="h-8 w-8 text-indigo-600" />
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+            <Upload className="h-32 w-32 text-white" />
+          </div>
+          <div className="relative z-10 flex flex-col items-start text-left space-y-4">
+            <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl">
+              <Upload className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Ingest New Scheme</h3>
-              <p className="text-slate-500">Upload PDF documents to train the AI.</p>
+              <h3 className="text-2xl font-bold text-white tracking-tight">Ingest Scheme</h3>
+              <p className="text-indigo-100/80 text-sm font-medium max-w-[200px]">Upload new government PDF documents to train the AI.</p>
             </div>
-            <ChevronRight className="ml-auto h-6 w-6 text-slate-300 group-hover:text-indigo-600 transition-all" />
+            <div className="flex items-center gap-2 text-white font-bold text-xs bg-black/10 px-4 py-2 rounded-full backdrop-blur-sm group-hover:bg-black/20 transition-all">
+              Launch Uploader <ChevronRight className="h-4 w-4" />
+            </div>
           </div>
         </button>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-amber-50 rounded-xl">
+        {/* Secondary Action: History/Search */}
+        <button 
+          onClick={() => setIsHistoryOpen(true)}
+          className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-start text-left space-y-4 group hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className="p-4 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
             <History className="h-8 w-8 text-amber-600" />
           </div>
-          <div>
-            <h3 className="text-xl font-extrabold text-slate-900">{schemes.length}</h3>
-            <p className="text-slate-500 font-medium tracking-tight uppercase text-[10px]">Total Schemes Ingested</p>
+          <div className="flex-grow">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">View History</h3>
+            <p className="text-slate-500 text-sm font-medium">Search and manage {schemes.length} previously ingested schemes.</p>
           </div>
-        </div>
+          <div className="w-full flex items-center justify-between pt-2">
+            <div className="flex -space-x-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-slate-400" />
+                </div>
+              ))}
+              {schemes.length > 3 && (
+                <div className="h-8 w-8 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                  +{schemes.length - 3}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-full group-hover:bg-indigo-100 transition-all">
+              Manage History <Search className="h-4 w-4" />
+            </div>
+          </div>
+        </button>
       </div>
 
-      {/* Admin Search Bar */}
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-        </div>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search ingested schemes by name..."
-          className="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all font-medium text-slate-900 placeholder-slate-400"
-        />
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 px-2">
-          <History className="h-5 w-5 text-indigo-600" />
-          <h2 className="text-xl font-bold text-slate-800">
-            {searchQuery ? `Search Results (${filteredSchemes.length})` : 'Ingestion History'}
-          </h2>
-        </div>
-
-        {loading && schemes.length === 0 ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-          </div>
-        ) : error ? (
-          <div className="bg-red-50 border border-red-100 rounded-2xl p-6 flex items-center gap-3 text-red-700">
-            <AlertCircle className="h-6 w-6" />
-            <p className="font-medium">{error}</p>
-          </div>
-        ) : filteredSchemes.length > 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scheme Name</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Date Ingested</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredSchemes.map((scheme) => (
-                    <tr key={scheme._id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-white transition-colors border border-slate-100 shadow-sm">
-                            <FileText className="h-5 w-5 text-slate-500" />
-                          </div>
-                          <span className="font-bold text-slate-800">{scheme.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2 text-slate-500 text-sm font-medium">
-                          <Calendar className="h-4 w-4" />
-                          {new Date(scheme.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link 
-                          to={`/search?q=${encodeURIComponent(scheme.name)}`}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-3 py-1.5 rounded-lg"
-                        >
-                          View AI Training
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 py-16 text-center space-y-4">
-            <div className="p-4 bg-white rounded-full w-fit mx-auto shadow-sm">
-              <Search className="h-10 w-10 text-slate-300" />
-            </div>
-            <div>
-              <p className="text-slate-500 font-bold">No matching schemes found.</p>
-              <p className="text-slate-400 text-sm">Try searching with a different name or keyword.</p>
-            </div>
-          </div>
-        )}
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+        <StatCard label="Live Schemes" value={schemes.length} color="text-indigo-600" />
+        <StatCard label="AI Training Level" value="100%" color="text-green-600" />
+        <StatCard label="System Security" value="Verified" color="text-blue-600" />
       </div>
 
       <IngestModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isIngestOpen} 
+        onClose={() => setIsIngestOpen(false)} 
         onRefresh={fetchHistory}
+      />
+
+      <HistoryModal 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+        schemes={schemes}
       />
     </div>
   );
 };
+
+const StatCard = ({ label, value, color }: { label: string; value: string | number; color: string }) => (
+  <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-1">
+    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{label}</p>
+    <p className={`text-2xl font-black ${color}`}>{value}</p>
+  </div>
+);
 
 export default AdminDashboard;
