@@ -31,34 +31,21 @@ const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            <NavLink 
-              to={isAdmin ? "/admin/dashboard?history=true" : "/"} 
-              icon={<Search className="w-4 h-4"/>} 
-              text="Find Schemes" 
-              active={(!isAdmin && (isActive('/') || isActive('/search'))) || (isAdmin && location.search.includes('history=true'))} 
-              variant={isAdmin ? 'indigo' : 'blue'}
-            />
-            
-            <NavLink 
-              to={isAdmin ? "/admin/dashboard?chat=true" : "/chat"} 
-              icon={<MessageSquare className="w-4 h-4"/>} 
-              text="AI Assistant" 
-              active={isActive('/chat') || (isAdmin && location.search.includes('chat=true'))} 
-              variant={isAdmin ? 'indigo' : 'blue'}
-            />
-            
-            {isAuthenticated && !isAdmin && (
-              <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
-            )}
-
-            {isAdmin && (
-              <NavLink 
-                to="/admin/dashboard" 
-                icon={<ShieldCheck className="w-4 h-4"/>} 
-                text="Admin Panel" 
-                active={isActive('/admin/dashboard') && !location.search} 
-                variant="indigo"
-              />
+            {!isAdmin && (
+              <>
+                <NavLink to="/" icon={<Search className="w-4 h-4"/>} text="Find Schemes" active={isActive('/') || isActive('/search')} />
+                
+                <NavLink 
+                  to="/chat" 
+                  icon={<MessageSquare className="w-4 h-4"/>} 
+                  text="AI Assistant" 
+                  active={isActive('/chat')} 
+                />
+                
+                {isAuthenticated && (
+                  <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4"/>} text="Dashboard" active={isActive('/dashboard')} />
+                )}
+              </>
             )}
             
             <div className="h-6 w-px bg-slate-200 mx-2" />
@@ -113,12 +100,17 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-b border-gray-100 animate-in slide-in-from-top duration-200">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-b border-slate-50">
-            <MobileNavLink to={isAdmin ? "/admin/dashboard?history=true" : "/"} text="Find Schemes" onClick={() => setIsOpen(false)} />
-            <MobileNavLink to={isAdmin ? "/admin/dashboard?chat=true" : "/chat"} text="AI Assistant" onClick={() => setIsOpen(false)} />
-            {isAdmin ? (
-              <MobileNavLink to="/admin/dashboard" text="Admin Panel" onClick={() => setIsOpen(false)} />
-            ) : isAuthenticated && (
-              <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
+            {!isAdmin && (
+              <>
+                <MobileNavLink to="/" text="Find Schemes" onClick={() => setIsOpen(false)} />
+                <MobileNavLink to="/chat" text="AI Assistant" onClick={() => setIsOpen(false)} />
+                {isAuthenticated && (
+                  <MobileNavLink to="/dashboard" text="Dashboard" onClick={() => setIsOpen(false)} />
+                )}
+              </>
+            )}
+            {isAuthenticated && (
+              <MobileNavLink to="/profile" text="My Profile" onClick={() => setIsOpen(false)} />
             )}
           </div>
           <div className="px-4 py-4 space-y-2">
