@@ -5,6 +5,18 @@ import type { Scheme, UserProfile } from '../services/api';
 import { Filter, User, MapPin, XCircle, Info, Zap, Loader2, ChevronDown, ChevronUp, Search as SearchIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const states = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
+  "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+];
+
+const unionTerritories = [
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Delhi NCR", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+];
+
 const SearchPage = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -107,7 +119,7 @@ const SearchPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-1 sm:px-0">
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden mb-4 px-1">
         <button 
           onClick={() => setShowFilters(!showFilters)}
           className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-slate-700 shadow-sm"
@@ -121,7 +133,7 @@ const SearchPage = () => {
         
         {/* Filters Sidebar */}
         <div className={`lg:col-span-1 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:sticky lg:top-24">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:sticky lg:top-24 mx-1 lg:mx-0">
             <div className="flex items-center gap-2 mb-6 text-slate-800 font-semibold border-b border-slate-100 pb-4">
               <Filter className="w-5 h-5 text-primary-600" />
               <h2>Filters</h2>
@@ -129,13 +141,20 @@ const SearchPage = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">State</label>
-                <input 
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">State / UT</label>
+                <select 
                   className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm bg-white text-slate-900"
-                  placeholder="Enter State"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                />
+                >
+                  <option value="">All of India</option>
+                  <optgroup label="States">
+                    {states.map(s => <option key={s} value={s}>{s}</option>)}
+                  </optgroup>
+                  <optgroup label="Union Territories">
+                    {unionTerritories.map(ut => <option key={ut} value={ut}>{ut}</option>)}
+                  </optgroup>
+                </select>
               </div>
 
               <div>
@@ -178,7 +197,7 @@ const SearchPage = () => {
         </div>
 
         {/* Results Area */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-6 px-1 lg:px-0">
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-grow">
               <input
@@ -213,7 +232,7 @@ const SearchPage = () => {
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-6 pb-12">
             {!loading && results.length === 0 && query && !error && (
                <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-100 shadow-sm px-4">
                  No schemes found matching your criteria. Try adjusting filters or keywords.
@@ -224,8 +243,8 @@ const SearchPage = () => {
               <div key={scheme._id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all">
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
-                    <div className="flex-grow">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 leading-tight">{scheme.name}</h3>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 leading-tight break-words">{scheme.name}</h3>
                       <div className="flex flex-wrap gap-2">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-primary-100 text-primary-800">
                           {scheme.benefits?.type || 'Agricultural'}
