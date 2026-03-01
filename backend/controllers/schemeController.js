@@ -1,155 +1,134 @@
-import fs from 'fs';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
-import Scheme from '../models/Scheme.js';
-import { getEmbedding, splitTextIntoChunks ,extractSchemeDetails, generateAnswer, checkEligibility,checkEligibilityWithCitations, generateProfileQuery} from '../utils/aiOrchestrator.js';
-import { extractProfileFromText } from '../utils/aiOrchestrator.js';
-import Analytics from '../models/Analytics.js';
+import pdfParse from "pdf-parse/lib/pdf-parse.js";
+import {
+  aggregateSchemes,
+  deleteSchemesByName,
+  distinctSchemeNames,
+  findSchemeById,
+  findSchemesByName,
+  insertSchemes
+} from "../models/Scheme.js";
+import { aggregateAnalytics, countAnalyticsEvents, createAnalyticsEvent } from "../models/Analytics.js";
+import {
+  checkEligibility,
+  checkEligibilityWithCitations,
+  extractProfileFromText,
+  extractSchemeDetails,
+  generateAnswer,
+  generateProfileQuery,
+  getEmbedding,
+  splitTextIntoChunks
+} from "../utils/aiOrchestrator.js";
+import { badRequest, json, notFound, serverError } from "../lib/http.js";
 
-export const ingestScheme = async (req, res) => {
+const normalizeMongoId = (value) => {
+  if (!value) return value;
+  if (typeof value === "string") return value;
+  if (typeof value?.toString === "function") return value.toString();
+  return value;
+};
+
+export const ingestScheme = async ({ request }) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: 'Please upload a PDF file' });
+    const formData = await request.formData();
+    const pdf = formData.get("pdf");
+
+    if (!(pdf instanceof File)) {
+      return badRequest("Please upload a PDF file");
     }
 
-    const { schemeName, benefitsType, benefitsValue } = req.body;
+    const schemeName = String(formData.get("schemeName") || "").trim();
+    const benefitsType = String(formData.get("benefitsType") || "").trim();
+    const benefitsValue = Number(formData.get("benefitsValue") || 0);
 
-    // read pdf with page no.s
-    const dataBuffer = fs.readFileSync(req.file.path);
-    
-    //custom render function to inject page markers
-    const render_page = (pageData) => {
-      let render_options = {
-        normalizeWhitespace: true,
-        disabledCombineTextItems: false,
-      }
-
-      return pageData.getTextContent(render_options)
-      .then(function(textContent){
-        let lastY, text = '';
-        for(let item of textContent.items){
-          if(lastY == item.transform[5] || !lastY){
-            text += item.str;
-          }
-          else{
-            text += '\n' + item.str;
-          }
-          lastY = item.transform[5];
-        }
-        
-        // inject marker ---PageNo.----
-        return `---PAGE ${pageData.pageIndex + 1}---\n${text}\n`;
-      })
+    if (!schemeName) {
+      return badRequest("schemeName is required");
     }
 
-    let options = {
-      pagerender: render_page
+    const dataBuffer = Buffer.from(await pdf.arrayBuffer());
+    const data = await pdfParse(dataBuffer);
+    const fullText = data?.text || "";
+
+    if (!fullText.trim()) {
+      return badRequest("Uploaded PDF has no extractable text");
     }
 
-    const data = await pdfParse(dataBuffer , options);
-    const fullText = data.text;
-
-    console.log('Extracting MetaData using gemini');
-    // extract metadata with the first 4000 chars 
     const aiMetadata = await extractSchemeDetails(fullText.substring(0, 4000));
-    console.log('Extracted:', aiMetadata);
 
-    // process chunks with page numbers
-    console.log(`Processing text chunks...`);
+    const chunksToInsert = [];
+    const splitDocs = await splitTextIntoChunks(fullText);
 
-    // split by our custom page marker
-    const rawChunks = fullText.split('---PAGE ')
-    const chunksToInsert = []
+    for (const doc of splitDocs) {
+      if (!doc.pageContent || doc.pageContent.length < 50) continue;
+      const vector = await getEmbedding(doc.pageContent);
 
-    for(let i = 0 ; i < rawChunks.length ; i++){
-      const pageContent = rawChunks[i];
-      // format is "1---\nActual Content..."
-
-      const pageNum = pageContent.split('---')[0].trim();
-      const cleanContent = pageContent.split('---')[1];
-
-      if(cleanContent && cleanContent.length > 50){
-        // For better granular search , we should split large pages into smaller chunks
-        // using splitter utility logic
-
-        const splitDocs = await splitTextIntoChunks(cleanContent);
-
-        for(const doc of splitDocs){
-          const vector = await getEmbedding(doc.pageContent, "document");
-          chunksToInsert.push({
-            name: schemeName,
-            benefits: {
-              type: benefitsType || aiMetadata.benefits_type || 'Service',
-              max_value_inr: aiMetadata.max_value || benefitsValue || 0,
-              description: `Ingested from ${req.file.originalname}`,
-            },
-            filters: {
-              state: [aiMetadata.state || 'Pan-India'],
-              gender: [aiMetadata.gender || 'All'],
-              caste: [aiMetadata.caste || 'All'],
-            },  
-            original_pdf_url: req.file.path,
-            snippet: doc.pageContent,
-            vector: vector,
-            page_number: parseInt(pageNum) || 1
-          });
-        }
-
-      }
-    }
-    
-    await Scheme.deleteMany({ name: schemeName }); // remove old scheme with same name if exists
-    await Scheme.insertMany(chunksToInsert);  
-    fs.unlinkSync(req.file.path);
-
-    res.status(201).json({
-      success: true,
-      data: {
-        // scheme._id removed, because we inserted MANY chunks, not one scheme.
+      chunksToInsert.push({
         name: schemeName,
-        extracted_metadata: aiMetadata,
-        chunks_processed: chunksToInsert.length, // Fixed variable name
-        message: 'Scheme ingested successfully with flattened vectors generated.',
-      },
-    });
-  } catch (err) {
-    //if ingestion fails pdf is deleted to avoid memory leak
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+        benefits: {
+          type: benefitsType || aiMetadata.benefits_type || "Service",
+          max_value_inr: aiMetadata.max_value || benefitsValue || 0,
+          description: `Ingested from ${pdf.name}`
+        },
+        filters: {
+          state: [aiMetadata.state || "Pan-India"],
+          gender: [aiMetadata.gender || "All"],
+          caste: [aiMetadata.caste || "All"]
+        },
+        original_pdf_url: pdf.name,
+        snippet: doc.pageContent,
+        vector,
+        page_number: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
     }
-    console.log(`Error ingesting scheme:` , err);
-    res.status(500).json({ success: false, error: err.message });
+
+    await deleteSchemesByName(schemeName);
+    if (chunksToInsert.length > 0) {
+      await insertSchemes(chunksToInsert);
+    }
+
+    return json(
+      {
+        success: true,
+        data: {
+          name: schemeName,
+          extracted_metadata: aiMetadata,
+          chunks_processed: chunksToInsert.length,
+          message: "Scheme ingested successfully with flattened vectors generated."
+        }
+      },
+      201
+    );
+  } catch (error) {
+    return serverError(error.message || "Error ingesting scheme");
   }
 };
 
-// vector search
-export const searchSchemes = async (req, res) => {
+export const searchSchemes = async ({ body }) => {
   try {
-    const { query, userProfile } = req.body;
-    if (!query) return res.status(400).json({ success: false, error: 'Query parameter is required' });
+    const { query, userProfile } = body;
+    if (!query) return badRequest("Query parameter is required");
 
-    console.log(`[Search] Query: "${query}", Profile:`, userProfile);
-
-    const rawVector = await getEmbedding(query);
-    const queryVector = Array.from(rawVector);
+    const queryVector = Array.from(await getEmbedding(query));
 
     const andConditions = [];
     if (userProfile && Object.keys(userProfile).length > 0) {
       if (userProfile.state) {
-        andConditions.push({ 'filters.state': { $in: [userProfile.state, 'Pan-India', 'All India', 'All'] } });
+        andConditions.push({ "filters.state": { $in: [userProfile.state, "Pan-India", "All India", "All"] } });
       }
       if (userProfile.gender) {
-        andConditions.push({ 'filters.gender': { $in: [userProfile.gender, 'All', 'Both'] } });
+        andConditions.push({ "filters.gender": { $in: [userProfile.gender, "All", "Both"] } });
       }
       const category = userProfile.caste || userProfile.socialCategory;
       if (category) {
-        andConditions.push({ 'filters.caste': { $in: [category, 'General', 'All'] } });
+        andConditions.push({ "filters.caste": { $in: [category, "General", "All"] } });
       }
     }
 
     const vectorSearchStage = {
-      index: 'vector_index',
-      path: 'vector',
-      queryVector: queryVector,
+      index: "vector_index",
+      path: "vector",
+      queryVector,
       numCandidates: 50,
       limit: 5
     };
@@ -158,12 +137,11 @@ export const searchSchemes = async (req, res) => {
       vectorSearchStage.filter = { $and: andConditions };
     }
 
-    console.log(`[Search] Running Vector Search with filter:`, vectorSearchStage.filter || 'none');
-
-    const results = await Scheme.aggregate([
+    const results = await aggregateSchemes([
       { $vectorSearch: vectorSearchStage },
-      { $set: { searchScore: { $meta: 'vectorSearchScore' } } }, 
-      { $group: {
+      { $set: { searchScore: { $meta: "vectorSearchScore" } } },
+      {
+        $group: {
           _id: "$name",
           docId: { $first: "$_id" },
           name: { $first: "$name" },
@@ -171,37 +149,36 @@ export const searchSchemes = async (req, res) => {
           score: { $max: "$searchScore" },
           snippet: { $first: "$snippet" },
           page_number: { $first: "$page_number" }
-      }},
+        }
+      },
       { $sort: { score: -1 } }
     ]);
 
-    console.log(`[Search] Found ${results.length} results.`);
-
-    const enhancedResults = await Promise.all(results.map(async (scheme) => {
+    const enhancedResults = await Promise.all(
+      results.map(async (scheme) => {
+        const payload = { ...scheme, _id: normalizeMongoId(scheme.docId), docId: normalizeMongoId(scheme.docId) };
         if (userProfile && Object.keys(userProfile).length > 0) {
-            try {
-              const aiDecision = await checkEligibilityWithCitations(userProfile, scheme.snippet);
-              return { ...scheme, _id: scheme.docId, eligibility: aiDecision }; 
-            } catch (aiErr) {
-              console.error(`[Search AI Error]`, aiErr);
-              return { ...scheme, _id: scheme.docId };
-            }
+          try {
+            const aiDecision = await checkEligibilityWithCitations(userProfile, scheme.snippet);
+            return { ...payload, eligibility: aiDecision };
+          } catch {
+            return payload;
+          }
         }
-        return { ...scheme, _id: scheme.docId };
-    }));
+        return payload;
+      })
+    );
 
-    res.status(200).json({ success: true, count: enhancedResults.length, data: enhancedResults });
-  } catch (err) {
-    console.error(`[Search Error]`, err);
-    res.status(500).json({ success: false, error: err.message });
+    return json({ success: true, count: enhancedResults.length, data: enhancedResults });
+  } catch (error) {
+    return serverError(error.message || "Search failed");
   }
 };
 
-//GET all schemes
-export const getAllSchemes = async (req, res) => {
+export const getAllSchemes = async () => {
   try {
-    const schemes = await Scheme.aggregate([
-      { 
+    const schemes = await aggregateSchemes([
+      {
         $group: {
           _id: "$name",
           id: { $first: "$_id" },
@@ -213,24 +190,21 @@ export const getAllSchemes = async (req, res) => {
       },
       { $sort: { createdAt: -1 } }
     ]);
-    res.json({ success: true, data: schemes });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+
+    const normalized = schemes.map((item) => ({ ...item, id: normalizeMongoId(item.id) }));
+    return json({ success: true, data: normalized });
+  } catch (error) {
+    return serverError(error.message || "Failed to fetch schemes");
   }
 };
 
-// RAG
-export const chatWithScheme = async (req, res) => {
+export const chatWithScheme = async ({ body }) => {
   try {
-    const { query, userProfile } = req.body;
+    const { query, userProfile } = body;
+    if (!query) return badRequest("Query parameter is required");
 
-    if (!query) return res.status(400).json({success: false, error: 'Query parameter is required'});
-    
-    console.log(`[Chat] Query: "${query}", Profile:`, userProfile);
+    const queryVector = Array.from(await getEmbedding(query));
 
-    const rawVector = await getEmbedding(query);
-    const queryVector = Array.from(rawVector);
-    
     const andConditions = [];
     if (userProfile && Object.keys(userProfile).length > 0) {
       if (userProfile.state) {
@@ -241,14 +215,14 @@ export const chatWithScheme = async (req, res) => {
       }
       const category = userProfile.caste || userProfile.socialCategory;
       if (category) {
-        andConditions.push({ "filters.caste": { $in: [category, 'General', 'All'] } });
+        andConditions.push({ "filters.caste": { $in: [category, "General", "All"] } });
       }
     }
 
     const vectorSearchStage = {
-      index: 'vector_index',
-      path: 'vector',
-      queryVector: queryVector,
+      index: "vector_index",
+      path: "vector",
+      queryVector,
       numCandidates: 50,
       limit: 3
     };
@@ -257,109 +231,81 @@ export const chatWithScheme = async (req, res) => {
       vectorSearchStage.filter = { $and: andConditions };
     }
 
-    console.log(`[Chat] Running Vector Search with filter:`, vectorSearchStage.filter || 'none');
-
-    const searchResults = await Scheme.aggregate([
+    const searchResults = await aggregateSchemes([
       { $vectorSearch: vectorSearchStage },
-      { $project: { snippet: 1, page: "$page_number" } } 
+      { $project: { snippet: 1, page: "$page_number" } }
     ]);
-
-    console.log(`[Chat] Found ${searchResults.length} context chunks.`);
 
     if (searchResults.length === 0) {
       const casualAnswer = await generateAnswer(query, []);
-      return res.json({ success: true, answer: casualAnswer, sources: [] });
+      return json({ success: true, answer: casualAnswer, sources: [] });
     }
-    
-    const contextChunks = searchResults.map(doc => doc.snippet);
+
+    const contextChunks = searchResults.map((doc) => doc.snippet);
     const answer = await generateAnswer(query, contextChunks);
 
-    res.json({
+    return json({
       success: true,
-      answer: answer,
-      sources: searchResults.map(s => ({ id: s._id, page: s.page })) 
+      answer,
+      sources: searchResults.map((item) => ({ id: normalizeMongoId(item._id), page: item.page }))
     });
-
-  } catch (err) {
-    console.error(`[Chat Error]`, err);
-    res.status(500).json({ success: false, error: err.message });
+  } catch (error) {
+    return serverError(error.message || "Chat failed");
   }
-}
+};
 
-// check strict eligibility 
-export const checkSchemeEligibility = async( req , res) => {
+export const checkSchemeEligibility = async ({ body }) => {
   const startTime = Date.now();
-  try{
-    const {schemeId , userProfile } = req.body;
 
-    if(!schemeId || !userProfile){
-      return res.status(400).json({success: false , error: "Scheme ID and profile required"});
+  try {
+    const { schemeId, userProfile } = body;
+
+    if (!schemeId || !userProfile) {
+      return badRequest("Scheme ID and profile required");
     }
 
-    const singleChunk = await Scheme.findById(schemeId);
-    if(!singleChunk){
-      return res.status(404).json({success: false, error: "Scheme not found"})
+    const singleChunk = await findSchemeById(schemeId);
+    if (!singleChunk) {
+      return notFound("Scheme not found");
     }
 
-    // 2. Fetch ALL chunks that share the same Scheme Name
-    const allChunks = await Scheme.find({ name: singleChunk.name });
+    const allChunks = await findSchemesByName(singleChunk.name);
+    const fullRules = allChunks.map((chunk) => chunk.snippet).join("\n");
 
-    // 3. Combine their text (using 'snippet', not 'content')
-    const fullRules = allChunks.map(c => c.snippet).join("\n");
+    const analysis = await checkEligibility(fullRules, userProfile);
 
-    const analysis = await checkEligibility(fullRules , userProfile);
-
-    const endTime = Date.now()
-
-    await Analytics.create({ 
-      eventType: 'eligibility_check',
-      responseTimeMs: endTime - startTime
+    await createAnalyticsEvent({
+      eventType: "eligibility_check",
+      responseTimeMs: Date.now() - startTime
     });
 
-    res.json({
+    return json({
       success: true,
       scheme_name: singleChunk.name,
       result: analysis
     });
-        
-  }
-  catch(err){
-    res.status(500).json({success: false, error: err.message});
+  } catch (error) {
+    return serverError(error.message || "Eligibility check failed");
   }
 };
 
-// smart recommendations 
-export const getRecommendedSchemes = async( req , res) => {
-  try{
-    const {userProfile} = req.body;
-
-    if(!userProfile){
-      return res.status(400).json({ success: false, error: "User Profile is required" });
+export const getRecommendedSchemes = async ({ body }) => {
+  try {
+    const { userProfile } = body;
+    if (!userProfile) {
+      return badRequest("User Profile is required");
     }
 
-    console.log(`[Recommendations] Generating recommendations for profile:`, userProfile);
-
-    // generating search string for profile
     const searchQuery = await generateProfileQuery(userProfile);
-    console.log(`[Recommendations] Generated Search Query: "${searchQuery}"`);
+    const queryVector = Array.from(await getEmbedding(searchQuery));
 
-    const rawVector = await getEmbedding(searchQuery);
-    const queryVector = Array.from(rawVector);
-
-    // Dynamic filter building
     const andConditions = [];
-    
-    // State filter
     if (userProfile.state) {
       andConditions.push({ "filters.state": { $in: [userProfile.state, "Pan-India", "All India", "All"] } });
     }
-    
-    // Gender filter
     if (userProfile.gender) {
       andConditions.push({ "filters.gender": { $in: [userProfile.gender, "All", "Both"] } });
     }
-    
-    // Caste filter (handles both caste and socialCategory)
     const category = userProfile.caste || userProfile.socialCategory;
     if (category) {
       andConditions.push({ "filters.caste": { $in: [category, "General", "All"] } });
@@ -368,7 +314,7 @@ export const getRecommendedSchemes = async( req , res) => {
     const vectorSearchStage = {
       index: "vector_index",
       path: "vector",
-      queryVector: queryVector,
+      queryVector,
       numCandidates: 100,
       limit: 10
     };
@@ -377,100 +323,82 @@ export const getRecommendedSchemes = async( req , res) => {
       vectorSearchStage.filter = { $and: andConditions };
     }
 
-    const pipeline = [
+    const recommendations = await aggregateSchemes([
       { $vectorSearch: vectorSearchStage },
-      { $set: { searchScore: { $meta: 'vectorSearchScore' } } },
+      { $set: { searchScore: { $meta: "vectorSearchScore" } } },
       {
-          $group: {
-              _id: "$name",
-              docId: { $first: "$_id" },
-              name: { $first: "$name" },
-              benefits: { $first: "$benefits" },
-              score: { $max: "$searchScore" },
-              proof_text: { $first: "$snippet" },
-              page_number: { $first: "$page_number" }
-          }
+        $group: {
+          _id: "$name",
+          docId: { $first: "$_id" },
+          name: { $first: "$name" },
+          benefits: { $first: "$benefits" },
+          score: { $max: "$searchScore" },
+          proof_text: { $first: "$snippet" },
+          page_number: { $first: "$page_number" }
+        }
       },
       { $sort: { score: -1 } },
       { $limit: 5 }
-    ];
+    ]);
 
-    console.log(`[Recommendations] Running Vector Search Pipeline...`);
-    const recommendations = await Scheme.aggregate(pipeline);
-    console.log(`[Recommendations] Found ${recommendations.length} matches.`);
+    const normalized = recommendations.map((item) => ({ ...item, docId: normalizeMongoId(item.docId) }));
 
-    res.json({
+    return json({
       success: true,
       query_used: searchQuery,
-      count: recommendations.length,
-      data: recommendations
+      count: normalized.length,
+      data: normalized
     });
+  } catch (error) {
+    return serverError(error.message || "Recommendation failed");
   }
+};
 
-  catch(err){
-    console.error(`[Recommendations Error]`, err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-}
-
-// parse voice text into profile
-export const parseVoiceProfile = async(req , res) => {
-  try{
-    const { spokenText } = req.body;
-
-    if(!spokenText){
-      return res.status(400).json({success: false, error: "Spoken text is required" })
+export const parseVoiceProfile = async ({ body }) => {
+  try {
+    const { spokenText } = body;
+    if (!spokenText) {
+      return badRequest("Spoken text is required");
     }
-    
-    console.log(` Processing Voice Text: "${spokenText}"`);
 
-    // Ai converts english hindi to json profile
     const structuredProfile = await extractProfileFromText(spokenText);
 
-    res.status(200).json({
+    return json({
       success: true,
       message: "Profile extracted successfully",
       profile: structuredProfile
     });
-  }
-  catch(err){
-    res.status(500).json({ success: false, error: err.message });
+  } catch (error) {
+    return serverError(error.message || "Failed to parse voice profile");
   }
 };
 
-
-// Get impact metrics for dashboard
-export const getDashboardMetrics = async (req , res) => {
-  try{
-    const uniqueSchemes = await Scheme.distinct("name");
-    //count totalSchemes in system
+export const getDashboardMetrics = async () => {
+  try {
+    const uniqueSchemes = await distinctSchemeNames();
     const schemesAnalyzed = uniqueSchemes.length;
 
-    // checksPerformed count
-    const checksPerformed = await Analytics.countDocuments({eventType: 'eligibility_check' })
+    const checksPerformed = await countAnalyticsEvents("eligibility_check");
 
-    // calculating average response time
-    const timeData = await Analytics.aggregate([
-      {$match : { eventType: 'eligibility_check' }},
-      { $group: {_id: null , averageTime: { $avg: "$responseTimeMs" }}}
+    const timeData = await aggregateAnalytics([
+      { $match: { eventType: "eligibility_check" } },
+      { $group: { _id: null, averageTime: { $avg: "$responseTimeMs" } } }
     ]);
 
-    // format milliseconds to seconds
     let avgTimeSeconds = 0;
-    if(timeData.length > 0){
+    if (timeData.length > 0) {
       avgTimeSeconds = (timeData[0].averageTime / 1000).toFixed(2);
     }
 
-    res.status(200).json({
+    return json({
       success: true,
       data: {
-        schemes_analyzed : schemesAnalyzed,
+        schemes_analyzed: schemesAnalyzed,
         eligibility_checks_performed: checksPerformed,
         average_response_time_seconds: `${avgTimeSeconds}s`
       }
     });
-  }
-  catch(err){
-    res.status(500).json({success: false, error: err.message});
+  } catch (error) {
+    return serverError(error.message || "Failed to load dashboard metrics");
   }
 };
