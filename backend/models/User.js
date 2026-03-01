@@ -1,150 +1,141 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { ObjectId } from "mongodb";
+import { getCollection } from "../config/db.js";
 
 const allStates = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
-  "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
-  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+  "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
   "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
   "Delhi NCR", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-// Helper to capitalize first letter of each word
+const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+const phoneRegex = /^\d{10}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const nameRegex = /^[a-zA-Z\s]+$/;
+
 const capitalizeWords = (str) => {
-    if (!str) return str;
-    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  if (!str) return str;
+  return str
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
+    .join(" ");
 };
 
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please add a name'],
-        trim: true,
-        set: capitalizeWords,
-        match: [
-            /^[a-zA-Z\s]+$/,
-            'Name can only contain letters and spaces'
-        ]
-    },
+const validateProfile = (profile = {}) => {
+  if (!profile.state || !allStates.includes(profile.state)) {
+    throw new Error("Please select a valid Indian state or UT from the list");
+  }
 
-    email: {
-        type: String,
-        required: [true, 'Please add an email'],
-        unique: true,
-        lowercase: true,
-        trim: true,
-        match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please add a valid email with @ and . characters'
-        ]
-    },
+  if (!profile.age || Number(profile.age) < 18) {
+    throw new Error("Age must be at least 18 years");
+  }
 
-    phoneNumber: {
-        type: String,
-        required: [true, 'Please add a phone number'],
-        trim: true,
-        match: [
-            /^\d{10}$/,
-            'Phone number must be exactly 10 digits'
-        ]
-    },
+  if (profile.district && !nameRegex.test(profile.district)) {
+    throw new Error("District name can only contain letters and spaces");
+  }
 
-    password: {
-        type: String,
-        required: [true, 'Please add a password'],
-        trim: true,
-        minlength: [8, 'Password must be at least 8 characters long'],
-        match: [
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-        ],
-        select: false
-    },
-    role: {
-        type: String,
-        enum: ['user','admin'],
-        default: 'user',
-        trim: true
-    },
+  if (profile.cropType && !nameRegex.test(profile.cropType)) {
+    throw new Error("Crop name can only contain letters and spaces");
+  }
 
-    profile: {
-        state: { 
-            type: String,
-            required: [true, 'Please select a state'],
-            trim: true,
-            enum: {
-                values: allStates,
-                message: 'Please select a valid Indian state or UT from the list'
-            }
-        },
-        district: { 
-            type: String,
-            trim: true,
-            set: capitalizeWords,
-            match: [
-                /^[a-zA-Z\s]+$/,
-                'District name can only contain letters and spaces'
-            ]
-        },
-        landHolding: { 
-            type: Number,
-            min: [0, 'Land holding cannot be negative']
-        },
-        cropType: { 
-            type: String,
-            trim: true,
-            set: capitalizeWords,
-            match: [
-                /^[a-zA-Z\s]+$/,
-                'Crop name can only contain letters and spaces'
-            ]
-        },
-        socialCategory: { 
-            type: String, 
-            trim: true,
-            enum: {
-                values: ['General', 'OBC', 'SC', 'ST'],
-                message: 'Please select a valid social category'
-            }
-        },
-        gender: { 
-            type: String, 
-            trim: true,
-            enum: {
-                values: ['Male', 'Female', 'Other'],
-                message: 'Please select a valid gender'
-            }
-        },
-        age: { 
-            type: Number,
-            min: [18, 'Age must be at least 18 years'],
-            required: [true, 'Please provide your age']
-        }
-    },
-    createdAt: {
-        type: Date,
-        default : Date.now
-    }
-});
+  if (profile.socialCategory && !["General", "OBC", "SC", "ST"].includes(profile.socialCategory)) {
+    throw new Error("Please select a valid social category");
+  }
 
-UserSchema.pre('save', async function(next){
-    if(!this.isModified('password')){
-        next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password , salt)
-});
+  if (profile.gender && !["Male", "Female", "Other"].includes(profile.gender)) {
+    throw new Error("Please select a valid gender");
+  }
 
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword , this.password);
+  return {
+    state: profile.state,
+    district: profile.district ? capitalizeWords(profile.district.trim()) : undefined,
+    landHolding: profile.landHolding !== undefined ? Number(profile.landHolding) : undefined,
+    cropType: profile.cropType ? capitalizeWords(profile.cropType.trim()) : undefined,
+    socialCategory: profile.socialCategory,
+    gender: profile.gender,
+    age: Number(profile.age)
+  };
 };
 
-UserSchema.methods.getSignedJwtToken = function(){
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE
-    });
-}
+const users = () => getCollection("users");
 
-export default mongoose.model('User', UserSchema)
+export const normalizeUserInput = ({ name, email, phoneNumber }) => {
+  const normalizedName = name?.trim();
+  const normalizedEmail = email?.trim().toLowerCase();
+  const normalizedPhone = phoneNumber?.trim();
+
+  if (!normalizedName || !nameRegex.test(normalizedName)) {
+    throw new Error("Name can only contain letters and spaces");
+  }
+
+  if (!normalizedEmail || !emailRegex.test(normalizedEmail)) {
+    throw new Error("Please add a valid email with @ and . characters");
+  }
+
+  if (!normalizedPhone || !phoneRegex.test(normalizedPhone)) {
+    throw new Error("Phone number must be exactly 10 digits");
+  }
+
+  return {
+    name: capitalizeWords(normalizedName),
+    email: normalizedEmail,
+    phoneNumber: normalizedPhone
+  };
+};
+
+export const validatePassword = (password) => {
+  if (!passwordRegex.test(password || "")) {
+    throw new Error("Password must contain uppercase, lowercase, number, and special character");
+  }
+};
+
+export const hashPassword = async (password) => Bun.password.hash(password, "bcrypt");
+export const verifyPassword = async (password, hash) => Bun.password.verify(password, hash, "bcrypt");
+
+export const createUser = async ({ name, email, phoneNumber, password, role = "user", profile }) => {
+  const result = await users().insertOne({
+    name,
+    email,
+    phoneNumber,
+    password,
+    role,
+    profile: validateProfile(profile),
+    createdAt: new Date()
+  });
+
+  return findUserById(result.insertedId.toString(), true);
+};
+
+export const findUserByEmail = async (email, includePassword = false) => {
+  const user = await users().findOne({ email });
+  if (!user) return null;
+  if (!includePassword) delete user.password;
+  return user;
+};
+
+export const findUserById = async (id, includePassword = false) => {
+  if (!ObjectId.isValid(id)) return null;
+  const user = await users().findOne({ _id: new ObjectId(id) });
+  if (!user) return null;
+  if (!includePassword) delete user.password;
+  return user;
+};
+
+export const setUserRole = async (id, role) => {
+  if (!ObjectId.isValid(id)) return null;
+  await users().updateOne({ _id: new ObjectId(id) }, { $set: { role } });
+  return findUserById(id);
+};
+
+export const publicUser = (user) => ({
+  id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  phoneNumber: user.phoneNumber,
+  role: user.role,
+  profile: user.profile
+});
