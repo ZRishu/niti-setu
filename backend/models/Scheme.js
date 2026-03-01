@@ -1,42 +1,18 @@
-import mongoose from 'mongoose';
+import { ObjectId } from "mongodb";
+import { getCollection } from "../config/db.js";
 
-const SchemeSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Please add new Schema name'],
-      trim: true,
-    },
+const schemes = () => getCollection("schemes");
 
-    // for government policies and rules and shemes
-    benefits: {
-      type: {
-        type: String,
-        enum: ['Financial', 'Subsidy', 'Insurance', 'Service'],
-        default: 'Financial',
-      },
-      max_value_inr: {
-        type: Number,
-        default: 0,
-      },
-      description: String,
-    },
-    // to enlist the docs
-    required_documents: [String],
-    filters: {
-      state: [String],
-      gender: [String],
-      caste: [String],
-    },
+export const deleteSchemesByName = async (name) => schemes().deleteMany({ name });
+export const insertSchemes = async (items) => schemes().insertMany(items);
 
-    // for RAG and Embeddings
-    original_pdf_url: String,
-    snippet: String,
-    vector: [Number],
-    page_number: Number,
+export const aggregateSchemes = async (pipeline) => schemes().aggregate(pipeline).toArray();
 
-  },
-  { timestamps: true }
-);
+export const findSchemeById = async (id) => {
+  if (!ObjectId.isValid(id)) return null;
+  return schemes().findOne({ _id: new ObjectId(id) });
+};
 
-export default mongoose.model('Scheme', SchemeSchema);
+export const findSchemesByName = async (name) => schemes().find({ name }).toArray();
+
+export const distinctSchemeNames = async () => schemes().distinct("name");
