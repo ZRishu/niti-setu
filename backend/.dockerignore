@@ -2,8 +2,7 @@ node_modules
 .env
 .dockerignore
 Containerfile
-bun.lock
 npm-debug.log
 README.md
-.ENV.EXAMPLE
+.ENV_EXAMPLE
 .gitignore
